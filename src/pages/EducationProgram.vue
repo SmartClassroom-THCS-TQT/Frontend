@@ -30,10 +30,10 @@
     </div>
           
     <div class="col-md-12" v-if="bigLineChart.activeIndex === 0">
-      <time-table> </time-table>
+      <teacher-division> </teacher-division>
     </div>
     <div class="col-md-12" v-if="bigLineChart.activeIndex === 1">
-      <teacher-division> </teacher-division>
+      <time-table> </time-table>
     </div>
     <div class="col-md-12" v-if="bigLineChart.activeIndex === 2">
       <curriculum ></curriculum>

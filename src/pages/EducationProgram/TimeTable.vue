@@ -4,33 +4,34 @@
       <card>
         <template slot="header">
           <div class="row">
-            <div class="col-md-5">
-              <h3>Thời khóa biểu {{ roomSelected ? roomSelected.name : "" }} {{ semesterSelected ? " - "+semesterSelected.name : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
+            <div class="col-md-3">
+              <!-- <h3>Thời khóa biểu {{ roomSelected ? roomSelected.name : "" }} {{ semesterSelected ? " - "+semesterSelected.name : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3> -->
+               <h3>Thời khóa biểu </h3>
             </div>
-            <div class="col-md-7">
+            <div class="col-md-9">
               <div class="row">
-                <div class="col-md-3 pr-md-1 text-center">
+                <div class="col-md-2 pr-md-1 text-center">
                   <base-input label="Học kỳ">
                     <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
-                      <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
+                      <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
                     </select>
                   </base-input>
                 </div>
-                <div class="col-md-3 pl-md-1 text-center">
+                <div class="col-md-5 pl-md-1 text-center">
                   <base-input label="Lớp">
                     <select class="btn btn-simple btn-sm btn-success" v-model="roomSelected">
                     <option class="text-info" v-for="(room, index) in rooms" :key="index" :value="room" >{{ room.name }}</option>
                     </select>
                   </base-input>
                 </div>
-                <div class="col-md-3 pr-md-1 text-center">
+                <div class="col-md-2 pr-md-1 text-center" v-if="roomSelected && semesterSelected">
                   <base-input label="Tuần">
                     <select class="btn btn-simple btn-sm btn-success" v-model="weekSelected" @change="takeWeekData">
                       <option class="text-info" v-for="week in weeks" :key="week" :value="week" >{{ week }}</option>
                     </select>
                   </base-input>
                 </div>
-                <div class="col-md-3 pl-md-1 text-center">
+                <div class="col-md-2 pl-md-1 text-center">
                   <base-button 
                     class="btn btn-sm "
                     @click="getTimeTable"
@@ -490,7 +491,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/adminpanel/semesters/", {
+          .get(API_URL + "/managements/semesters/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -522,7 +523,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/rooms/roomset/", {
+          .get(API_URL + "/managements/rooms/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -548,9 +549,9 @@ export default {
 
         else {
           const arr = ["hiện tại"];
-          let number_of_week = this.semesterSelected.number_of_weeks
+          let number_of_week = this.semesterSelected.weeks_count
 
-          const semesterStartDate = new Date(this.semesterSelected.day_begin); // Ngày bắt đầu của học kỳ
+          const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
           const currentDate = new Date();
 
           // Tính toán tuần hiện tại

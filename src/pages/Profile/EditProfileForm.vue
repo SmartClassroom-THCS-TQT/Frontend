@@ -84,9 +84,9 @@
           <div class="col-md-4 pr-md-1">
             <base-input label="Giới tính">
               <select v-model="model.sex" class="form-control">
-                <option>Nam</option>
-                <option>Nữ</option>
-                <option>Khác</option>
+                <option class="text-info">Nam</option>
+                <option class="text-info">Nữ</option>
+                <option class="text-info">Khác</option>
               </select>
             </base-input>
           </div>

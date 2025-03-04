@@ -30,7 +30,7 @@
         </template>
 
         <!-- ĐỔI MẬT KHẨU -->
-        <div v-if="bigLineChart.activeIndex === 0">
+        <div v-if="bigLineChart.activeIndex === 1">
           <h4 class="title text-success">
             Reset mật khẩu
           </h4>
@@ -51,7 +51,7 @@
         </div>
 
         <!-- ĐĂNG KÝ TÀI KHOẢN -->
-        <div v-if="bigLineChart.activeIndex === 1">
+        <div v-if="bigLineChart.activeIndex === 0">
           <h4 class="title text-success">Đăng ký tài khoản</h4>
 
           <!-- Choose registration type -->
@@ -370,17 +370,17 @@ export default {
       } catch (error) {
         console.error("Error registering accounts:", error);
 
-        const errorMessage =
-          error.response?.data ||
-          "Có lỗi xảy ra. Vui lòng thử lại sau";
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: errorMessage,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
+        // const errorMessage =
+        //   error.response?.data ||
+        //   "Có lỗi xảy ra. Vui lòng thử lại sau";
+        // this.$notify({
+        //   type: "danger",
+        //   icon: "tim-icons icon-bell-55",
+        //   message: errorMessage,
+        //   timeout: 3000,
+        //   verticalAlign: "top",
+        //   horizontalAlign: "right",
+        // });
 
         return false; // Xử lý thất bại
       }

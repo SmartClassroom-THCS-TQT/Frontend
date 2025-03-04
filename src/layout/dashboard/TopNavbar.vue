@@ -54,7 +54,7 @@
               >
                 <i class="tim-icons icon-zoom-split"></i>
               </button> -->
-              <base-button @click="studyToggle" type="success" simple class="text-center ml-2" v-if="userData.is_teacher">
+              <base-button @click="studyToggle" type="success" simple class="text-center ml-2" v-if="userData.role == 'teacher'">
                <i class="tim-icons icon-atom"></i> Dạy học
               </base-button>
               
@@ -210,7 +210,7 @@ export default {
       return `${year}-${month}-${day}`;
     },
     async studyToggle(){
-      if(!this.userData.is_teacher){
+      if(!this.userData.role == "teacher"){
         this.$notify({
           type: 'warning',
           icon: 'tim-icons icon-bell-55',

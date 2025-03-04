@@ -424,7 +424,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/rooms/roomset/", {
+          .get(API_URL + "/managements/rooms/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",

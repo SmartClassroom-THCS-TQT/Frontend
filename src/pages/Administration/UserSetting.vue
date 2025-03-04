@@ -38,7 +38,7 @@
           >
             <card class="text-center" style="width: 10rem;">
               <h4 class="card-title text-info">{{ room.name }}</h4>
-              <p class="card-text">Sĩ số: {{ room.students.length }}</p>
+              <!-- <p class="card-text">Sĩ số: {{ room.students.length }}</p> -->
               <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
                 <i class="tim-icons icon-single-02"></i>
               </base-button>
@@ -178,7 +178,7 @@
                       <td>{{ row.day_of_birth }}</td>
                       <td>{{ row.active_status }}</td>
                       <td class="td-actions text-right">
-                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user)">
+                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
                           <i class="tim-icons icon-single-02"></i>
                         </base-button>
                         <base-button type="success" size="sm" icon @click="toggleUpdate(row.user)">
@@ -205,13 +205,13 @@
               <th class="text-right">Actions</th>
             </template>
             <template slot-scope="{ row }">
-              <td>{{ row.user }}</td>
+              <td>{{ row.user_id }}</td>
               <td>{{ row.full_name }}</td>
               <td>{{ row.sex }}</td>
               <td>{{ row.day_of_birth }}</td>
               <td>{{ row.subjects }}</td>
               <td class="td-actions text-right">
-                <base-button type="info" size="sm" icon @click="toggleDetail(row.user)">
+                <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
                   <i class="tim-icons icon-single-02"></i>
                 </base-button>
                 <base-button type="success" size="sm" icon @click="toggleUpdate(row.user)">
@@ -226,7 +226,7 @@
         </div>
 
         <!-- PHỤ HUYNH -->
-        <div v-if="bigLineChart.activeIndex === 2">
+        <!-- <div v-if="bigLineChart.activeIndex === 2">
           <base-table :data="parentData" :columns="parent_columns">
             <template slot="columns">
               <th>ID</th>
@@ -251,10 +251,10 @@
               </td>
             </template>
           </base-table>
-        </div>
+        </div> -->
 
         <!-- ADMIN -->
-        <div v-if="bigLineChart.activeIndex === 3">
+        <div v-if="bigLineChart.activeIndex === 2">
           <base-table :data="adminData" :columns="admin_columns">
             <template slot="columns">
               <th>ID</th>
@@ -264,7 +264,7 @@
               <th>Chức vụ</th>
             </template>
             <template slot-scope="{ row }">
-              <td>{{ row.user }}</td>
+              <td>{{ row.user_id }}</td>
               <td>{{ row.full_name }}</td>
               <td>{{ row.sex }}</td>
               <td>{{ row.day_of_birth }}</td>
@@ -383,7 +383,7 @@
 
             <!-- Phụ huynh -->
 
-            <card type="secondary"
+            <!-- <card type="secondary"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
@@ -413,7 +413,7 @@
                         </div>
                     </fieldset>  
                 </template>
-            </card>
+            </card> -->
         </modal>
 
         <!-- Update Modal -->
@@ -758,7 +758,7 @@ export default {
     addHomeRoomTeacher(){
       const token = localStorage.getItem("access_token");
       axios
-        .patch(API_URL+`/rooms/roomset/${this.roomCreateName}/`, { "homeroom_teacher": this.homeRoomTeacherId }, {
+        .patch(API_URL+`/rooms/${this.roomCreateName}/`, { "homeroom_teacher": this.homeRoomTeacherId }, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -790,7 +790,7 @@ export default {
     createRoomName(){
       const token = localStorage.getItem("access_token");
       axios
-        .post(API_URL+`/rooms/roomset/`, { "name": this.roomCreateName }, {
+        .post(API_URL+`/rooms/`, { "name": this.roomCreateName }, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -827,7 +827,7 @@ export default {
       }
       console.log(data)
       axios
-        .post(API_URL+`/rooms/roomset/addstudents/`, data, {
+        .post(API_URL+`/rooms/addstudents/`, data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -883,7 +883,7 @@ export default {
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/rooms/roomset/${this.modals.roomDetail.name}/students/`, {
+        .get(API_URL+`/rooms/${this.modals.roomDetail.name}/students/`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -909,7 +909,7 @@ export default {
         const token = localStorage.getItem("access_token");
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
         if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
-          apiUrl = API_URL + "/rooms/roomset/" + this.modals.idRemove + "/";
+          apiUrl = API_URL + "/rooms/" + this.modals.idRemove + "/";
         }else if (this.bigLineChart.activeIndex === 0) {
           apiUrl = API_URL + "/accounts/students/" + this.modals.idRemove + "/";
         } else if (this.bigLineChart.activeIndex === 1) {
@@ -1024,15 +1024,20 @@ export default {
     },
     toggleDetail(index){
         this.modals.detailModal = true;
+        let data = null;
 
-        let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
-        if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/accounts/students/" + index + "/";
-        } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/accounts/teachers/" + index + "/";
-        } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/accounts/parents/" + index + "/";
-        }
+        let apiUrl = API_URL + `/accounts/users/detail/${index}/`; // API URL sẽ thay đổi dựa trên loại đăng ký
+        // if (this.bigLineChart.activeIndex === 0) {
+        //   apiUrl = API_URL + "/accounts/students/" + index + "/";
+        // } else if (this.bigLineChart.activeIndex === 1) {
+        //   data = {
+        //       role: "teacher",
+        //       fields: ["user_id", "full_name", "sex", "phone_number", "day_of_birth", "nation", "expertise_levels","contract_type", "subjects"]
+
+        //   };
+        // } else if (this.bigLineChart.activeIndex === 2) {
+        //   apiUrl = API_URL + "/accounts/parents/" + index + "/";
+        // }
 
 
 
@@ -1161,21 +1166,27 @@ export default {
 
       this.bigLineChart.chartData = chartData;
       this.bigLineChart.activeIndex = index;
-    
+
+      let data = null;
       let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
       if (this.bigLineChart.activeIndex === 0) {
-        apiUrl = API_URL + "/rooms/roomset/";
+        apiUrl = API_URL + "/managements/rooms/";
       } else if (this.bigLineChart.activeIndex === 1) {
-        apiUrl = API_URL + "/accounts/teachers/";
+        apiUrl = API_URL + "/accounts/get_users_detail/";
+        data = {
+              role: "teacher",
+              fields: ["user_id", "full_name", "sex", "day_of_birth", "subjects"]
+        };
       } else if (this.bigLineChart.activeIndex === 2) {
-        apiUrl = API_URL + "/accounts/parents/";
+        apiUrl = API_URL + "/accounts/get_users_detail/";
       } else if (this.bigLineChart.activeIndex === 3) {
-        apiUrl = API_URL + "/accounts/admins/";
+        apiUrl = API_URL + "/accounts/get_users_detail/";
       }
 
       //Get data
       const token = localStorage.getItem("access_token");
-      axios
+      if(this.bigLineChart.activeIndex === 0){
+        axios
         .get(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
@@ -1184,7 +1195,32 @@ export default {
         })
         .then((response) => {
           if(this.bigLineChart.activeIndex === 0) this.roomData = response.data
-          else if(this.bigLineChart.activeIndex === 1) this.teacherData = response.data
+          
+        })
+        .catch((error) => {
+          console.error("Error get user data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+      }
+      else {
+        axios
+        .post(apiUrl ,data,  {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+
+          if(this.bigLineChart.activeIndex === 1) this.teacherData = response.data.data
           else if(this.bigLineChart.activeIndex === 2) this.parentData = response.data
           else if(this.bigLineChart.activeIndex === 3) this.adminData = response.data
           
@@ -1201,6 +1237,8 @@ export default {
                 horizontalAlign: "right",
               });
         });
+      }
+      
     },
     resetPassword() {
       const token = localStorage.getItem("access_token");
