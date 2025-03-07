@@ -54,7 +54,7 @@ img {
   position: relative;
   height: 100vh;
   display: grid;
-  align-items: center;
+  align-items: center; /* Centers vertically */
 }
 .login__img {
   position: absolute;
