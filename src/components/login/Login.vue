@@ -1,26 +1,9 @@
 <template>
-  <!-- <div class="login-container">
-    <div class="login-box">
-      <h2>Login</h2>
-      <form @submit.prevent="login">
-        <div class="input-group">
-          <label for="username">Username</label>
-          <input id="username" v-model="username" type="text" placeholder="Enter your username" required />
-        </div>
-        <div class="input-group">
-          <label for="password">Password</label>
-          <input id="password" v-model="password" type="password" placeholder="Enter your password" required />
-        </div>
-        <button type="submit" class="login-btn">Login</button>
-      </form>
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-    </div>
-  </div> -->
   <div class="login">
-         <img src="../../assets/img/bg_2.jpg" alt="login image" class="login__img">
+         <img src="../../assets/img/Login_bg_3.png" alt="login image" class="login__img">
          <form action="" class="login__form" @submit.prevent="login">
             <div class="d-flex align-items-center justify-content-center mb-4 login__logo">
-              <img src="../../assets/img/Class4.0.png" class="">
+              <img src="../../assets/img/Class4.0_5.png" class="">
             </div>
             <!-- <h1 class="login__title">Login</h1> -->
 
@@ -228,7 +211,7 @@ export default {
 input:-webkit-autofill,
   input:-webkit-autofill:focus {
     border: 1px solid transparent !important;
-    -webkit-text-fill-color: #ffffff !important;
+    -webkit-text-fill-color: #3e413c !important;
     -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
     transition: background-color 5000s ease-in-out 0s !important;
   }
