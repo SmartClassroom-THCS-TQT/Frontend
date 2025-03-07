@@ -7,9 +7,13 @@
       <div class="block block-three"></div>
       <div class="block block-four"></div>
       <a href="#">
-        <img class="avatar" src="img/anime6.png" alt="..." />
-        <h5 class="title">{{ user.fullName }}</h5>
+        <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
+        <img class="avatar" :src="user.image ? `http://127.0.0.1:8000${user.image}` : defaultImage" 
+          alt="Ảnh đại diện" 
+          @click="updateAvatar"/>
+        
       </a>
+      <h5 class="title">{{ user.fullName }}</h5>
       <p class="description">
         {{ user.title }}
       </p>
@@ -26,10 +30,28 @@
         <i class="fab fa-google-plus"></i>
       </base-button>
     </div>
+
+    <!-- Input file ẩn -->
+     <input 
+      ref="fileInput" 
+      type="file" 
+      accept="image/*" 
+      style="display: none;" 
+      @change="handleFileChange" 
+    />
   </card>
 </template>
 <script>
+import axios from "../../services/axios";
+let BASE_URL = ""
+let API_URL = ""
 export default {
+  data() {
+    return {
+      defaultImage: require('@/assets/img/icon_sm2.jpg'),
+      BASE_URL: this.$t("dashboard.baseURL")
+    }
+  },
   props: {
     user: {
       type: Object,
@@ -37,6 +59,56 @@ export default {
         return {};
       },
     },
+  },
+  computed: {
+    getApiUrl() {
+      BASE_URL =  this.$t("dashboard.baseURL");
+      API_URL = this.$t("dashboard.apiURL");
+    },
+  },
+  methods: {
+    // Mở cửa sổ chọn tệp
+    updateAvatar() {
+      this.$refs.fileInput.click(); // Kích hoạt input file
+    },
+    // Xử lý file ảnh sau khi chọn
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Gửi API để cập nhật ảnh đại diện
+        this.updateUserProfile(formData);
+      }
+    },
+    async updateUserProfile(formData) {
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.put( API_URL + '/accounts/users/update/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-check-2',
+            message: "Cập nhật ảnh đại diện thành công",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        
+        // Reload lại trang để đảm bảo dữ liệu mới được hiển thị
+        window.location.reload();
+      } catch (error) {
+        console.error('Lỗi khi cập nhật ảnh đại diện:', error);
+        alert('Có lỗi xảy ra khi cập nhật ảnh đại diện!');
+      }
+    }
+
   },
 };
 </script>

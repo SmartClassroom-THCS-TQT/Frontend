@@ -50,7 +50,7 @@
                         <h4 class="text-success">Chi tiết phân công giáo viên lớp {{roomSelected.name}}</h4>
                         <base-input label="Học kỳ">
                           <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getRoomDivision">
-                            <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester.name">{{ semester.name }}</option>
+                            <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester.code">{{ semester.code }}</option>
                           </select>
                         </base-input>
                     </div>
@@ -365,9 +365,12 @@ export default {
     },
       getTeacherData(){
         const token = localStorage.getItem("access_token");
-
+        let data = {
+          role: "teacher",
+          fields: ["user_id", "full_name"]
+        };
         axios
-          .get(API_URL + "/accounts/teachers/", {
+          .post(API_URL + "/accounts/get_users_detail/", data, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -393,7 +396,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/adminpanel/semesters/", {
+          .get(API_URL + "/managements/semesters/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -449,7 +452,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/adminpanel/assignments/", {
+          .get(API_URL + "/managements/teacher-assignments/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",

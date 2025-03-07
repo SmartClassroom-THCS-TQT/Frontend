@@ -158,7 +158,7 @@
                 <template>
                     <div class="text-muted text-center mb-3">
                         <h4 class="text-success">Chi tiết lớp học {{modals.roomDetail.name}}</h4>
-                        <p class="text-info">Giáo viên chủ nhiệm : {{modals.roomDetail.homeroom_teacher}}</p>
+                        <p class="text-info">Giáo viên chủ nhiệm : {{modals.roomDetail.manager}}</p>
                     </div>
                 </template>
                 <template>
@@ -172,7 +172,7 @@
                       <th class="text-right">Actions</th>
                     </template>
                     <template slot-scope="{ row }">
-                      <td>{{ row.user }}</td>
+                      <td>{{ row.user_id }}</td>
                       <td>{{ row.full_name }}</td>
                       <td>{{ row.sex }}</td>
                       <td>{{ row.day_of_birth }}</td>
@@ -181,10 +181,10 @@
                         <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
                           <i class="tim-icons icon-single-02"></i>
                         </base-button>
-                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user)">
+                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
                           <i class="tim-icons icon-settings"></i>
                         </base-button>
-                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user)">
+                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
                           <i class="tim-icons icon-simple-remove"></i>
                         </base-button>
                       </td>
@@ -214,10 +214,10 @@
                 <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
                   <i class="tim-icons icon-single-02"></i>
                 </base-button>
-                <base-button type="success" size="sm" icon @click="toggleUpdate(row.user)">
+                <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
                   <i class="tim-icons icon-settings"></i>
                 </base-button>
-                <base-button type="danger" size="sm" icon @click="toggleRemove(row.user)">
+                <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
                   <i class="tim-icons icon-simple-remove"></i>
                 </base-button>
               </td>
@@ -278,14 +278,20 @@
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
                <!-- Học sinh -->
-            <card type="secondary"
+            <card type="user"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
                         <h4 class="text-success">Thông tin học sinh</h4>
                     </div>
+                    <div class="author">
+                          <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
+                          <img class="avatar" :src="modals.studentDetail.image ? `http://127.0.0.1:8000${modals.studentDetail.image}` : defaultImage" 
+                            alt="Ảnh đại diện" 
+                            />
+                    </div> 
                 </template>
                 <template v-if="modals.studentDetail">
                     <fieldset disabled>
@@ -293,7 +299,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.studentDetail.user"></base-input>
+                                        <base-input label="ID" v-model="modals.studentDetail.user_id"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.studentDetail.full_name"></base-input>
@@ -315,11 +321,11 @@
                                         <base-input label="Trạng thái" v-model="modals.studentDetail.active_status"></base-input>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-md-12 pr-md-1">
                                         <base-input label="Phụ huynh" v-model="modals.studentDetail.parent"></base-input>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </fieldset>  
@@ -328,14 +334,20 @@
 
             <!-- Giáo viên -->
 
-            <card type="secondary"
+            <card type="user"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
                         <h4 class="text-success">Thông tin giáo viên</h4>
                     </div>
+                    <div class="author">
+                          <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
+                          <img class="avatar" :src="modals.teacherDetail.image ? `http://127.0.0.1:8000${modals.teacherDetail.image}` : defaultImage" 
+                            alt="Ảnh đại diện" 
+                            />
+                    </div> 
                 </template>
                 <template v-if="modals.teacherDetail">
                     <fieldset disabled>
@@ -343,7 +355,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.teacherDetail.user"></base-input>
+                                        <base-input label="ID" v-model="modals.teacherDetail.user_id"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.teacherDetail.full_name"></base-input>
@@ -351,7 +363,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.subjects"></base-input>
+                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.teacher.subjects"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Giới tính" v-model="modals.teacherDetail.sex"></base-input>
@@ -367,12 +379,15 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Học vấn" v-model="modals.teacherDetail.expertise_levels"></base-input>
+                                        <base-input label="Học vấn" v-model="modals.teacherDetail.teacher.expertise_levels"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Số điện thoại" v-model="modals.teacherDetail.phone_number"></base-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.contract_types"></base-input>
+                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.teacher.contract_types"></base-input>
                                     </div>
                                 </div>
                             </div>
@@ -421,21 +436,28 @@
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
             <!-- Học sinh -->
-            <card type="secondary"
+            <card type="user" 
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
                         <h4 class="text-success">Cập nhật học sinh</h4>
                     </div>
+          
+                      <div class="author">
+                          <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
+                          <img class="avatar" :src="modals.studentDetail.image ? `http://127.0.0.1:8000${modals.studentDetail.image}` : defaultImage" 
+                            alt="Ảnh đại diện" 
+                            />
+                      </div>          
                 </template>
                 <template v-if="modals.studentDetail">
                         <div class="row">
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.studentDetail.user"></base-input>
+                                        <base-input disabled label="ID" v-model="modals.studentDetail.user_id"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.studentDetail.full_name"></base-input>
@@ -446,7 +468,13 @@
                                         <base-input disabled label="Lớp" v-model="modals.roomDetail.name"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
-                                        <base-input label="Giới tính" v-model="modals.studentDetail.sex"></base-input>
+                                        <base-input label="Giới tính" >
+                                          <select v-model="modals.studentDetail.sex" class="form-control">
+                                            <option class="text-info">Nam</option>
+                                            <option class="text-info">Nữ</option>
+                                            <option class="text-info">Khác</option>
+                                          </select>
+                                        </base-input>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -469,14 +497,21 @@
             </card>
 
             <!-- Giáo viên -->
-            <card type="secondary"
+            <card type="user"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
                         <h4 class="text-success">Cập nhật giáo viên</h4>
                     </div>
+
+                    <div class="author">
+                          <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
+                          <img class="avatar" :src="modals.teacherDetail.image ? `http://127.0.0.1:8000${modals.teacherDetail.image}` : defaultImage" 
+                            alt="Ảnh đại diện" 
+                            />
+                    </div> 
                 </template>
                 <template v-if="modals.teacherDetail">
                     <fieldset>
@@ -484,7 +519,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.teacherDetail.user"></base-input>
+                                        <base-input disabled label="ID" v-model="modals.teacherDetail.user_id"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.teacherDetail.full_name"></base-input>
@@ -492,15 +527,22 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.subjects"></base-input>
+                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.teacher.subjects"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
-                                        <base-input label="Giới tính" v-model="modals.teacherDetail.sex"></base-input>
+                                       
+                                        <base-input label="Giới tính" >
+                                          <select v-model="modals.teacherDetail.sex" class="form-control">
+                                            <option class="text-info">Nam</option>
+                                            <option class="text-info">Nữ</option>
+                                            <option class="text-info">Khác</option>
+                                          </select>
+                                        </base-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Ngày sinh" v-model="modals.teacherDetail.day_of_birth"></base-input>
+                                        <base-input type="date" label="Ngày sinh" v-model="modals.teacherDetail.day_of_birth"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Dân tộc" v-model="modals.teacherDetail.nation"></base-input>
@@ -508,12 +550,15 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Học vấn" v-model="modals.teacherDetail.expertise_levels"></base-input>
+                                        <base-input label="Học vấn" v-model="modals.teacherDetail.teacher.expertise_levels"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Số điện thoại" v-model="modals.teacherDetail.phone_number"></base-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.contract_types"></base-input>
+                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.teacher.contract_types"></base-input>
                                     </div>
                                 </div>
                                 <base-button @click="updateObject" type="secondary" fill>Xác nhận</base-button>
@@ -539,7 +584,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.parentDetail.user"></base-input>
+                                        <base-input label="ID" v-model="modals.parentDetail.user_id"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.parentDetail.full_name"></base-input>
@@ -626,6 +671,7 @@ export default {
     return {
     perPage: 3,
     currentPage: 1,
+    defaultImage: require('@/assets/img/icon_sm2.jpg'),
     modals: {
         roomDetailModal: false,
         roomCreateModal: false,
@@ -729,7 +775,7 @@ export default {
       // Lưu vào các biến cần thiết
       this.roomCreateName = roomName;
       this.homeRoomTeacherId = teacherId;
-      this.allCreateStudent = this.collection.map(item => item.user);
+      this.allCreateStudent = this.collection.map(item => item.user_id);
     
       console.log(this.allCreateStudent); // Kiểm tra kết quả
       this.createRoom()
@@ -883,7 +929,7 @@ export default {
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/rooms/${this.modals.roomDetail.name}/students/`, {
+        .get(API_URL+`/managements/${this.modals.roomDetail.code}/students/`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -911,11 +957,11 @@ export default {
         if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
           apiUrl = API_URL + "/rooms/" + this.modals.idRemove + "/";
         }else if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/accounts/students/" + this.modals.idRemove + "/";
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/accounts/teachers/" + this.modals.idRemove + "/";
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/accounts/parents/" + this.modals.idRemove + "/";
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         }
 
         axios
@@ -953,7 +999,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                message: "Người dùng không tồn tại. Vui lòng thử lại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -963,39 +1009,54 @@ export default {
     updateObject(){
 
         let dataUser = null;
-
+        let formData = new FormData();
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
         if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/accounts/students/" + this.modals.studentDetail.user + "/";
+          apiUrl = API_URL+ `/accounts/users/${this.modals.studentDetail.user_id}/update/`;
           dataUser = this.modals.studentDetail
+          // formData.append('full_name', this.modals.studentDetail.full_name);
+          // formData.append('sex', this.modals.studentDetail.sex);
+          // formData.append('day_of_birth', this.modals.studentDetail.day_of_birth);
+          // formData.append('active_status', this.modals.studentDetail.active_status);
         } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/accounts/teachers/" + this.modals.teacherDetail.user + "/";
-          dataUser = this.modals.teacherDetail
+          apiUrl = API_URL+ `/accounts/users/${this.modals.teacherDetail.user_id}/update/`;
+          dataUser = {
+              email: this.modals.teacherDetail.email,
+              phone_number: this.modals.teacherDetail.phone_number,
+              full_name: this.modals.teacherDetail.full_name,
+              sex: this.modals.teacherDetail.sex,
+              day_of_birth: this.modals.teacherDetail.day_of_birth,
+              nation: this.modals.teacherDetail.nation,
+              active_status: this.modals.teacherDetail.active_status,
+              contract_types: this.modals.teacherDetail.teacher.contract_types,
+              expertise_levels: this.modals.teacherDetail.teacher.expertise_levels,
+              subjects: this.modals.teacherDetail.teacher.subjects
+              // subjects: "Toán, Lý"
+          }
         } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/accounts/parents/" + this.modals.parentDetail.user + "/";
+          apiUrl = API_URL+ `/accounts/users/${this.modals.teacherDetail.user_id}/update/`;
           dataUser = this.modals.parentDetail
         }
 
+        console.log(dataUser)
         const token = localStorage.getItem("access_token");
         axios
-        .patch(apiUrl, dataUser, {
+        .put(apiUrl, dataUser, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
+            'Content-Type': 'multipart/form-data',
           },
         })
         .then((response) => {
           let message = "";
-
-          this.modals.studentDetail = response.data
           if (this.bigLineChart.activeIndex === 0) {
-          this.modals.studentDetail = response.data
+          
           message = "Cập nhật thông tin học sinh thành công"
         } else if (this.bigLineChart.activeIndex === 1) {
-          this.modals.teacherDetail = response.data
+          
            message = "Cập nhật thông tin giáo viên thành công"
         } else if (this.bigLineChart.activeIndex === 2) {
-          this.modals.parentDetail = response.data
+          
            message = "Cập nhật thông tin phụ huynh thành công"
         }
         this.$notify({
@@ -1067,7 +1128,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                message: "Người dùng không tồn tại. Vui lòng thử lại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1077,14 +1138,14 @@ export default {
     toggleUpdate(index){
         this.modals.updateModal = true;
 
-        let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
-        if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/accounts/students/" + index + "/";
-        } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/accounts/teachers/" + index + "/";
-        } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/accounts/parents/" + index + "/";
-        }
+        let apiUrl = API_URL + `/accounts/users/detail/${index}/`; // API URL sẽ thay đổi dựa trên loại đăng ký
+        // if (this.bigLineChart.activeIndex === 0) {
+        //   apiUrl = API_URL + "/accounts/students/" + index + "/";
+        // } else if (this.bigLineChart.activeIndex === 1) {
+        //   apiUrl = API_URL + "/accounts/teachers/" + index + "/";
+        // } else if (this.bigLineChart.activeIndex === 2) {
+        //   apiUrl = API_URL + "/accounts/parents/" + index + "/";
+        // }
 
         const token = localStorage.getItem("access_token");
         axios
@@ -1179,9 +1240,11 @@ export default {
         };
       } else if (this.bigLineChart.activeIndex === 2) {
         apiUrl = API_URL + "/accounts/get_users_detail/";
-      } else if (this.bigLineChart.activeIndex === 3) {
-        apiUrl = API_URL + "/accounts/get_users_detail/";
-      }
+        data = {
+              role: "admin",
+              fields: ["user_id", "full_name", "sex", "day_of_birth", "description"]
+        };
+      } 
 
       //Get data
       const token = localStorage.getItem("access_token");
@@ -1194,7 +1257,7 @@ export default {
           },
         })
         .then((response) => {
-          if(this.bigLineChart.activeIndex === 0) this.roomData = response.data
+          this.roomData = response.data
           
         })
         .catch((error) => {
@@ -1203,7 +1266,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                message: "Người dùng không tồn tại. Vui lòng thử lại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1231,7 +1294,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                message: "Người dùng không tồn tại. Vui lòng thử lại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1283,7 +1346,7 @@ export default {
               this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: "Người dụng không tồn tại. Vui lòng thử lại",
+                message: "Người dùng không tồn tại. Vui lòng thử lại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",

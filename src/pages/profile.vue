@@ -47,6 +47,7 @@ export default {
         fullName: "Mike Andrew",
         title: "Ceo/Co-Founder",
         description: `Do not be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...`,
+        image: null,
       },
       
     };
@@ -89,6 +90,7 @@ export default {
 
         //fetch data to user
         this.user.fullName = this.userData.full_name
+        this.user.image =  this.userData.image ? this.userData.image : null
         if(this.userData.role == "admin") {
           this.user.title = "ADMIN"
           this.model.role = "admins"
