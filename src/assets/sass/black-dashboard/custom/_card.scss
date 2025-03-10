@@ -1,6 +1,9 @@
 .card {
-  background: $card-black-background;
-  border: 0;
+  background-color: hsla(197, 27%, 40%, 0.25);
+  border: 2px solid var(--white-color);
+  border-radius: 1rem;
+  backdrop-filter: blur(30px);
+  // border: 0;
   position: relative;
   width: 100%;
   margin-bottom: 30px;

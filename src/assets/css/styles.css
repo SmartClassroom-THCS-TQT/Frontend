@@ -64,7 +64,8 @@ img {
   object-position: center;
 }
 .login__form {
-  position: relative;
+  position:absolute;
+  left: 200px;
   width: 300px;
   background-color: hsla(196, 60%, 66%, 0.25);
   border: 2px solid var(--white-color);
