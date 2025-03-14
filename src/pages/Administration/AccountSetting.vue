@@ -12,7 +12,7 @@
               <label
                 v-for="(option, index) in accountSettingOption"
                 :key="option"
-                class="btn btn-sm btn-success btn-simple"
+                class="btn btn-sm btn-neutral btn-simple"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -31,7 +31,7 @@
 
         <!-- ĐỔI MẬT KHẨU -->
         <div v-if="bigLineChart.activeIndex === 1">
-          <h4 class="title text-success">
+          <h4 class="title text-dark">
             Reset mật khẩu
           </h4>
           <div class="row">
@@ -52,7 +52,7 @@
 
         <!-- ĐĂNG KÝ TÀI KHOẢN -->
         <div v-if="bigLineChart.activeIndex === 0">
-          <h4 class="title text-success">Đăng ký tài khoản</h4>
+          <h4 class="title text-dark">Đăng ký tài khoản</h4>
 
           <!-- Choose registration type -->
           <div class="row">

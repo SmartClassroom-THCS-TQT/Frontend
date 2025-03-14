@@ -36,7 +36,7 @@ textarea {
   h5,
   h6,
   p {
-    color: $opacity-8;
+    color: #3E413C;
   }
 }
 h1,
@@ -50,11 +50,11 @@ h6 {
 }
 
 a {
-  color: $primary-states;
+  color:aqua;
   font-weight: $font-weight-light;
   &:hover,
   &:focus {
-    color: $primary;
+    color:aquamarine;
   }
 }
 h1,
@@ -195,4 +195,7 @@ hr {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   margin-top: $spacer;
   margin-bottom: $spacer;
+}
+.section-name{
+  color:#3E413C;
 }

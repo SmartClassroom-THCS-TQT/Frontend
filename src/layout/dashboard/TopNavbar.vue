@@ -54,7 +54,7 @@
               >
                 <i class="tim-icons icon-zoom-split"></i>
               </button> -->
-              <base-button @click="studyToggle" type="success" simple class="text-center ml-2" v-if="userData.role == 'teacher'" style="color: #3e413c;">
+              <base-button @click="studyToggle" type="simple" simple class="text-center ml-2" v-if="userData.role == 'teacher'" >
                <i class="tim-icons icon-atom"></i> Dạy học
               </base-button>
               
@@ -77,7 +77,7 @@
                 <div class="photo mr-3">
                   <img src="img/anime3.png" />
                 </div>
-                <span v-if="userData" :userData="userData" class="mr-5" style="color: #3e413c;">{{ userData.full_name }}</span>
+                <span v-if="userData" :userData="userData" class="mr-5" style="color: black;">{{ userData.full_name }}</span>
                 <span class="caret d-none d-lg-block d-xl-block" style="color: #3e413c;"> </span>
                 <p v-if="userData" :userData="userData" class="d-lg-none">{{ userData.full_name }}</p>
               </a>

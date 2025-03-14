@@ -5,7 +5,7 @@
             <img src="../../assets/img/Login_bg_3.png" alt="login image" class="login__img">
             <form action="" class="login__form" @submit.prevent="login">
                 <div class="d-flex align-items-center justify-content-center mb-4 login__logo">
-                  <img src="../../assets/img/Class4.0_5.png" class="">
+                  <img src="../../assets/img/Class4.0.png" class="">
                 </div>
                 <!-- <h1 class="login__title">Login</h1> -->
 

@@ -4,7 +4,7 @@
       <!-- Hiển thị quản lý lớp học nếu là giáo viên chủ nhiệm -->
       <div class="row ml-2">
         <div class="col-md-6">
-          <h3 class="font-weight-bold">Quản lý lớp học</h3>
+          <h3 class="font-weight-bold section-name">Quản lý lớp học</h3>
         </div>
         <div class="col-md-6">
           <div
@@ -44,8 +44,8 @@
 
     <!-- Hiển thị thông báo nếu không phải là giáo viên chủ nhiệm -->
     <div v-else class="col-12 text-center">
-      <p>Đây là trang dành cho giáo viên chủ nhiệm.</p>
-      <p>
+      <p style="color:black">Đây là trang dành cho giáo viên chủ nhiệm.</p>
+      <p style="color:black">
         Các giáo viên chủ nhiệm hiện tại:
         <span v-for="teacher in homeroomTeachers" :key="teacher.id">{{ teacher }} | </span>
       </p>
