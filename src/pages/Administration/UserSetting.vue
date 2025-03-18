@@ -11,7 +11,7 @@
               <label
                 v-for="(option, index) in userSettingOption"
                 :key="option"
-                class="btn btn-sm btn-success btn-simple"
+                class="btn btn-sm btn-neutral btn-simple"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -37,7 +37,7 @@
             class="card-item"
           >
             <card class="text-center" style="width: 10rem;">
-              <h4 class="card-title text-info">{{ room.name }}</h4>
+              <h4 class="card-title text-dark">{{ room.name }}</h4>
               <!-- <p class="card-text">Sĩ số: {{ room.students.length }}</p> -->
               <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
                 <i class="tim-icons icon-single-02"></i>
@@ -68,7 +68,7 @@
                   class="border-0 mb-0">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm lớp học</h4>
+                        <h4 class="text-dark">Thêm lớp học</h4>
                     </div>
                 </template>
                 <template>
@@ -192,7 +192,7 @@
                   class="border-0 mb-0" v-if="modals.roomDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Chi tiết lớp học {{modals.roomDetail.name}}</h4>
+                        <h4 class="text-dark">Chi tiết lớp học {{modals.roomDetail.name}}</h4>
                         <p class="text-info">Giáo viên chủ nhiệm : {{modals.roomDetail.manager}}</p>
                     </div>
                 </template>
@@ -357,7 +357,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin học sinh</h4>
+                        <h4 class="text-dark">Thông tin học sinh</h4>
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
@@ -413,7 +413,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin giáo viên</h4>
+                        <h4 class="text-dark">Thông tin giáo viên</h4>
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
@@ -477,7 +477,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin phụ huynh</h4>
+                        <h4 class="text-dark">Thông tin phụ huynh</h4>
                     </div>
                 </template>
                 <template v-if="modals.parentDetail">
@@ -515,7 +515,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật học sinh</h4>
+                        <h4 class="text-dark">Cập nhật học sinh</h4>
                     </div>
           
                       <div class="author">
@@ -576,7 +576,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật giáo viên</h4>
+                        <h4 class="text-dark">Cập nhật giáo viên</h4>
                     </div>
 
                     <div class="author">
@@ -648,7 +648,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật phụ huynh</h4>
+                        <h4 class="text-dark">Cập nhật phụ huynh</h4>
                     </div>
                 </template>
                 <template v-if="modals.parentDetail">

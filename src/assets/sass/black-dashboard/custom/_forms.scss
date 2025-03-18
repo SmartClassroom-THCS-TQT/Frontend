@@ -8,7 +8,7 @@
   @include transition-input-focus-color();
 
   &:focus {
-    border-color: $primary;
+    border-color:rgb(0, 219, 230);
     background-color: $input-bg;
     @include box-shadow(none);
 

@@ -2,7 +2,7 @@
   <div class="row">
      <div class="row ml-2">
       <div class="col-md-6">
-        <h3 class="font-weight-bold">Quản lý đào tạo</h3>
+        <h3 class="font-weight-bold section-name">Quản lý đào tạo</h3>
       </div>
       <div class="col-md-6">
         <div
@@ -12,7 +12,7 @@
               <label
                 v-for="(option, index) in adminstrationOption"
                 :key="option"
-                class="btn btn-sm btn-success btn-simple"
+                class="btn btn-sm btn-neutral btn-simple"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >

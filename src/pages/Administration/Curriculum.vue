@@ -11,7 +11,7 @@
               <label
                 v-for="(option, index) in curriculumOption"
                 :key="option"
-                class="btn btn-sm btn-success btn-simple"
+                class="btn btn-sm btn-neutral btn-simple"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -318,7 +318,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm học kỳ</h4>
+                        <h4 class="text-dark">Thêm học kỳ</h4>
                     </div>
                 </template>
                 <template>
@@ -351,7 +351,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm tiết học</h4>
+                        <h4 class="text-dark">Thêm tiết học</h4>
                     </div>
                 </template>
                 <template>
@@ -386,7 +386,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm môn học</h4>
+                        <h4 class="text-dark">Thêm môn học</h4>
                     </div>
                 </template>
                 <template>
@@ -425,7 +425,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật học kỳ</h4>
+                        <h4 class="text-dark">Cập nhật học kỳ</h4>
                     </div>
                 </template>
                 <template v-if="modals.semesterDetail">
@@ -458,7 +458,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật tiết học</h4>
+                        <h4 class="text-dark">Cập nhật tiết học</h4>
                     </div>
                 </template>
                 <template v-if="modals.timeslotDetail">
@@ -491,7 +491,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật môn học</h4>
+                        <h4 class="text-dark">Cập nhật môn học</h4>
                     </div>
                 </template>
                 <template v-if="modals.subjectDetail">
@@ -541,7 +541,7 @@
                   class="border-0 mb-0">
                 <template>
                     <div class="text-muted mb-3">
-                        <h4 class="text-success text-">Quản lý chỗ ngồi</h4>
+                        <h4 class="text-dark text-">Quản lý chỗ ngồi</h4>
                     </div>
                 </template>
                 <template>

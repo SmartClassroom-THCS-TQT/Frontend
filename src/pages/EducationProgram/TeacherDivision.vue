@@ -34,7 +34,7 @@
             class="card-item"
           >
             <card class="text-center" style="width: 10rem;">
-              <h4 class="card-title text-info">{{ room.name }}</h4>
+              <h4 class="card-title text-dark">{{ room.name }}</h4>
               <base-button type="info" size="sm" icon @click="toggleDivisionDetail(room)">
                 <i class="tim-icons icon-settings-gear-63"></i>
               </base-button>
@@ -47,7 +47,7 @@
                   class="border-0 mb-0" v-if="this.roomSelected">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Chi tiết phân công giáo viên lớp {{roomSelected.name}}</h4>
+                        <h4 class="text-dark">Chi tiết phân công giáo viên lớp {{roomSelected.name}}</h4>
                         <base-input label="Học kỳ">
                           <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getRoomDivision">
                             <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester.code">{{ semester.code }}</option>
@@ -91,7 +91,7 @@
                   
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm phân công giáo viên môn {{this.teacherDivisionDetail.subject}} lớp {{this.roomSelected.name}}</h4>
+                        <h4 class="text-dark">Thêm phân công giáo viên môn {{this.teacherDivisionDetail.subject}} lớp {{this.roomSelected.name}}</h4>
                     </div>
                 </template>
                 <template>
@@ -124,7 +124,7 @@
                   
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật phân công giáo viên môn {{this.teacherDivisionDetail.subject}} lớp {{this.roomSelected.name}}</h4>
+                        <h4 class="text-dark">Cập nhật phân công giáo viên môn {{this.teacherDivisionDetail.subject}} lớp {{this.roomSelected.name}}</h4>
                     </div>
                 </template>
                 <template>
@@ -161,7 +161,7 @@
                   class="border-0 mb-0">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin giáo viên</h4>
+                        <h4 class="text-dark">Thông tin giáo viên</h4>
                     </div>
                 </template>
                 <template v-if="teacherDetail">

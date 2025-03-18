@@ -21,7 +21,7 @@
             <span class="navbar-toggler-bar bar3"></span>
           </button>
         </div>
-        <a class="navbar-brand" style="color: white" href="#pablo">{{ routeName }}</a>
+        <a class="navbar-brand" style="color: #3e413c; font-weight: bold;" href="#pablo">{{ routeName }}</a>
       </div>
       
 
@@ -54,7 +54,7 @@
               >
                 <i class="tim-icons icon-zoom-split"></i>
               </button> -->
-              <base-button @click="studyToggle" type="success" simple class="text-center ml-2" v-if="userData.role == 'teacher'">
+              <base-button @click="studyToggle" type="simple" simple class="text-center ml-2" v-if="userData.role == 'teacher'" >
                <i class="tim-icons icon-atom"></i> Dạy học
               </base-button>
               
@@ -77,8 +77,8 @@
                 <div class="photo mr-3">
                   <img src="img/anime3.png" />
                 </div>
-                <span v-if="userData" :userData="userData" class="mr-5">{{ userData.full_name }}</span>
-                <span class="caret d-none d-lg-block d-xl-block"> </span>
+                <span v-if="userData" :userData="userData" class="mr-5" style="color: black;">{{ userData.full_name }}</span>
+                <span class="caret d-none d-lg-block d-xl-block" style="color: #3e413c;"> </span>
                 <p v-if="userData" :userData="userData" class="d-lg-none">{{ userData.full_name }}</p>
               </a>
               <li class="nav-link">
