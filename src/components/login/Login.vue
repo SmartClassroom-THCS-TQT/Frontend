@@ -76,7 +76,7 @@ export default {
       this.isLoading = true;  // Bắt đầu hiển thị loading
 
       try {
-        const response = await axios.post(API_URL + '/accounts/login/', {
+        const response = await axios.post(API_URL + '/users/login/', {
           username: this.username,
           password: this.password
         });
@@ -93,6 +93,8 @@ export default {
         }
         await new Promise((resolve) => setTimeout(resolve, 500));
 
+        localStorage.setItem('user_id', this.username);
+        localStorage.setItem('user_role',  response.data.role);
         localStorage.setItem('access_token', response.data.access_token);
         localStorage.setItem('refresh_token', response.data.refresh_token);
 

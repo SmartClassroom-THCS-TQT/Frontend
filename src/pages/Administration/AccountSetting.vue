@@ -109,8 +109,8 @@
                           </xlsx-read>
             </section> -->
           </div>
-          <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Xác nhận</base-button> 
-
+          <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Xác nhận</base-button>  
+          
           <div v-if="inProgress">
             <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
           </div>
@@ -305,11 +305,12 @@ export default {
 
     async processAccount(account) {
       try {
-        let apiUrl = API_URL + "/accounts/users/register/";
+        let apiUrl = API_URL + "/users/register/";
         let data = {};
         if (this.registrationType === "student") {
           data = {
             user_id: account[2],
+            username: account[2],
             role: this.registrationType,
             full_name: account[3],
             sex: account[5],
@@ -320,6 +321,7 @@ export default {
         } else if (this.registrationType === "teacher") {
           data = {
             user_id: account[1],
+            username: account[1],
             phone_number: account[7],
             role: this.registrationType,
             full_name: account[2],
@@ -334,6 +336,7 @@ export default {
         } else if (this.registrationType === "admin") {
           data = {
               user_id: account[1],
+              username: account[1],
               phone_number: account[7],
               role: this.registrationType,
               full_name: account[2],

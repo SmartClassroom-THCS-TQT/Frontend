@@ -43,37 +43,275 @@
         </div> -->
 
         <div v-if="bigLineChart.activeIndex === 0">
-          <base-table :data="semesterData" :columns="semester_columns">
-            <template slot="columns">
-              <th>Học kỳ</th>
-              <th>Ngày bắt đầu</th>
-              <th>Số tuần học</th>
-              <th class="text-right">Actions</th>
-            </template>
-            <template slot-scope="{ row }">
-              <td>{{ row.code }}</td>
-              <td>{{ row.start_date }}</td>
-              <td>{{ row.weeks_count }}</td>
-              <td class="td-actions text-right">
-                <base-button type="success" size="sm" icon @click="toggleUpdate(row.code)">
-                  <i class="tim-icons icon-settings"></i>
+          
+          <div class="row" v-if="semesterDetailStatus">
+            
+
+            <!-- Card hiển thị học kỳ -->
+            <div
+              v-for="semester in semesterData"
+              :key="semester.code"
+              class="col-lg-3 col-md-4 col-sm-6 mb-4"
+              @click="toggleSemesterDetail(semester.code)"
+            >
+              <div class="card semester-card shadow border-0 h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">{{ semester.code }}</h5>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="tim-icons icon-calendar-60 text-muted mr-2"></i>
+                    <span>Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="tim-icons icon-watch-time text-muted mr-2"></i>
+                    <span>Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
+                  </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                  <base-button
+                    type="success"
+                    size="sm"
+                    icon
+                    @click.stop="toggleUpdate(semester.code)"
+                  >
+                    <i class="tim-icons icon-settings"></i>
+                  </base-button>
+                  <base-button
+                    type="danger"
+                    size="sm"
+                    icon
+                    @click.stop="toggleRemove(semester.code)"
+                  >
+                    <i class="tim-icons icon-simple-remove"></i>
+                  </base-button>
+                </div>
+              </div>
+
+              
+            </div>
+
+            <!-- Card Thêm học kỳ -->
+            <div class="add-semester-button">
+              <button class="btn-add" @click="toggleCreate()">
+                <i class="fa fa-plus-circle"></i> Thêm học kỳ
+              </button>
+            </div>
+          </div>
+
+          <!-- Card hiển thị lớp trong học kỳ -->
+           <div class="row" v-if="selectedSemester && roomDetailStatus">
+            <div class="semester-header">
+              <h1 class="semester-title">{{ selectedSemester }}</h1>
+              <base-button type="info" size="sm" icon @click="toggleSwitchSemester()">
+                  <i class="tim-icons icon-refresh-01"></i>
                 </base-button>
-                <base-button type="danger" size="sm" icon @click="toggleRemove(row.code)">
+            </div>
+
+            <div v-for="(room, index) in roomData" :key="index" class="card-item" @click="toggleRoomOptionDetail(room)">
+              <card class="text-center" style="width: 10rem;">
+                <h4 class="card-title text-info">{{ room.name }}</h4>
+                <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
+                  <i class="tim-icons icon-single-02"></i>
+                </base-button>
+                <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.code)">
                   <i class="tim-icons icon-simple-remove"></i>
                 </base-button>
-              </td>
-            </template>
-          </base-table>
-          <base-button type="default" size="sm" icon @click="toggleCreate()">
-                  <i class="tim-icons icon-simple-add"></i>
-          </base-button>
+              </card>
+            </div>
+
+            <div class="add-semester-button">
+              <button class="btn-add" @click="toggleRemoveCreate()">
+                <i class="fa fa-plus-circle"></i> Thêm lớp học
+              </button>
+            </div>
+          </div>
+
+
+          <div v-if="selectedRoomOption" class="semester-detail">
+            <!-- Nút quay lại -->
+            <button class="back-button" @click="closeSemesterDetail">
+              Quay lại
+            </button>
+
+            <!-- Tiêu đề học kỳ -->
+            <h1 class="semester-title">{{  selectedSemester  }} - {{ selectedRoomOption.name}}</h1>
+
+            <!-- Nhóm các nút chức năng -->
+            <div class="button-group">
+              <div
+                class="action-card action-card-blue"
+                :class="{ active: selectedAction === 'viewClassList' }"
+                @click="viewClassList()"
+              >
+                <i class="fas fa-users icon"></i>
+                <p class="action-text">Xem danh sách lớp</p>
+              </div>
+              <div
+                class="action-card action-card-green"
+                :class="{ active: selectedAction === 'viewSchedule' }"
+                @click="viewSchedule()"
+              >
+                <i class="fas fa-calendar-alt icon"></i>
+                <p class="action-text">Thời khóa biểu</p>
+              </div>
+              <div
+                class="action-card action-card-red"
+                :class="{ active: selectedAction === 'assignTeachers' }"
+                @click="assignTeachers()"
+              >
+                <i class="fas fa-users icon"></i>
+                <p class="action-text">Phân công giáo viên</p>
+              </div>
+            </div>
+
+
+            <!-- Danh sách lớp -->
+            <div v-if="optionSelected == 1" class="card-container">
+              <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
+              <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-success">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
+                        <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
+                    </div>
+                </template>
+                <template>
+                    <base-table :data="studentData" :columns="student_columns">
+                    <template slot="columns">
+                      <th>ID</th>
+                      <th>Học sinh</th>
+                      <th>Giới tính</th>
+                      <th>Ngày sinh</th>
+                      <th>Tình trạng</th>
+                      <th class="text-right">Actions</th>
+                    </template>
+                    <template slot-scope="{ row }">
+                      <td>{{ row.user_id }}</td>
+                      <td>{{ row.full_name }}</td>
+                      <td>{{ row.sex }}</td>
+                      <td>{{ row.day_of_birth }}</td>
+                      <td>{{ row.active_status }}</td>
+                      <td class="td-actions text-right">
+                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                          <i class="tim-icons icon-single-02"></i>
+                        </base-button>
+                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                          <i class="tim-icons icon-settings"></i>
+                        </base-button>
+                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                          <i class="tim-icons icon-simple-remove"></i>
+                        </base-button>
+                      </td>
+                    </template>
+                  </base-table>
+                </template>
+                
+                <template>
+                  <section>
+                        <p class="text-info text-center">
+                          Cập nhật danh sách học sinh bằng cách upload file excel theo định dạng :  
+                          <a @click="downloadExcel" style="cursor: pointer; text-decoration: underline;">
+                            Tải xuống
+                          </a>
+                        </p>
+
+                        <xlsx-workbook>
+                          <xlsx-sheet
+                            :collection="sheet.data"
+                            v-for="sheet in sheets"
+                            :key="sheet.name"
+                            :sheet-name="sheet.name"
+                          />
+                          <xlsx-download ref="excelDownload">
+                            <a ref="downloadLink" style="display: none;">Download</a>
+                          </xlsx-download>
+                        </xlsx-workbook>
+                  </section>
+                  <input
+                    type="file"
+                    ref="fileInput"
+                    @change="handleFileUpload"
+                    style="display: none"
+                  />
+                  <base-button type="" @click="triggerFileUpload" simple>
+                    <i class="tim-icons icon-attach-87"></i> Upload file Excel
+                  </base-button>
+                  <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Cập nhật danh sách học sinh</base-button>
+                  <p v-if="selectedFile" class="text-info">{{ selectedFile.name }}</p>     
+
+                  <div v-if="inProgress">
+                    <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
+                  </div>             
+                </template>
+            </div>
+
+            <!-- Thời khóa biểu -->
+            <div v-if="optionSelected == 2" class="card-container">
+              
+                <template>
+                   <vue-cal
+                      :events="events"
+                      default-view="month"
+                      locale="vi" 
+                      style="height: 500px;"
+                    />
+                </template>
+                
+
+          </div>
+
+          
+          </div>
         </div>
+
+
+        
+
+        <modal :show.sync="modals.roomCreateModal" 
+              body-classes="p-0"
+              modal-classes="modal-dialog-centered modal-lg">
+            
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-success">Thêm lớp học</h4>
+                    </div>
+                </template>
+                <template>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-1">
+                                        <base-input label="Mã lớp học" v-model="modals.roomCreate.code"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Tên lớp học" v-model="modals.roomCreate.name"></base-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 pr-md-1">
+                                        <base-input label="Giáo viên chủ nhiệm">
+                                          <select v-model="modals.roomCreate.manager" class="form-control">
+                                            <option class="text-info" v-for="(teacher, index) in teacherData" :key="index" :value="teacher.account">{{ teacher.full_name + " - " + teacher.account }}</option>
+                                          </select>
+                                        </base-input>
+                                    </div>
+                                </div>
+                                
+                                <base-button @click="addRoom" type="secondary" fill>Xác nhận</base-button>
+                            </div>
+                        </div>
+                </template>
+            </card>
+        </modal>
 
         <!-- Create Modal -->
         <modal :show.sync="modals.createModal"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
                <!-- Semester -->
+               
             <card type="secondary"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
@@ -428,17 +666,45 @@ import Card from "../../components/Cards/Card.vue";
 import BaseTable from '../../components/BaseTable.vue';
 import Modal from '../../components/Modal.vue';
 import BaseInput from '../../components/Inputs/BaseInput.vue';
+import VueCal from 'vue-cal';
+import 'vue-cal/dist/vuecal.css';
+// import { SetupCalendar, Calendar } from 'v-calendar';
+
+// import 'v-calendar/lib/v-calendar.min.css';
+
+import {
+  XlsxRead,
+  XlsxTable,
+  XlsxSheets,
+  XlsxJson,
+  XlsxWorkbook,
+  XlsxSheet,
+  XlsxDownload
+} from "vue-xlsx";
 
 
 export default {
-  components: { Card, BaseTable, Modal, BaseInput },
+  components: { Card, BaseTable, Modal, BaseInput,
+    XlsxRead,
+    XlsxTable,
+    XlsxSheets,
+    XlsxJson,
+    XlsxWorkbook,
+    XlsxSheet,
+    XlsxDownload,
+    // VCalendar: Calendar
+    VueCal 
+   },
   mounted() {
       this.initializeData();
   },
   data() {
     return {
     modals: {
+        roomDetailModal: false,
         seatingModal: false,
+        roomCreateModal: false,
+        roomDetail: null,
         
         createModal: false,
         updateModal: false,
@@ -457,6 +723,13 @@ export default {
           name_lesson: null,
           lesson_number: null,
           room: null,
+        },
+
+        roomCreate: {
+          code: null,
+          name: null,
+          manager: null,
+          academic_year: 1,
         },
 
         timeslotCreate: {
@@ -479,9 +752,59 @@ export default {
         timeslotDetail: null,
         subjectDetail: null,
     },
+    successValue: 0,
+    intervalId: null,
+    tableSuccess: null,
+    inProgress: false,
+    value: 45,
+    max: 100,
+    inProgress: false,
+    selectedFile: null,
+    file: null,
+    // attributes: [
+    //     {
+    //       key: 'has-classes',
+    //       dates: ['2025-02-05', '2025-02-10', '2025-02-20'],
+    //       highlight: { backgroundColor: '#ffd54f', borderRadius: '50%' },
+    //     },
+    //   ],
+    events: [
+        {
+          start: '2025-03-15',
+          end: '2025-03-15',
+          title: 'Lịch học Toán',
+          class: 'event-toan',
+        },
+        {
+          start: '2025-03-16',
+          end: '2025-03-16',
+          title: 'Lịch học Văn',
+          class: 'event-van',
+        },
+      ],
+      
+    sheets: [{ name: "Cập nhật học sinh",
+         data: [ { "STT": 1, "Thứ tự": "1", "user": "3581635860", "Họ tên": "Nguyễn Trịnh Bảo An", "Ngày sinh": "04/09/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
+               { "STT": 2, "Thứ tự": "2", "user": "3581635894", "Họ tên": "Cao Danh Hải Anh", "Ngày sinh": "22/05/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
+               { "STT": 3, "Thứ tự": "3", "user": "3581635904", "Họ tên": "Hà Đặng Nhật Anh", "Ngày sinh": "12/06/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
+               { "STT": 4, "Thứ tự": "4", "user": "3581635898", "Họ tên": "Đặng Ngọc Doanh", "Ngày sinh": "01/08/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
+               { "STT": 5, "Thứ tự": "5", "user": "3581635865", "Họ tên": "Phạm Minh Giang", "Ngày sinh": "27/11/2012", "Giới tính": "Nữ", "Dân tộc": "Kinh", "Trạng thái": "Đang học" } ] }],
+    selectedSheet: null,
+    sheetName: null,
+    semesterDetailStatus: true,
+    selectedSemester: null,
+    selectedRoom: null,
+    selectedRoomOption: null,
+    optionSelected : null,
+    selectedAction: null,
+
+    sessionData: null,
+    teacherData: null,
+    studentData: null,
     seatingData: null,
     rooms: null,
     seating_columns: ["student", "row", "column"],
+    student_columns: ["user", "full_name", "sex", "day_of_birth", "active_status", "actions"],
     subjects: ['TOAN', 'VAN', 'ANH', 'KHTN_HOA', 'KHTN_LY', 'KHTN_SINH', 'KHXH_DIA', 'KHXH_SU', 'KHXH_GDCD', 'TD', 'MT', 'AN', 'TH', 'CN', 'HDTN-HN'],
     subjects_2: ['Toán', 'Ngữ Văn', 'Tiếng Anh', 'Hóa', 'Sinh học', 'Địa lý', 'Lịch sử', 'GDCD', 'Thể dục', 'Mỹ thuật', 'Âm nhạc', 'Tin học', 'Mỹ thuật'],
     semester_columns: ["semester", "day_begin", "number_of_weeks"],
@@ -536,6 +859,370 @@ export default {
     },
   },
   methods: {
+     convertTimetableToEvents(timetable) {
+      // Định nghĩa thời gian tương ứng với mỗi time_slot
+      const timeSlots = {
+        1: ["07:00", "07:59"],
+        2: ["08:00", "08:59"],
+        3: ["09:00", "09:59"],
+        4: ["10:00", "10:59"],
+        // Thêm time_slot nếu cần
+      };
+
+      // Chuyển đổi dữ liệu từ timetable sang định dạng events
+      return timetable.map((entry) => {
+        const [startTime, endTime] = timeSlots[entry.time_slot] || ["00:00:00", "23:59:59"];
+        return {
+          start: `${entry.day} ${startTime}`, // Thời gian bắt đầu
+          end: `${entry.day} ${endTime}`, // Thời gian kết thúc
+          title: `Môn học ${entry.subject_code}, Phòng ${entry.room_id}`, // Tiêu đề sự kiện
+          class: `event-subject-${entry.subject_code}`, // CSS class để tùy chỉnh
+        };
+      });
+    },
+    toggleSwitchSemester(){
+      this.selectedSemester = null;
+      this.semesterDetailStatus = true;
+    },
+    addRoom() {
+      const token = localStorage.getItem("access_token");
+      let data = this.modals.roomCreate
+      axios
+        .post(API_URL+"/managements/rooms/", data, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+           this.$notify({
+                type: "success",
+                icon: 'tim-icons icon-bell-55',
+                message: `Thêm lớp học thành công`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+              this.initBigChart(this.bigLineChart.activeIndex);
+              this.getRoomData();
+              this.modals.roomCreateModal = false;
+        })
+        .catch((error) => {
+          console.error("Error create data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Thêm lớp học không thành công`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
+    toggleRemoveCreate(){
+        this.getAllTeacher();
+        this.modals.roomCreateModal = true;
+    },
+    getAllTeacher(){
+      const token = localStorage.getItem("access_token");
+      let data = {
+         role: "teacher",
+         fields: ["user_id", "full_name"]
+      }
+      axios
+        .get(API_URL+"/users/teachers/", data, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+           this.teacherData = response.data
+        })
+        .catch((error) => {
+          console.error("Error create data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Lấy danh sách giáo viên thất bại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
+     handleDayClick(day) {
+      const selectedDate = day.date.toISOString().split('T')[0];
+      alert(`Bạn đã chọn ngày: ${selectedDate}`);
+    },
+    // selectAction(action) {
+    //   this.selectedAction = action; // Cập nhật nút được chọn
+    // },
+    async registerAccountsTest() {
+      this.tableSuccess = [];
+      if (!this.tableData.length) {
+        alert("Không có account nào để xử lý.");
+        return;
+      }
+      console.log("sheetName"+this.sheetName)
+      if(this.sheetName != "Cập nhật học sinh"){
+        this.$notify({
+          type: "danger",
+          icon: "tim-icons icon-bell-55",
+          message: "Vui lòng kiểm tra lại định dạng Excel" ,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        return;
+      }
+
+      this.inProgress = true;
+      this.successValue = 0;
+      this.value = 0;
+      this.max = this.tableData.length;
+      this.processedCount = 0;
+
+      // Khởi chạy tiến trình cập nhật progress bar
+      this.startProgressUpdate();
+
+      // Xử lý từng account
+      for (const account of this.tableData) {
+        try {
+          await this.processAccount(account);
+          this.processedCount++; // Cập nhật số account đã xử lý
+        } catch (error) {
+          console.error("Lỗi khi xử lý account:", error);
+        }
+      }
+
+      // Dừng tiến trình khi hoàn thành
+      this.stopProgressUpdate();
+      this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-check-2',
+            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+    },
+    startProgressUpdate() {
+      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
+      this.intervalId = setInterval(() => {
+        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
+      }, 500);
+    },
+    stopProgressUpdate() {
+      // Dừng setInterval và đặt lại trạng thái
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.inProgress = false;
+    },
+    async processAccount(account) {
+      try {
+        let apiUrl = API_URL + `/users/students/${account[2]}/`;
+        let data = {
+          "room": this.selectedRoomOption.name
+          
+        };
+        console.log(apiUrl)
+        const token = localStorage.getItem("access_token");
+
+        const response = await axios.put(apiUrl, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        this.successValue++;
+        this.tableSuccess.push(account);
+        this.$notify({
+          type: "success",
+          icon: "tim-icons icon-check-2",
+          message: response.data.detail,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        return true; // Xử lý thành công
+      } catch (error) {
+        console.error("Error registering accounts:", error);
+
+        const errorMessage =
+          error.response?.data ||
+          "Có lỗi xảy ra. Vui lòng thử lại sau";
+        this.$notify({
+          type: "danger",
+          icon: "tim-icons icon-bell-55",
+          message: errorMessage,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        return false; // Xử lý thất bại
+      }
+    },
+    triggerFileUpload() {
+      this.$refs.fileInput.click(); // Trigger file input click event
+    },
+    handleFileUpload(event) {
+      this.selectedFile = event.target.files[0]; // Get selected file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        this.sheetName = workbook.SheetNames[0]; // Chọn sheet đầu tiên
+        const sheet = workbook.Sheets[this.sheetName];
+
+        // Chuyển đổi dữ liệu sheet sang JSON
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        console.log("Full data:", jsonData);
+
+        // Lấy tiêu đề cột từ dòng 5
+        this.tableHeaders = jsonData[0];
+
+        // Lấy dữ liệu từ dòng 7 trở đi
+        this.tableData = jsonData.slice(1);
+        console.log("Filtered data:", this.tableData);
+      };
+      reader.readAsArrayBuffer(this.selectedFile);
+    },
+    downloadExcel() {
+      // Tìm phần tử xlsx-download và kích hoạt link download
+      const downloadLink = this.$refs.excelDownload.$el.querySelector('a');
+      if (downloadLink) {
+        downloadLink.click();
+      } else {
+        console.error("Không tìm thấy link tải xuống.");
+      }
+    },
+    toggleRoomDetail(room){
+      this.modals.roomDetailModal = true;
+      this.selectedFile = null;
+      this.modals.roomDetail = room
+      console.log(this.modals.roomDetail)
+
+      //get all student of room
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL+`/managements/${this.modals.roomDetail.code}/students/`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.studentData = response.data
+        })
+        .catch((error) => {
+          console.error("Error get user data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Lấy danh sách học sinh lớp ${this.modals.roomDetail.name} thất bại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
+    toggleSemesterDetail(code){
+      this.semesterDetailStatus = false;
+      this.roomDetailStatus = true;
+      this.selectedSemester = code;
+    },
+    toggleRoomOptionDetail(room){
+      this.roomDetailStatus = false;
+      this.selectedRoomOption = room;
+    },
+    closeSemesterDetail() {
+      this.selectedRoomOption = null;
+      this.roomDetailStatus = true;
+      this.optionSelected = null,
+      this.selectedAction = null
+    },
+    viewClassList() {
+      // Handle viewing the class list logic
+      this.optionSelected = 1;
+      this.selectedAction = "viewClassList"
+      this.getStudentInRoom(this.selectedRoomOption.id)
+      this.getRoomData();
+    },
+    getStudentInRoom(roomName){
+      //get all student of room
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL+`/users/students/?room_id=${roomName}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log(API_URL+`/users/students/?room_id=${roomName}`)
+          this.studentData = response.data
+        })
+        .catch((error) => {
+          console.error("Error get user data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Lấy danh sách học sinh lớp ${roomName} thất bại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
+    viewSchedule() {
+      // Handle viewing the schedule logic
+      this.optionSelected = 2;
+      this.selectedAction = "viewSchedule"
+      this.getSession();
+      
+      
+    },
+    getSession(){
+      //get all student of room
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}`)
+          this.sessionData = response.data
+          console.log(this.sessionData)
+          this.events = this.convertTimetableToEvents(this.sessionData)
+          console.log(this.events)
+        })
+        .catch((error) => {
+          console.error("Error get user data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Lấy thời khóa biểu thất bại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
+    assignTeachers() {
+      // Handle assigning teachers logic
+      alert("Phân công giáo viên");
+    },
     async initializeData() {
         try {
           await this.getApiUrl();
@@ -612,14 +1299,17 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/managements/rooms/", {
+          // .get(API_URL + `/managements/rooms/?semester=${this.selectedSemester}/`, {
+          .get(API_URL + `/managements/rooms/?academic_year=20242/`, {
+          // .get(API_URL + `/managements/rooms/`, {
+          
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           })
           .then((response) => {
-            this.rooms = response.data;
+            this.roomData = response.data;
           })
           .catch((error) => {
             console.error("Error getting room data:", error);
@@ -949,6 +1639,7 @@ export default {
 
 <style>
 .card-container {
+  margin-top: 50px;
   display: flex;
   flex-wrap: wrap;
   gap: 1rem; /* Khoảng cách giữa các card */
@@ -961,4 +1652,207 @@ export default {
   align-items: center;
   justify-content: center;
 }
+.semester-card {
+  border-radius: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.semester-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.semester-card .card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.semester-card .card-footer button {
+  width: 48%;
+}
+
+.add-card {
+  background: #f8f9fa;
+  border: 2px dashed #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-card:hover {
+  background-color: #e9f7ec;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+.add-semester-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.btn-add {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+  background-color: #0056b3;
+}
+
+.btn-add i {
+  margin-right: 8px;
+}
+
+.semester-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  /* background-color: #f9f9f9; */
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  
+  
+  position: relative;
+}
+
+/* Nút quay lại */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+/* Tiêu đề học kỳ */
+.semester-title {
+  font-size: 36px;
+  color: #65beed; /* Màu sắc tiêu đề */
+  margin-bottom: 30px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng mờ để nổi bật */
+}
+
+
+/* Nhóm nút */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Các nút hành động */
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Màu sắc cho từng nút */
+.action-card-blue {
+  background-color: #007bff;
+}
+
+/* .action-card-blue:hover {
+  background-color: #0056b3;
+} */
+
+.action-card-green {
+  background-color: #28a745;
+}
+
+/* .action-card-green:hover {
+  background-color: #218838;
+} */
+
+.action-card-red {
+  background-color: #dc3545;
+}
+
+/* .action-card-red:hover {
+  background-color: #c82333;
+} */
+
+/* Biểu tượng trong nút */
+.icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+/* Văn bản trong nút */
+.action-text {
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Nút được chọn */
+.action-card.active {
+  transform: scale(0.95); /* Làm nhỏ nút */
+  filter: brightness(0.6); /* Làm tối nút */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Giảm độ bóng */
+}
+
+/* Chuyển đổi trạng thái mượt */
+.action-card {
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Đổi màu nền và màu chữ cho lịch */
+.vuecal {
+  background-color: #ffffff; /* Nền trắng */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu tiêu đề tháng, tuần */
+.vuecal__header,
+.vuecal__title {
+  background-color: #f0f0f0; /* Nền sáng hơn */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu ngày hiện tại */
+.vuecal__current-day {
+  background-color: #d0ebff; /* Nền xanh nhạt */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu các ngày đã chọn */
+.vuecal__selected {
+  background-color: #26dd6f; 
+  color: #333333; /* Chữ tối */
+}
+
+
 </style>

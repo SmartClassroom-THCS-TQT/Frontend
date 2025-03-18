@@ -9,7 +9,7 @@
     "chartCategories": ["Tài khoản", "Lượt truy cập", "Phiên làm việc"],
     "accountSetting": ["Đăng ký tài khoản", "Reset password"],
     "userSetting": ["Học sinh", "Giáo viên", "Admin"],
-    "curriculum": ["Học kỳ", "Tiết học", "Môn học"],
+    "curriculum": ["Quản lý đào tạo", "Tiết học", "Môn học"],
     "administration": ["Quản trị tài khoản", "Quản trị người dùng", "Chương trình đào tạo"],
     "educationProgram": ["Phân công giáo viên", "Thời khóa biểu"],
     "homeroomTeacher": ["Sơ đồ lớp","Danh sách học sinh","Kết quả tuần học"],

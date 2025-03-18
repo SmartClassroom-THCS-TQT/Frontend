@@ -42,7 +42,7 @@
               <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
                 <i class="tim-icons icon-single-02"></i>
               </base-button>
-              <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.name)">
+              <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.code)">
                 <i class="tim-icons icon-simple-remove"></i>
               </base-button>
             </card>
@@ -62,7 +62,7 @@
         <modal :show.sync="modals.roomCreateModal" 
               body-classes="p-0"
               modal-classes="modal-dialog-centered modal-lg">
-            <card type="secondary"
+            <!-- <card type="secondary"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
                   class="border-0 mb-0">
@@ -96,9 +96,9 @@
 
                         <hr />
                         <section>
-                          <!-- Container for buttons with d-flex to align them horizontally -->
+                         
                           <div class="d-flex justify-content-between align-items-center mb-3">
-                              <!-- Upload file button -->
+                             
                               <div>
                                   <input
                                     type="file"
@@ -115,7 +115,7 @@
                               
                           </div>
 
-                          <!-- Display selected sheet and file data -->
+                          
                           <xlsx-read :file="file">
                             <xlsx-sheets>
                               <template #default="{sheets}">
@@ -132,7 +132,7 @@
                             <xlsx-json :sheet="selectedSheet">
                               <template #default="{collection}">
                                 <div>
-                                  <!-- {{ collection }} -->
+                                  
                                   <base-button v-if="selectedSheet" type="success" @click="updateCollection(collection)" simple>
                                     <i class="tim-icons icon-simple-add"></i> Thêm lớp học
                                   </base-button>
@@ -142,6 +142,41 @@
                           </xlsx-read>
                         </section>
                     </div>
+                </template>
+            </card> -->
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-success">Thêm lớp học</h4>
+                    </div>
+                </template>
+                <template>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-1">
+                                        <base-input label="Mã lớp học" v-model="modals.roomCreate.code"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Tên lớp học" v-model="modals.roomCreate.name"></base-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 pr-md-1">
+                                        <base-input label="Giáo viên chủ nhiệm">
+                                          <select v-model="modals.roomCreate.manager" class="form-control">
+                                            <option class="text-info" v-for="(teacher, index) in teacherData" :key="index" :value="teacher.user_id">{{ teacher.full_name + " - " + teacher.user_id }}</option>
+                                          </select>
+                                        </base-input>
+                                    </div>
+                                </div>
+                                
+                                <base-button @click="addRoom" type="secondary" fill>Xác nhận</base-button>
+                            </div>
+                        </div>
                 </template>
             </card>
         </modal>
@@ -190,6 +225,44 @@
                       </td>
                     </template>
                   </base-table>
+                </template>
+                
+                <template>
+                  <section>
+                        <p class="text-info text-center">
+                          Cập nhật danh sách học sinh bằng cách upload file excel theo định dạng :  
+                          <a @click="downloadExcel" style="cursor: pointer; text-decoration: underline;">
+                            Tải xuống
+                          </a>
+                        </p>
+
+                        <xlsx-workbook>
+                          <xlsx-sheet
+                            :collection="sheet.data"
+                            v-for="sheet in sheets"
+                            :key="sheet.name"
+                            :sheet-name="sheet.name"
+                          />
+                          <xlsx-download ref="excelDownload">
+                            <a ref="downloadLink" style="display: none;">Download</a>
+                          </xlsx-download>
+                        </xlsx-workbook>
+                  </section>
+                  <input
+                    type="file"
+                    ref="fileInput"
+                    @change="handleFileUpload"
+                    style="display: none"
+                  />
+                  <base-button type="" @click="triggerFileUpload" simple>
+                    <i class="tim-icons icon-attach-87"></i> Upload file Excel
+                  </base-button>
+                  <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Cập nhật danh sách học sinh</base-button>
+                  <p v-if="selectedFile" class="text-info">{{ selectedFile.name }}</p>     
+
+                  <div v-if="inProgress">
+                    <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
+                  </div>             
                 </template>
             </card>
         </modal>
@@ -669,6 +742,12 @@ export default {
   },
   data() {
     return {
+    successValue: 0,
+    intervalId: null,
+    tableSuccess: null,
+    inProgress: false,
+    value: 45,
+    max: 100,
     perPage: 3,
     currentPage: 1,
     defaultImage: require('@/assets/img/icon_sm2.jpg'),
@@ -679,7 +758,12 @@ export default {
         updateModal: false,
         removeModal: false,
         idRemove: null,
-
+        
+        roomCreate: {
+          code: null,
+          name: null,
+          manager: null
+        },
         removeRoomModal: false,
         teacherModal: false,
         parentModal: false,
@@ -705,10 +789,11 @@ export default {
       allCreateStudent: null,
 
       //excel
+      selectedFile: null,
       file: null,
       selectedSheet: null,
       sheetName: null,
-      sheets: [{ name: "6A4-3501020793",
+      sheets: [{ name: "Cập nhật học sinh",
          data: [ { "STT": 1, "Thứ tự": "1", "user": "3581635860", "Họ tên": "Nguyễn Trịnh Bảo An", "Ngày sinh": "04/09/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
                { "STT": 2, "Thứ tự": "2", "user": "3581635894", "Họ tên": "Cao Danh Hải Anh", "Ngày sinh": "22/05/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
                { "STT": 3, "Thứ tự": "3", "user": "3581635904", "Họ tên": "Hà Đặng Nhật Anh", "Ngày sinh": "12/06/2012", "Giới tính": "Nam", "Dân tộc": "Kinh", "Trạng thái": "Đang học" },
@@ -754,6 +839,147 @@ export default {
     },
   },
   methods: {
+    async registerAccountsTest() {
+      this.tableSuccess = [];
+      if (!this.tableData.length) {
+        alert("Không có account nào để xử lý.");
+        return;
+      }
+      console.log("sheetName"+this.sheetName)
+      if(this.sheetName != "Cập nhật học sinh"){
+        this.$notify({
+          type: "danger",
+          icon: "tim-icons icon-bell-55",
+          message: "Vui lòng kiểm tra lại định dạng Excel" ,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        return;
+      }
+
+      this.inProgress = true;
+      this.successValue = 0;
+      this.value = 0;
+      this.max = this.tableData.length;
+      this.processedCount = 0;
+
+      // Khởi chạy tiến trình cập nhật progress bar
+      this.startProgressUpdate();
+
+      // Xử lý từng account
+      for (const account of this.tableData) {
+        try {
+          await this.processAccount(account);
+          this.processedCount++; // Cập nhật số account đã xử lý
+        } catch (error) {
+          console.error("Lỗi khi xử lý account:", error);
+        }
+      }
+
+      // Dừng tiến trình khi hoàn thành
+      this.stopProgressUpdate();
+      this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-check-2',
+            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+    },
+    startProgressUpdate() {
+      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
+      this.intervalId = setInterval(() => {
+        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
+      }, 500);
+    },
+    stopProgressUpdate() {
+      // Dừng setInterval và đặt lại trạng thái
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.inProgress = false;
+    },
+    async processAccount(account) {
+      try {
+        let apiUrl = API_URL + `/accounts/users/${account[2]}/update/`;
+        let data = {
+          rooms: this.modals.roomDetail.code
+        };
+
+        const token = localStorage.getItem("access_token");
+
+        const response = await axios.put(apiUrl, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        this.successValue++;
+        this.tableSuccess.push(account);
+        this.$notify({
+          type: "success",
+          icon: "tim-icons icon-check-2",
+          message: response.data.detail,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        return true; // Xử lý thành công
+      } catch (error) {
+        console.error("Error registering accounts:", error);
+
+        const errorMessage =
+          error.response?.data ||
+          "Có lỗi xảy ra. Vui lòng thử lại sau";
+        this.$notify({
+          type: "danger",
+          icon: "tim-icons icon-bell-55",
+          message: errorMessage,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        return false; // Xử lý thất bại
+      }
+    },
+    addRoom() {
+      const token = localStorage.getItem("access_token");
+      let data = this.modals.roomCreate
+      axios
+        .post(API_URL+"/managements/rooms/", data, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+           this.$notify({
+                type: "success",
+                icon: 'tim-icons icon-bell-55',
+                message: `Thêm lớp học thành công`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+              this.initBigChart(this.bigLineChart.activeIndex);
+              this.modals.roomCreateModal = false;
+        })
+        .catch((error) => {
+          console.error("Error create data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Thêm lớp học không thành công`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
+    },
     downloadExcel() {
       // Tìm phần tử xlsx-download và kích hoạt link download
       const downloadLink = this.$refs.excelDownload.$el.querySelector('a');
@@ -903,15 +1129,40 @@ export default {
         });
     },
     triggerFileUpload() {
-      if(this.file) {
-        location.reload(); // Reload trang
-        return;
-      }
       this.$refs.fileInput.click(); // Trigger file input click event
     },
     handleFileUpload(event) {
-      this.file = event.target.files[0]; // Get selected file
+      this.selectedFile = event.target.files[0]; // Get selected file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        this.sheetName = workbook.SheetNames[0]; // Chọn sheet đầu tiên
+        const sheet = workbook.Sheets[this.sheetName];
+
+        // Chuyển đổi dữ liệu sheet sang JSON
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        console.log("Full data:", jsonData);
+
+        // Lấy tiêu đề cột từ dòng 5
+        this.tableHeaders = jsonData[0];
+
+        // Lấy dữ liệu từ dòng 7 trở đi
+        this.tableData = jsonData.slice(1);
+        console.log("Filtered data:", this.tableData);
+      };
+      reader.readAsArrayBuffer(this.selectedFile);
     },
+    // triggerFileUpload() {
+    //   if(this.file) {
+    //     location.reload(); // Reload trang
+    //     return;
+    //   }
+    //   this.$refs.fileInput.click(); // Trigger file input click event
+    // },
+    // handleFileUpload(event) {
+    //   this.file = event.target.files[0]; // Get selected file
+    // },
     onChange(event) {
       this.file = event.target.files ? event.target.files[0] : null;
     },
@@ -924,7 +1175,9 @@ export default {
     },
     toggleRoomDetail(room){
       this.modals.roomDetailModal = true;
+      this.selectedFile = null;
       this.modals.roomDetail = room
+      console.log(this.modals.roomDetail)
 
       //get all student of room
       const token = localStorage.getItem("access_token");
@@ -955,7 +1208,7 @@ export default {
         const token = localStorage.getItem("access_token");
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
         if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
-          apiUrl = API_URL + "/rooms/" + this.modals.idRemove + "/";
+          apiUrl = API_URL + `/managements/rooms/${this.modals.idRemove}/`;
         }else if (this.bigLineChart.activeIndex === 0) {
           apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         } else if (this.bigLineChart.activeIndex === 1) {
@@ -1188,7 +1441,37 @@ export default {
         this.modals.idRemove = roomName;
     },
     toggleRemoveCreate(){
+        this.getAllTeacher();
         this.modals.roomCreateModal = true;
+    },
+    getAllTeacher(){
+      const token = localStorage.getItem("access_token");
+      let data = {
+         role: "teacher",
+         fields: ["user_id", "full_name"]
+      }
+      axios
+        .post(API_URL+"/accounts/get_users_detail/", data, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+           this.teacherData = response.data.data
+        })
+        .catch((error) => {
+          console.error("Error create data :", error);
+
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: `Lấy danh sách giáo viên thất bại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
     },
     initBigChart(index) {
       let chartData = {
@@ -1231,7 +1514,7 @@ export default {
       let data = null;
       let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
       if (this.bigLineChart.activeIndex === 0) {
-        apiUrl = API_URL + "/managements/rooms/";
+        apiUrl = API_URL + "/managements/rooms/?semester=20242/";
       } else if (this.bigLineChart.activeIndex === 1) {
         apiUrl = API_URL + "/accounts/get_users_detail/";
         data = {
