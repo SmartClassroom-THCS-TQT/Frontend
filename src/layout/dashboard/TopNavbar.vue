@@ -54,7 +54,7 @@
               >
                 <i class="tim-icons icon-zoom-split"></i>
               </button> -->
-              <base-button @click="studyToggle" type="simple" simple class="text-center ml-2" v-if="userData.role == 'teacher'" >
+              <base-button @click="studyToggle" type="simple" simple class="text-center ml-2" v-if="userRole === 'teacher'" >
                <i class="tim-icons icon-atom"></i> Dạy học
               </base-button>
               
@@ -133,6 +133,9 @@ export default {
     BaseButton,
     Loading
   },
+  mounted(){
+    this.userRole = localStorage.getItem('user_role');
+  },
   computed: {
     getApiUrl() {
       API_URL =  this.$t("dashboard.apiURL");
@@ -144,6 +147,7 @@ export default {
     isRTL() {
       return this.$rtl.isRTL;
     },
+    
   },
   data() {
     return {
@@ -152,6 +156,7 @@ export default {
       searchModalVisible: false,
       searchQuery: "",
       isLoading: false,
+      userRole:null,
     };
   },
   methods: {
