@@ -79,7 +79,7 @@
                   
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Nhập điểm {{this.scoreTypeSelected}} học sinh {{ scoreDetail.student.full_name }}</h4>
+                        <h4 class="text-dark">Nhập điểm {{this.scoreTypeSelected}} học sinh {{ scoreDetail.student.full_name }}</h4>
                     </div>
                 </template>
                 <template>
