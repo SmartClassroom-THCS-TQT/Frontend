@@ -169,7 +169,7 @@
               <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
               <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
+                        <h4 class="text-dark">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
                         <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
                     </div>
                 </template>
