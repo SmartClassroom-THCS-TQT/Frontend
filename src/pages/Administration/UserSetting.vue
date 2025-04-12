@@ -61,6 +61,7 @@
         <modal :show.sync="modals.roomCreateModal" 
               body-classes="p-0"
               modal-classes="modal-dialog-centered modal-lg">
+            
             <card type="secondary"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"

@@ -215,7 +215,8 @@ export default {
       return `${year}-${month}-${day}`;
     },
     async studyToggle(){
-      if(!this.userData.role == "teacher"){
+      const user_role = localStorage.getItem(user_role)
+      if(!user_role == "teacher"){
         this.$notify({
           type: 'warning',
           icon: 'tim-icons icon-bell-55',
@@ -268,16 +269,18 @@ export default {
       // Call API để kiểm tra giáo viên có tiết học không
       this.isLoading = true;
       try {
-        const response = await axios.get(API_URL + `/adminpanel/lessons/?teacher=${this.userData.user_id}&day=${this.getCurrentFormattedDate(currentDate)}&period=${currentPeriod}`, {
+        // const response = await axios.get(API_URL + `/managements/sessions/?semester_code=20241&teacher=${this.userData.user_id}&day=${this.getCurrentFormattedDate(currentDate)}&period=${currentPeriod}`, {
+        const response = await axios.get(API_URL + `/managements/sessions/?semester_code_code=20241&teacher=${this.userData.account}&day=${this.getCurrentFormattedDate(currentDate)}&time_slot_code=${currentPeriod}/`, {
           
         })
-        
+        console.log(response.data[0])
           if (response.data.length !== 0) {
+            
             localStorage.setItem('lesson_data', JSON.stringify(response.data[0]));
             this.$notify({
               type: 'success',
               icon: 'tim-icons icon-bell-55',
-              message: "Bắt đầu dạy học lớp "+response.data[0].room,
+              message: "Bắt đầu dạy học lớp "+response.data[0].room_id.name,
               timeout: 1000,
               verticalAlign: 'top',
               horizontalAlign: 'center',

@@ -26,9 +26,10 @@
                     </template>
                     <template>
                             <ul>
-                                <li v-for="student in unassignedStudents" :key="student.user">
-                                    <base-button v-if="student" @click="assignStudent(student.user)" class="dashboard-button btn-info" simple>
-                                        {{ student? shortenName( student.full_name) : "" }}
+                                <li v-for="student in unassignedStudents" :key="student">
+                                    <base-button v-if="student" @click="assignStudent(student)" class="dashboard-button btn-info" simple>
+                                        <!-- {{ student? shortenName( student.full_name) : "" }} -->
+                                        {{student}}
                                     </base-button>
                                 </li>
                             </ul>
@@ -47,7 +48,7 @@
                 class="btn-info btn-simple classroom-student"
                 draggable
               >
-                {{seat ? shortenName(seat.full_name) : ""}} <!-- Assuming 'seat' is an object with 'student' having a 'name' property -->
+                {{seat.student }} <!-- Assuming 'seat' is an object with 'student' having a 'name' property -->
               </base-button>
               <base-button
                 v-if="!seat && seatingPermission"
@@ -146,13 +147,13 @@ export default {
       const token = localStorage.getItem("access_token");
       const data = {
         "student":this.studentSelected,
-        "room": this.room.name,
+        "room": this.room.id,
         "row": row+1,
         "column": col+1
       }
       console.log(data)
         axios
-        .post(API_URL+"/rooms/seating-positions/", data, {
+        .post(API_URL+"/rooms_managements/seatings/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -163,7 +164,7 @@ export default {
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Thêm chỗ ngồi học sinh "+ response.data.student + " thành công",
+                message: "Thêm chỗ ngồi học sinh "+ this.studentSelected + " thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
@@ -191,9 +192,9 @@ export default {
     },
     toggleSeatingModal(){
         
-        this.unassignedStudents = this.students.filter(studentId => {
+        this.unassignedStudents = this.room.students.filter(studentId => {
             // Kiểm tra nếu học sinh không có trong danh sách positions
-            return !this.positions.some(position => position.student === studentId.user);
+            return !this.positions.some(position => position.student === studentId);
         });
         if(this.unassignedStudents.length ==0){
           this.$notify({
@@ -208,11 +209,11 @@ export default {
         }
         this.seatingModal = true;
     },
-    getStudents(roomName){
+    getStudents(roomId){
       const token = localStorage.getItem("access_token");
       
         axios
-        .get(API_URL+`/rooms/roomset/${roomName}/students/`, {
+        .get(API_URL+`/rooms/roomset/${roomId}/students/`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -238,7 +239,7 @@ export default {
       try {
         await this.getApiUrl();
         await this.getPositionData();
-        await this.getStudents(this.room.name);
+        await this.getStudents(this.room.id);
       } catch (error) {
         console.error('Error initializing data:', error);
       }
@@ -255,6 +256,22 @@ export default {
       this.draggedCol = col;
       console.log("start Drag"+student)
     },
+    // dropStudent(rowIndex, columnIndex) {
+    //   if (this.draggedStudent) {
+    //     const targetStudent = this.desks[rowIndex][columnIndex];
+    //     if(!targetStudent) {
+    //       this.desks[rowIndex][columnIndex] = this.draggedStudent; // Đặt học sinh kéo tới vị trí mới
+    //       this.desks[this.draggedRow][this.draggedCol] = null; // vị trí trước đó là null
+    //       //Cập nhật vị trí mới cho học sinh
+    //       this.updatePosition(this.draggedStudent.user, rowIndex, columnIndex);
+    //     }
+    //     else {
+    //       this.desks[rowIndex][columnIndex] = this.draggedStudent;
+    //       this.desks[this.draggedRow][this.draggedCol] = targetStudent;
+    //       this.swapPosition(this.draggedStudent, targetStudent);
+    //     }
+    //   }
+    // },
     dropStudent(rowIndex, columnIndex) {
       if (this.draggedStudent) {
         const targetStudent = this.desks[rowIndex][columnIndex];
@@ -262,7 +279,7 @@ export default {
           this.desks[rowIndex][columnIndex] = this.draggedStudent; // Đặt học sinh kéo tới vị trí mới
           this.desks[this.draggedRow][this.draggedCol] = null; // vị trí trước đó là null
           //Cập nhật vị trí mới cho học sinh
-          this.updatePosition(this.draggedStudent.user, rowIndex, columnIndex);
+          this.updatePosition(this.draggedStudent, rowIndex, columnIndex);
         }
         else {
           this.desks[rowIndex][columnIndex] = this.draggedStudent;
@@ -271,29 +288,68 @@ export default {
         }
       }
     },
-    updatePosition(studentId, row, col){
+    // updatePosition(studentId, row, col){
+    //   const token = localStorage.getItem("access_token");
+    //   const data = {
+    //     "row": row+1,
+    //     "column": col+1
+    //   }
+    //     axios
+    //     .patch(API_URL+"/rooms/seating-positions/"+ studentId +"/", data, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then((response) => {
+    //         this.getPositionData()
+    //       this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: "Đổi vị trí học sinh "+ response.data.student_details.full_name + " thành công",
+    //             timeout: 1500,
+    //             verticalAlign: "bottom",
+    //             horizontalAlign: "left",
+    //           });
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error get lesson data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: "Đổi vị trí không thành công. Vui lòng thử lại",
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    updatePosition(student, row, col){
       const token = localStorage.getItem("access_token");
       const data = {
         "row": row+1,
-        "column": col+1
+        "column": col+1,
+        "student": student.student,
+        "room": student.room
       }
         axios
-        .patch(API_URL+"/rooms/seating-positions/"+ studentId +"/", data, {
+        .put(API_URL+"/rooms_managements/seatings/"+ student.id +"/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-            this.getPositionData()
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Đổi vị trí học sinh "+ response.data.student_details.full_name + " thành công",
+                message: "Đổi vị trí học sinh thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
               });
+              this.getPositionData();
         })
         .catch((error) => {
           console.error("Error get lesson data :", error);
@@ -308,29 +364,30 @@ export default {
               });
         });
     },
+
     swapPosition(student1, student2){
       const token = localStorage.getItem("access_token");
       const data = {
-        "user_id_1": student1.user,
-        "user_id_2": student2.user
+        "user_id_1": student1.student,
+        "user_id_2": student2.student
       }
         axios
-        .post(API_URL+"/rooms/seating-positions/swap_seats/", data, {
+        .post(API_URL+"/rooms_managements/seatings/swap_seats/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then(() => {
-            this.getPositionData()
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Đổi vị trí học sinh "+student1.full_name+" và "+student2.full_name + " thành công",
+                message: "Hoán đổi vị trí học sinh thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
               });
+              this.getPositionData();
         })
         .catch((error) => {
           console.error("Error get lesson data :", error);
@@ -345,19 +402,58 @@ export default {
               });
         });
     },
+    // swapPosition(student1, student2){
+    //   const token = localStorage.getItem("access_token");
+    //   const data = {
+    //     "user_id_1": student1.user,
+    //     "user_id_2": student2.user
+    //   }
+    //     axios
+    //     .post(API_URL+"/rooms/seating-positions/swap_seats/", data, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then(() => {
+    //         this.getPositionData()
+    //       this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: "Đổi vị trí học sinh "+student1.full_name+" và "+student2.full_name + " thành công",
+    //             timeout: 1500,
+    //             verticalAlign: "bottom",
+    //             horizontalAlign: "left",
+    //           });
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error get lesson data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: "Đổi vị trí không thành công. Vui lòng thử lại",
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
     formatPositionData(positions) {
       positions.forEach(position => {
         const columnIndex = position.column - 1; 
         const rowIndex = position.row - 1; 
-        this.$set(this.desks[rowIndex], columnIndex, position.student_details); 
+        this.$set(this.desks[rowIndex], columnIndex, position); 
       });
+      console.log(this.desks)
       return this.desks;
     },
     async getPositionData() {
+      const roomId = this.room.id
       const token = localStorage.getItem("access_token");
       try {
         // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
-        const response = await axios.get(`${API_URL}/rooms/seating-positions/?room=${this.room.name}`, {
+        const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -381,6 +477,34 @@ export default {
         console.error("Error getting seating data:", error);
       }
     },
+    // async getPositionDataOld() {
+    //   const token = localStorage.getItem("access_token");
+    //   try {
+    //     // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
+    //     const response = await axios.get(`${API_URL}/rooms/seating-positions/?room=${this.room.name}`, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         "Content-Type": "application/json",
+    //       },
+    //     });
+    //     this.positions = response.data;
+    //     console.log(this.positions)
+    //     if (response.data.length === 0) {
+    //       this.$notify({
+    //         type: "warning",
+    //         icon: 'tim-icons icon-bell-55',
+    //         message: "Không tồn tại danh sách chỗ ngồi của lớp",
+    //         timeout: 3000,
+    //         verticalAlign: "bottom",
+    //         horizontalAlign: "right",
+    //       });
+    //     } else {
+    //       this.desks = this.formatPositionData(this.positions);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error getting seating data:", error);
+    //   }
+    // },
   },
 };
 </script>

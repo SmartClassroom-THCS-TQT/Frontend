@@ -169,8 +169,13 @@
               <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
               <template>
                     <div class="text-muted text-center mb-3">
+<<<<<<< HEAD
                         <h4 class="text-dark">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
                         <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
+=======
+                        <h4 class="text-success">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
+                        <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager.full_name}}</p>
+>>>>>>> 6871ed38f6cfc114997c428adbac75eba7d9f283
                     </div>
                 </template>
                 <template>
@@ -294,8 +299,13 @@
                           <h3 v-if="selectedDay">Tiết học ngày {{ selectedDay }}</h3>
                           <ul v-if="selectedDayLessons.length">
                             <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
+<<<<<<< HEAD
                               <h3>Tiết {{ lesson.time_slot }}</h3>
                                <h4>Môn học: {{ lesson.subject_code }}, Phòng: {{ lesson.room_id }}</h4>
+=======
+                              <h3>Tiết {{ lesson.time_slot.code }}</h3>
+                               <h4>Môn học: {{ lesson.subject_code.name }}, Phòng: {{ lesson.room_id.name }}</h4>
+>>>>>>> 6871ed38f6cfc114997c428adbac75eba7d9f283
                                
                             </li>
                              <div class="add-semester-button">

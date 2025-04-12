@@ -63,6 +63,7 @@ export default {
    computed: {
     getApiUrl() {
       API_URL =  this.$t("dashboard.apiURL");
+      console.log(API_URL)
     },
    },
   data() {

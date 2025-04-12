@@ -316,7 +316,10 @@ export default {
             sex: account[5],
             day_of_birth: this.convertDate(account[4]),
             nation: account[6],
-            active_status: account[7]
+            active_status: account[7],
+
+            //test
+            rooms: [1]
           };
         } else if (this.registrationType === "teacher") {
           data = {
