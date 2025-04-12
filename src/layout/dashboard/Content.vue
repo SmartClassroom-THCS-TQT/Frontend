@@ -1,5 +1,5 @@
 <template>
-  <div class="content" style="background-color: #2D3A4F;">
+  <div class="content" :style="{ backgroundImage: `url(${require('@/assets/img/PG_bg_3.png')})` }">
     <fade-transition :duration="100" mode="out-in">
       <!-- your content here -->
       <router-view></router-view>
@@ -14,3 +14,4 @@ export default {
   },
 };
 </script>
+

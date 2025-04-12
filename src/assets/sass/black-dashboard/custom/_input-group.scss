@@ -168,7 +168,7 @@
 .form-control[disabled],
 .form-control[readonly],
 fieldset[disabled] .form-control {
-  background-color: $black-states;
+  background-color: rgb(232, 240, 254);
   color: $default;
   cursor: not-allowed;
 }

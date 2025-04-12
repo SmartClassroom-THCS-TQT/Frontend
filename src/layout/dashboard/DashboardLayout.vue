@@ -2,27 +2,27 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links" >
-        <sidebar-link v-if="userData && userData.role == 'admin' " 
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/administration"
           :name="$t('sidebar.administration')"
           icon="tim-icons icon-bank"
         />
-        <sidebar-link  v-if="userData && userData.role == 'admin'"
+        <sidebar-link  v-if="userData && this.userRole == 'admin'"
           to="/education_program"
           :name="$t('sidebar.educationProgram')"
           icon="tim-icons icon-book-bookmark"
         />
-        <sidebar-link v-if="userData && userData.role == 'teacher'"
+        <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/learning_management"
           :name="$t('sidebar.learningManagement')"
           icon="tim-icons icon-pencil"
         />
-        <sidebar-link v-if="userData && userData.role == 'teacher'"
+        <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/homeroom_teacher"
           :name="$t('sidebar.homeroomTeacher')"
           icon="tim-icons icon-components"
         />
-        <sidebar-link v-if="userData && (userData.role == 'student' || userData.is_parent)"
+        <sidebar-link v-if="userData && (this.userRole == 'student' || userData.is_parent)"
           to="/learning_outcome"
           :name="$t('sidebar.learningOutcome')"
           icon="tim-icons icon-paper"
@@ -99,6 +99,7 @@ export default {
   data() {
     return {
       userData: null,
+      userRole: null,
     }
   },
   computed: {
@@ -117,42 +118,108 @@ export default {
       this.$sidebar.displaySidebar(false);
     }
   },
-  getUserData() {
-    
-    let savedUserData = localStorage.getItem('user_data');
-    if (savedUserData) {
-      // Nếu đã có dữ liệu trong localStorage, sử dụng dữ liệu đó
-      this.userData = JSON.parse(savedUserData);
-      return;
-    }
+  getAccountData() {
+      const token = localStorage.getItem('access_token');
+      const user_id = localStorage.getItem('user_id');
+      axios.get(API_URL+`/users/accounts/${user_id}/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+        }
+      }).then((response) => {
+        this.accountData = response.data
+      })
+      .catch(error => {
+        console.error("Error fetching user data:", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy thông tin tài khoản thất bại. Vui lòng đăng nhập lại",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+        this.$router.push('/login');
+      });
 
-    // Nếu chưa có dữ liệu, gọi API để lấy thông tin
-    const token = localStorage.getItem('access_token');
-    console.log("token:", token);
-    axios.get(API_URL + '/accounts/users/detail/', {
-      headers: {
-        'Authorization': `Bearer ${token}` // Đính kèm token vào headers
+      this.getUserData();
+
+      
+    },
+    getUserData(){
+      const token = localStorage.getItem('access_token');
+      const user_role = localStorage.getItem('user_role');
+      const user_id = localStorage.getItem('user_id');
+      this.userRole = user_role
+      let apiURL = "";
+      if(user_role == "admin"){
+        apiURL = API_URL+`/users/admins/${user_id}/`
+      } 
+      else if(user_role == "teacher"){
+         apiURL = API_URL+`/users/teachers/${user_id}/`
+      } 
+      else if(user_role == "student"){
+         apiURL = API_URL+`/users/students/${user_id}/`
       }
-    })
-    .then((response) => {
-      this.userData = response.data;
+      axios.get(apiURL, {
+        headers: {
+          'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+        }
+      })
+      .then((response) => {
+        this.userData = response.data;
       // Lưu dữ liệu userData vào localStorage
       localStorage.setItem('user_data', JSON.stringify(this.userData));
       console.log(this.userData);
-    })
-    .catch(error => {
-      console.error("Error fetching user data:", error);
-      
-      this.$notify({
-        type: 'danger',
-        message: "Lấy thông tin tài khoản thất bại. Vui lòng đăng nhập lại",
-        timeout: 3000,
-        verticalAlign: 'top',
-        horizontalAlign: 'center',
+      })
+      .catch(error => {
+        console.error("Error fetching user data:", error);
+        
+        this.$notify({
+          type: 'danger',
+          message: "Lấy thông tin tài khoản thất bại. Vui lòng đăng nhập lại",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+        this.$router.push('/login');
       });
-      this.$router.push('/login');
-    });
-  },
+    },
+  // getUserData() {
+    
+  //   let savedUserData = localStorage.getItem('user_data');
+  //   if (savedUserData) {
+  //     // Nếu đã có dữ liệu trong localStorage, sử dụng dữ liệu đó
+  //     this.userData = JSON.parse(savedUserData);
+  //     return;
+  //   }
+
+  //   // Nếu chưa có dữ liệu, gọi API để lấy thông tin
+  //   const token = localStorage.getItem('access_token');
+  //   console.log("token:", token);
+  //   axios.get(API_URL + '/accounts/users/detail/', {
+  //     headers: {
+  //       'Authorization': `Bearer ${token}` // Đính kèm token vào headers
+  //     }
+  //   })
+  //   .then((response) => {
+  //     this.userData = response.data;
+  //     // Lưu dữ liệu userData vào localStorage
+  //     localStorage.setItem('user_data', JSON.stringify(this.userData));
+  //     console.log(this.userData);
+  //   })
+  //   .catch(error => {
+  //     console.error("Error fetching user data:", error);
+      
+  //     this.$notify({
+  //       type: 'danger',
+  //       message: "Lấy thông tin tài khoản thất bại. Vui lòng đăng nhập lại",
+  //       timeout: 3000,
+  //       verticalAlign: 'top',
+  //       horizontalAlign: 'center',
+  //     });
+  //     this.$router.push('/login');
+  //   });
+  // },
 },
   mounted() {
     this.getUserData(); // Gọi API khi trang tải

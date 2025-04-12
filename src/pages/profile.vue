@@ -28,6 +28,8 @@ export default {
     return {
       userData: null, // Chứa thông tin người dùng
       modal_test: null,
+      user_role: null,
+      accountData: null,
       model: {
         user_id: null,
         full_name: null,
@@ -56,9 +58,22 @@ export default {
     this.getUserData(); // Gọi API khi trang tải
   },
   methods: {
-    getUserData() {
+    getUserData(){
       const token = localStorage.getItem('access_token');
-      axios.get(API_URL+'/accounts/users/detail/', {
+      const user_role = localStorage.getItem('user_role');
+      this.user_role = user_role
+      const user_id = localStorage.getItem('user_id');
+      let apiURL = "";
+      if(user_role == "admin"){
+        apiURL = API_URL+`/users/admins/${user_id}/`
+      } 
+      else if(user_role == "teacher"){
+         apiURL = API_URL+`/users/teachers/${user_id}/`
+      } 
+      else if(user_role == "student"){
+         apiURL = API_URL+`/users/students/${user_id}/`
+      }
+      axios.get(apiURL, {
         headers: {
           'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
         }
@@ -91,15 +106,15 @@ export default {
         //fetch data to user
         this.user.fullName = this.userData.full_name
         this.user.image =  this.userData.image ? this.userData.image : null
-        if(this.userData.role == "admin") {
+        if(this.user_role == "admin") {
           this.user.title = "ADMIN"
           this.model.role = "admins"
         }
-        if(this.userData.role == "student"){
+        if(this.user_role == "student"){
           this.user.title = "HỌC SINH"
           this.model.role = "students"
         }
-        if(this.userData.roll == "teacher"){
+        if(this.user_role == "teacher"){
           this.user.title = "GIÁO VIÊN"
           this.model.role = "teachers"
         }
@@ -119,7 +134,7 @@ export default {
         });
         this.$router.push('/login');
       });
-    },
+    }
   }
 };
 </script>

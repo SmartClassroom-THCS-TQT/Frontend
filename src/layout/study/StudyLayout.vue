@@ -26,12 +26,13 @@
           <base-button
             v-if="seat"
             @click="scoringAndEnroll(seat)"
-            class="btn btn-simple student"
+            class="btn btn-success"
             draggable
-            :class="{'btn-success': getAttendanceStatus(seat.user) === 1, 'btn-danger': (getAttendanceStatus(seat.user) === 3) || (!getAttendanceStatus(seat.user)) , 'btn-warning': getAttendanceStatus(seat.user) === 2,}"
+            :class="{'btn-success': getAttendanceStatus(seat.student) === 1, 'btn-danger': (getAttendanceStatus(seat.student) === 0) || (!getAttendanceStatus(seat.student)) , 'btn-warning': getAttendanceStatus(seat.student) === 2}"
             
           >
-            {{ shortenName(seat.full_name) }} <!-- Assuming 'seat' is an object with 'student' having a 'name' property -->
+            <!-- {{ shortenName(seat.full_name) }}  -->
+            {{seat.student}}
           </base-button>
         </div>
       </div>
@@ -48,9 +49,9 @@
           </thead>
           <tbody>
             <tr>
-              <td>{{this.lessonData.room}}</td>
-              <td>{{this.lessonData.period}}</td>
-              <td>{{this.lessonData.subject}}</td>
+              <td>{{this.lessonData.room_id.name}}</td>
+              <td>{{this.lessonData.time_slot.code}}</td>
+              <td>{{this.lessonData.subject_code.name}}</td>
               <td> {{ this.attendances ? this.countUsersWithStatus12(attendances)+"/" : "" }}<strong>{{this.positions.length }}</strong></td>
             </tr>
           </tbody>
@@ -126,10 +127,10 @@
                                       <input id="switch-present" name="attendance" type="radio" value="1" v-model="newStatus" class="switch-input" @change="updateStatus" />
                                       <label for="switch-present" class="switch-label switch-label-y"><i class="tim-icons icon-check-2"></i></label>
                                       
-                                      <input id="switch-late" name="attendance" type="radio" value="2" v-model="newStatus" class="switch-input" @change="updateStatus"/>
-                                      <label for="switch-late" class="switch-label switch-label-i"><i class="tim-icons icon-simple-delete"></i></label>
+                                      <!-- <input id="switch-late" name="attendance" type="radio" value="2" v-model="newStatus" class="switch-input" @change="updateStatus"/>
+                                      <label for="switch-late" class="switch-label switch-label-i"><i class="tim-icons icon-simple-delete"></i></label> -->
                                       
-                                      <input id="switch-absent" name="attendance" type="radio" value="3" v-model="newStatus" class="switch-input" @change="updateStatus"/>
+                                      <input id="switch-absent" name="attendance" type="radio" value="0" v-model="newStatus" class="switch-input" @change="updateStatus"/>
                                       <label for="switch-absent" class="switch-label switch-label-n"><i class="tim-icons icon-simple-remove"></i></label>
                                       
                                       <span class="switch-selector"></span>
@@ -139,8 +140,8 @@
                       </div>
                       <div class="text-muted mt-2">
                           <span v-if="newStatus == 1" class="text-success">Có mặt</span>
-                          <span v-if="newStatus == 2" class="text-warning">Đi muộn</span>
-                          <span v-if="newStatus == 3" class="text-danger">Vắng mặt</span>
+                          <!-- <span v-if="newStatus == 2" class="text-warning">Đi muộn</span> -->
+                          <span v-if="newStatus == 0" class="text-danger">Vắng mặt</span>
                       </div>
                   </card>
               </div>
@@ -169,12 +170,16 @@
                         <div class="row">
                             <div class="col-12" v-if="lessonDetail">
                               <div class="row">
-                                    <div class="col-md-3 pr-md-1">
+                                    <div class="col-md-4 pr-md-1">
                                         <base-input label="Bài số" v-model="lessonDetail.lessonNumber" placeholder="Bài số">
                                         </base-input>
                                     </div>
-                                    <div class="col-md-9 pr-md-1">
+                                    <div class="col-md-4 pr-md-1">
                                         <base-input label="Tên bài học" v-model="lessonDetail.nameLesson" placeholder="Tên bài học">
+                                        </base-input>
+                                    </div>
+                                    <div class="col-md-4 pr-md-1">
+                                        <base-input disabled label="Vắng" v-model="lessonDetail.absences" placeholder="Vắng" v-if="positions && attendances">
                                         </base-input>
                                     </div>
                               </div>
@@ -238,8 +243,8 @@ export default {
         nameLesson: null,
         teacher: null,
         comment: null,
-        evaluate: null
-
+        evaluate: null,
+        absences : null,
       },
 
       studentDetail: {
@@ -262,7 +267,7 @@ export default {
   methods: {
     countUsersWithStatus12(attendances) {
         // Lọc các đối tượng có status là 1 hoặc 2
-        const filteredUsers = attendances.filter(item => item.status === 1 || item.status === 2);
+        const filteredUsers = attendances.filter(item => item.status );
         
         // Đếm số lượng các user có status = 1 hoặc 2
         return filteredUsers.length;
@@ -275,7 +280,7 @@ export default {
       // Lọc danh sách attendance dựa trên studentId
       if(!this.attendance) return 0;
       const studentAttendance = this.attendance.filter(
-        (att) => att.user === studentId
+        (att) => att.student === studentId
       );
 
       // Nếu không có dữ liệu, trả về trạng thái vắng mặt = 3
@@ -285,7 +290,7 @@ export default {
 
       // Kiểm tra trạng thái cuối cùng của sinh viên
       const lastStatus = studentAttendance[studentAttendance.length - 1].status;
-      return lastStatus
+      return lastStatus ? 1 : 0
     },
     async startLongPolling() {
   let lastAttendance = [];
@@ -300,7 +305,7 @@ export default {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get(`${API_URL}/attendance/attendance/?lesson=${this.lessonData.id}`, {
+      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session_code=${this.lessonData.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -362,40 +367,53 @@ export default {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
     shortenName(fullName) {
-      const nameParts = fullName.trim().split(' '); // Tách tên thành các phần
-      if (nameParts.length == 3) return nameParts.slice(1).join(' '); // Nếu chỉ có một phần, trả về tên gốc
-      if (nameParts.length == 4) return nameParts.slice(2).join(' '); // Lấy các phần sau họ và ghép lại
+      // const nameParts = fullName.trim().split(' '); // Tách tên thành các phần
+      // if (nameParts.length == 3) return nameParts.slice(1).join(' '); // Nếu chỉ có một phần, trả về tên gốc
+      // if (nameParts.length == 4) return nameParts.slice(2).join(' '); // Lấy các phần sau họ và ghép lại
       return fullName
     },
     scoringAndEnroll(index){
-      this.studentDetail.id = index.user
+      this.studentDetail.id = index.student
       this.studentDetail.full_name = index.full_name
       this.studentDetail.subject = this.lessonData.subject
       this.studentDetail.semester = this.lessonData.semester
 
-      this.currentStatus = this.getAttendanceStatus(index.user);
+      this.currentStatus = this.getAttendanceStatus(index.student);
       this.newStatus = this.currentStatus;
       console.log("current and new"+this.currentStatus)
 
       this.scoreModal = true
     },
     updateStatus(){
+      console.log(this.studentDetail.id)
+      const studentAttendance = this.attendance.filter(
+        (att) => att.student === this.studentDetail.id
+      );
+
+      if(studentAttendance.length === 0) {
+        this.createStatus();
+        return;
+      }
+
+      // Kiểm tra trạng thái cuối cùng của sinh viên
+      const studentAttendanceId = studentAttendance[studentAttendance.length - 1].id;
+
       console.log("current"+this.currentStatus)
       console.log("new"+this.newStatus)
       if(this.currentStatus == this.newStatus) return 
       else {
         //update status
         let data = {
-          "lesson_id": this.lessonData.id,
-          "student_id": this.studentDetail.id,
-          "new_status": this.newStatus
+          "session": this.lessonData.id,
+          "student": this.studentDetail.id,
+          "status": this.newStatus == 0 ? false : true
         }
         const token = localStorage.getItem("access_token");
         
         console.log(data)
 
         axios
-        .post(API_URL+"/attendance/attendance/update/", data,  {
+        .post(API_URL+`/rooms_managements/attendances/${studentAttendanceId}`, data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -406,7 +424,7 @@ export default {
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Đổi trạng thái học sinh " + this.studentDetail.full_name+ " thành công",
+                message: "Đổi trạng thái học sinh " + this.studentDetail.id+ " thành công",
                 timeout: 1000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -414,11 +432,6 @@ export default {
         })
         .catch((error) => {
           console.error("Error post grade data :", error);
-          if(this.currentStatus == 0){
-            this.createStatus()
-            return
-          }
-
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
@@ -427,13 +440,14 @@ export default {
                 verticalAlign: "top",
                 horizontalAlign: "right",
               });
-        });
+        });       
       }
     },
     createStatus(){
       let data = {
-          "student_id": this.studentDetail.id,  
-          "device_id": "as7dchu8d"
+          "session": this.lessonData.id,
+          "student": this.studentDetail.id,
+          "status": true
         }
         console.log(data)
         const token = localStorage.getItem("access_token");
@@ -441,15 +455,15 @@ export default {
         console.log(data)
 
         axios
-        .post(API_URL+"/attendance/attendance/", data,  {
+        .post(API_URL+"/rooms_managements/attendances/", data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-          this.currentStatus = response.data.status
-          this.newStatus = this.currentStatus
+          this.currentStatus = response.data.status ? 1 : 0
+          this.newStatus = this.currentStatus ? 1 : 0
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
@@ -529,6 +543,7 @@ export default {
         });
     },
     toggleEvaluate(){
+      this.lessonDetail.absences = this.positions.length - this.countUsersWithStatus12(this.attendances)
       this.evaluateModal = true;
     },
     evaluating(){
@@ -557,16 +572,17 @@ export default {
 
       const data = {
         "comment": this.lessonDetail.comment,
-        "evaluate": this.lessonDetail.evaluate,        
+        "grade": this.lessonDetail.evaluate,        
         "lesson_number": this.lessonDetail.lessonNumber,
-        "name_lesson": this.lessonDetail.nameLesson
+        "lesson_name": this.lessonDetail.nameLesson,
+        "absences": this.lessonDetail.absences
       }
       console.log(data)
       
       const token = localStorage.getItem("access_token");
 
         axios
-        .patch(API_URL+`/adminpanel/lessons/${this.lessonData.id}/update/`, data,  {
+        .put(API_URL+`/managements/sessions/${this.lessonData.id}/`, data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -624,7 +640,7 @@ export default {
           this.desks[rowIndex][columnIndex] = this.draggedStudent; // Đặt học sinh kéo tới vị trí mới
           this.desks[this.draggedRow][this.draggedCol] = null; // vị trí trước đó là null
           //Cập nhật vị trí mới cho học sinh
-          this.updatePosition(this.draggedStudent.user, rowIndex, columnIndex);
+          this.updatePosition(this.draggedStudent, rowIndex, columnIndex);
         }
         else {
           this.desks[rowIndex][columnIndex] = this.draggedStudent;
@@ -633,14 +649,16 @@ export default {
         }
       }
     },
-    updatePosition(studentId, row, col){
+    updatePosition(student, row, col){
       const token = localStorage.getItem("access_token");
       const data = {
         "row": row+1,
-        "column": col+1
+        "column": col+1,
+        "student": student.student,
+        "room": student.room
       }
         axios
-        .patch(API_URL+"/rooms/seating-positions/"+ studentId +"/", data, {
+        .put(API_URL+"/rooms_managements/seatings/"+ student.id +"/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -650,7 +668,7 @@ export default {
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Đổi vị trí học sinh "+ response.data.student_details.full_name + " thành công",
+                message: "Đổi vị trí học sinh thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
@@ -672,11 +690,11 @@ export default {
     swapPosition(student1, student2){
       const token = localStorage.getItem("access_token");
       const data = {
-        "user_id_1": student1.user,
-        "user_id_2": student2.user
+        "user_id_1": student1.student,
+        "user_id_2": student2.student
       }
         axios
-        .post(API_URL+"/rooms/seating-positions/swap_seats/", data, {
+        .post(API_URL+"/rooms_managements/seatings/swap_seats/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -686,7 +704,7 @@ export default {
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Đổi vị trí học sinh "+student1.full_name+" và "+student2.full_name + " thành công",
+                message: "Hoán đổi vị trí học sinh thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
@@ -709,8 +727,9 @@ export default {
       positions.forEach(position => {
         const columnIndex = position.column - 1; 
         const rowIndex = position.row - 1; 
-        this.$set(this.desks[rowIndex], columnIndex, position.student_details); 
+        this.$set(this.desks[rowIndex], columnIndex, position); 
       });
+      console.log(this.desks)
       return this.desks;
     },
     formatTime(date) {
@@ -724,14 +743,15 @@ export default {
       this.lessonData = JSON.parse(localStorage.getItem("lesson_data"));
       console.log(this.lessonData)
       this.lessonDetail.lessonNumber = this.lessonData.lesson_number
-      this.lessonDetail.nameLesson = this.lessonData.name_lesson
-      this.lessonDetail.evaluate = this.lessonData.evaluate
+      this.lessonDetail.nameLesson = this.lessonData.lesson_name
+      this.lessonDetail.evaluate = this.lessonData.grade
       this.lessonDetail.comment = this.lessonData.comment
-      const roomName = this.lessonData.room
+     
+      const roomId = this.lessonData.room_id.id
       const token = localStorage.getItem("access_token");
       try {
         // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
-        const response = await axios.get(`${API_URL}/rooms/seating-positions/?room=${roomName}`, {
+        const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -840,7 +860,7 @@ export default {
 .switch {
     position: relative;
     height: 32px;
-    width: 210px;
+    width: 140px;
     margin: 20px auto;
     background: #d7d7d789;
     border-radius: 32px;
@@ -951,4 +971,5 @@ export default {
 .class-info-table tr:nth-child(even) {
   background-color: #f2f2f2; /* Màu nền so le */
 }
+
 </style>

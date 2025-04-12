@@ -7,12 +7,15 @@ import App from "./App";
 import router from "./router/index";
 import { BootstrapVue ,BSpinner } from 'bootstrap-vue'
 
+
 import BlackDashboard from "./plugins/blackDashboard";
 import i18n from "./i18n";
+import VCalendar from 'v-calendar';
 
 import "./registerServiceWorker";
 
 // import css
+
 import './assets/css/styles.css'
 
 Vue.component('b-spinner', BSpinner)
@@ -20,6 +23,10 @@ Vue.use(BootstrapVue)
 Vue.use(BlackDashboard);
 Vue.use(VueRouter);
 Vue.use(RouterPrefetch);
+Vue.use(VCalendar, {
+  componentPrefix: 'vc',  // Use <vc-calendar /> instead of <v-calendar />
+});
+
 new Vue({
   router,
   i18n,

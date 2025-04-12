@@ -26,7 +26,7 @@
           </div>
         </div>
 
-        <div class="row" v-if="model.role === 'teachers' || model.role === 'admins'">
+        <div class="row" v-if="this.user_role === 'teacher' ||this.user_role === 'admin'">
           <div class="col-md-12 pr-md-1">
             <base-input
               label="Chức vụ"
@@ -38,7 +38,7 @@
           </div>
         </div>
 
-        <div class="row" v-if="model.role === 'teachers' || model.role === 'admins'">
+        <div class="row" v-if="this.user_role === 'teacher' || this.user_role === 'admin'">
           <div class="col-md-6 pr-md-1">
             <base-input
               label="Học vấn"
@@ -166,6 +166,7 @@ export default {
       old_password: null,
       new_password: null,
       re_new_password: null,
+      user_role: null,
     };
   },
   computed: {
@@ -173,7 +174,9 @@ export default {
       API_URL =  this.$t("dashboard.apiURL");
     },
   },
-  mounted() {},
+  mounted() {
+    this.getUserRole()
+  },
   props: {
     model: {
       type: Object,
@@ -183,6 +186,9 @@ export default {
     },
   },
   methods: {
+    getUserRole(){
+      this.user_role = localStorage.getItem("user_role");
+    },
     hasEmailError() {
       // Kiểm tra email với regex cơ bản để kiểm tra tính hợp lệ của email
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -202,6 +208,7 @@ export default {
       }
 
       const token = localStorage.getItem("access_token");
+      console.log(this.user_role)
 
       let updateDataUser = null;
       if (this.model.old_email === this.model.email) {

@@ -158,29 +158,33 @@
   }
 
   &.btn-simple {
-    color: $btn-color;
-    border-color: $btn-color;
+    // color: $btn-states-color;
+    // border-color: $btn-states-color;
+    // background: $transparent-bg;
+
+    color: $gray-700;
+    border-color: $gray-700;
     background: $transparent-bg;
 
     &:hover,
     &:focus,
     &:active,
     &:not(:disabled):not(.disabled):active {
-      color: $btn-color;
-      border-color: $btn-color;
+      color: $gray-700;
+      border-color: $gray-700;
       background-color: $transparent-bg !important;
       background-image: none !important;
       box-shadow: none;
     }
 
     &.active {
-      border-color: $btn-color !important;
+      border-color: $gray-700 !important;
       &:hover,
       &:focus,
       &:active,
       &:not(:disabled):not(.disabled):active {
-        color: $white;
-        border-color: $btn-color;
+        color: $gray-700;
+        border-color: $gray-700;
         background-image: linear-gradient(
           to bottom left,
           $btn-color,

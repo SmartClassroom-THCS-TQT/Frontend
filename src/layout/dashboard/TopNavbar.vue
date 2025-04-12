@@ -21,7 +21,7 @@
             <span class="navbar-toggler-bar bar3"></span>
           </button>
         </div>
-        <a class="navbar-brand" style="color: white" href="#pablo">{{ routeName }}</a>
+        <a class="navbar-brand" style="color: #3e413c; font-weight: bold;" href="#pablo">{{ routeName }}</a>
       </div>
       
 
@@ -54,7 +54,7 @@
               >
                 <i class="tim-icons icon-zoom-split"></i>
               </button> -->
-              <base-button @click="studyToggle" type="success" simple class="text-center ml-2" v-if="userData.role == 'teacher'">
+              <base-button @click="studyToggle" type="simple" simple class="text-center ml-2" v-if="userRole === 'teacher'" >
                <i class="tim-icons icon-atom"></i> Dạy học
               </base-button>
               
@@ -77,8 +77,8 @@
                 <div class="photo mr-3">
                   <img src="img/anime3.png" />
                 </div>
-                <span v-if="userData" :userData="userData" class="mr-5">{{ userData.full_name }}</span>
-                <span class="caret d-none d-lg-block d-xl-block"> </span>
+                <span v-if="userData" :userData="userData" class="mr-5" style="color: black;">{{ userData.full_name }}</span>
+                <span class="caret d-none d-lg-block d-xl-block" style="color: #3e413c;"> </span>
                 <p v-if="userData" :userData="userData" class="d-lg-none">{{ userData.full_name }}</p>
               </a>
               <li class="nav-link">
@@ -133,6 +133,9 @@ export default {
     BaseButton,
     Loading
   },
+  mounted(){
+    this.userRole = localStorage.getItem('user_role');
+  },
   computed: {
     getApiUrl() {
       API_URL =  this.$t("dashboard.apiURL");
@@ -144,6 +147,7 @@ export default {
     isRTL() {
       return this.$rtl.isRTL;
     },
+    
   },
   data() {
     return {
@@ -152,6 +156,7 @@ export default {
       searchModalVisible: false,
       searchQuery: "",
       isLoading: false,
+      userRole:null,
     };
   },
   methods: {
@@ -210,7 +215,8 @@ export default {
       return `${year}-${month}-${day}`;
     },
     async studyToggle(){
-      if(!this.userData.role == "teacher"){
+      const user_role = localStorage.getItem(user_role)
+      if(!user_role == "teacher"){
         this.$notify({
           type: 'warning',
           icon: 'tim-icons icon-bell-55',
@@ -263,16 +269,18 @@ export default {
       // Call API để kiểm tra giáo viên có tiết học không
       this.isLoading = true;
       try {
-        const response = await axios.get(API_URL + `/adminpanel/lessons/?teacher=${this.userData.user_id}&day=${this.getCurrentFormattedDate(currentDate)}&period=${currentPeriod}`, {
+        // const response = await axios.get(API_URL + `/managements/sessions/?semester_code=20241&teacher=${this.userData.user_id}&day=${this.getCurrentFormattedDate(currentDate)}&period=${currentPeriod}`, {
+        const response = await axios.get(API_URL + `/managements/sessions/?semester_code_code=20241&teacher=${this.userData.account}&day=${this.getCurrentFormattedDate(currentDate)}&time_slot_code=${currentPeriod}/`, {
           
         })
-        
+        console.log(response.data[0])
           if (response.data.length !== 0) {
+            
             localStorage.setItem('lesson_data', JSON.stringify(response.data[0]));
             this.$notify({
               type: 'success',
               icon: 'tim-icons icon-bell-55',
-              message: "Bắt đầu dạy học lớp "+response.data[0].room,
+              message: "Bắt đầu dạy học lớp "+response.data[0].room_id.name,
               timeout: 1000,
               verticalAlign: 'top',
               horizontalAlign: 'center',

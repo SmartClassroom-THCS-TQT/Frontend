@@ -7,14 +7,14 @@
             <template slot="header">
                 <div class="row">
                     <div class="col-md-5">
-                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.name : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
+                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.code : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
                     </div>
                     <div class="col-md-7">
                     <div class="row">
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Học kỳ">
                             <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
-                            <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
+                            <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
                             </select>
                         </base-input>
                         </div>
@@ -45,7 +45,7 @@
                         <table class="table-bordered" style="width: 863px">
                             <tbody>
                                 <tr style="height: 62px;">
-                                    <td style="width: 82px; height: 62px;">Thứ</td>
+                                    <td style="width: 82px; height: 62px; ">Thứ</td>
                                     <td style="width: 29px; height: 62px;">Tiết</td>
                                     <td style="width: 81px; height: 62px;">Môn học</td>
                                     <td style="width: 10px; height: 62px;">Tiết theo PPCT</td>
@@ -760,9 +760,9 @@ let API_URL = ""
 
             else {
             const arr = ["hiện tại"];
-            let number_of_week = this.semesterSelected.number_of_weeks
+            let number_of_week = this.semesterSelected.weeks_count
 
-            const semesterStartDate = new Date(this.semesterSelected.day_begin); // Ngày bắt đầu của học kỳ
+            const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
             const currentDate = new Date();
 
             // Tính toán tuần hiện tại
@@ -794,7 +794,7 @@ let API_URL = ""
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + "/adminpanel/semesters/", {
+          .get(API_URL + "/managements/semesters/", {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",

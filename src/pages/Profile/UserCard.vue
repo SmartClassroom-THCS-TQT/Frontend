@@ -13,8 +13,8 @@
           @click="updateAvatar"/>
         
       </a>
-      <h5 class="title">{{ user.fullName }}</h5>
-      <p class="description">
+      <h5 class="title" style="color:#3e413c">{{ user.fullName }}</h5>
+      <p class="description" style="color: #3e413c;">
         {{ user.title }}
       </p>
     </div>
