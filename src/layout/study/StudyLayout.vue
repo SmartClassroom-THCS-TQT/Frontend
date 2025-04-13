@@ -26,7 +26,7 @@
           <base-button
             v-if="seat"
             @click="scoringAndEnroll(seat)" 
-            class="btn"
+            class="btn btn-simple"
             draggable
             :class="{'btn-success': getAttendanceStatus(seat.account) === 1, 'btn-danger': (getAttendanceStatus(seat.account) === 0) , 'btn': getAttendanceStatus(seat.account) === -1}"
             

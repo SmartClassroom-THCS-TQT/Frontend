@@ -367,114 +367,7 @@
         </modal>
 
         <!-- Create Modal -->
-        <modal :show.sync="modals.createModal"
-               body-classes="p-0"
-               modal-classes="modal-dialog-centered modal-sm">
-               <!-- Semester -->
-               
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
-                <template>
-                    <div class="text-muted text-center mb-3">
-                        <h4 class="text-dark">Thêm học kỳ</h4>
-                    </div>
-                </template>
-                <template>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-md-12 pr-md-1">
-                                        <base-input label="Học kỳ (VD: 20241)" v-model="modals.semesterCreate.code"></base-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pr-md-1">
-                                        <base-input label="Ngày bắt đầu" v-model="modals.semesterCreate.start_date" type="date"></base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input label="Số tuần" v-model="modals.semesterCreate.weeks_count"></base-input>
-                                    </div>
-                                </div>
-                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
-                            </div>
-                        </div>
-                </template>
-            </card>
-
-            <!-- Time-slots -->
-
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
-                <template>
-                    <div class="text-muted text-center mb-3">
-                        <h4 class="text-dark">Thêm tiết học</h4>
-                    </div>
-                </template>
-                <template>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-md-12 pr-md-1">
-                                        <base-input label="Tiết số" type="number" v-model="modals.timeslotCreate.code"></base-input>
-                                    </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input label="Bắt đầu" type="time" v-model="modals.timeslotCreate.start_time"></base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input label="Kết thúc" type="time" v-model="modals.timeslotCreate.end_time"></base-input>
-                                    </div>
-                                </div>
-                                
-                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
-                            </div>
-                        </div>
-                </template>
-            </card>
-
-            
-
-                        <!-- Môn học -->
-
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
-                <template>
-                    <div class="text-muted text-center mb-3">
-                        <h4 class="text-dark">Thêm môn học</h4>
-                    </div>
-                </template>
-                <template>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-md-12 pr-md-1">
-                                        <base-input label="Mã môn học" type="number" v-model="modals.subjectCreate.code"></base-input>
-                                    </div>
-                                    
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input label="Tên môn học" v-model="modals.subjectCreate.name"></base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input label="Mô tả" v-model="modals.subjectCreate.description"></base-input>
-                                    </div>
-                                </div>
-                                
-                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
-                            </div>
-                        </div>
-                </template>
-            </card>
-        </modal>
+        
 
         <!-- Update Modal -->
         <modal :show.sync="modals.updateModal"
@@ -839,6 +732,116 @@
         </div>
 
       </card>
+
+      <modal :show.sync="modals.createModal"
+               body-classes="p-0"
+               modal-classes="modal-dialog-centered modal-sm">
+               <!-- Semester -->
+               
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-dark">Thêm học kỳ</h4>
+                    </div>
+                </template>
+                <template>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-12 pr-md-1">
+                                        <base-input label="Học kỳ (VD: 20241)" v-model="modals.semesterCreate.code"></base-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-1">
+                                        <base-input label="Ngày bắt đầu" v-model="modals.semesterCreate.start_date" type="date"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Số tuần" v-model="modals.semesterCreate.weeks_count"></base-input>
+                                    </div>
+                                </div>
+                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
+                            </div>
+                        </div>
+                </template>
+            </card>
+
+            <!-- Time-slots -->
+
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-dark">Thêm tiết học</h4>
+                    </div>
+                </template>
+                <template>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-12 pr-md-1">
+                                        <base-input label="Tiết số" type="number" v-model="modals.timeslotCreate.code"></base-input>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Bắt đầu" type="time" v-model="modals.timeslotCreate.start_time"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Kết thúc" type="time" v-model="modals.timeslotCreate.end_time"></base-input>
+                                    </div>
+                                </div>
+                                
+                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
+                            </div>
+                        </div>
+                </template>
+            </card>
+
+            
+
+                        <!-- Môn học -->
+
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-dark">Thêm môn học</h4>
+                    </div>
+                </template>
+                <template>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-12 pr-md-1">
+                                        <base-input label="Mã môn học" type="number" v-model="modals.subjectCreate.code"></base-input>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Tên môn học" v-model="modals.subjectCreate.name"></base-input>
+                                    </div>
+                                    <div class="col-md-6 pl-md-1">
+                                        <base-input label="Mô tả" v-model="modals.subjectCreate.description"></base-input>
+                                    </div>
+                                </div>
+                                
+                                <base-button @click="createObject" type="secondary" fill>Xác nhận</base-button>
+                            </div>
+                        </div>
+                </template>
+            </card>
+        </modal>
+
     </div>
   </div>
 </template>
