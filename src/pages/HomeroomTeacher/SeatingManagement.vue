@@ -29,7 +29,7 @@
                                 <li v-for="student in unassignedStudents" :key="student">
                                     <base-button v-if="student" @click="assignStudent(student)" class="dashboard-button btn-info" simple>
                                         <!-- {{ student? shortenName( student.full_name) : "" }} -->
-                                        {{student}}
+                                        {{shortenName(student.full_name)}}
                                     </base-button>
                                 </li>
                             </ul>
@@ -48,7 +48,7 @@
                 class="btn-info btn-simple classroom-student"
                 draggable
               >
-                {{seat.student }} <!-- Assuming 'seat' is an object with 'student' having a 'name' property -->
+                {{shortenName(seat.full_name) }} <!-- Assuming 'seat' is an object with 'student' having a 'name' property -->
               </base-button>
               <base-button
                 v-if="!seat && seatingPermission"
@@ -146,7 +146,7 @@ export default {
     createPosition(row, col){
       const token = localStorage.getItem("access_token");
       const data = {
-        "student":this.studentSelected,
+        "student":this.studentSelected.account,
         "room": this.room.id,
         "row": row+1,
         "column": col+1
@@ -164,7 +164,7 @@ export default {
           this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: "Thêm chỗ ngồi học sinh "+ this.studentSelected + " thành công",
+                message: "Thêm chỗ ngồi học sinh "+ this.studentSelected.full_name + " thành công",
                 timeout: 1500,
                 verticalAlign: "bottom",
                 horizontalAlign: "left",
@@ -191,12 +191,16 @@ export default {
       this.seatingPermission = true
     },
     toggleSeatingModal(){
-        
-        this.unassignedStudents = this.room.students.filter(studentId => {
-            // Kiểm tra nếu học sinh không có trong danh sách positions
-            return !this.positions.some(position => position.student === studentId);
-        });
-        if(this.unassignedStudents.length ==0){
+        console.log("stundents")
+        // console.log(this.room.students)
+        // this.unassignedStudents = this.room.students.filter(student => {
+        //     // Kiểm tra nếu học sinh không có trong danh sách positions
+        //     return !this.positions.some(position => {
+        //      position.seating && position.seating.student === student.account});
+        // });
+        this.unassignedStudents = this.positions.filter(student => !student.seating);
+
+        if(this.unassignedStudents.length == 0){
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
@@ -213,7 +217,7 @@ export default {
       const token = localStorage.getItem("access_token");
       
         axios
-        .get(API_URL+`/rooms/roomset/${roomId}/students/`, {
+        .get(API_URL+`/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -330,11 +334,11 @@ export default {
       const data = {
         "row": row+1,
         "column": col+1,
-        "student": student.student,
-        "room": student.room
+        "student": student.seating.student,
+        "room": student.seating.room
       }
         axios
-        .put(API_URL+"/rooms_managements/seatings/"+ student.id +"/", data, {
+        .put(API_URL+"/rooms_managements/seatings/"+ student.seating.id +"/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -368,8 +372,8 @@ export default {
     swapPosition(student1, student2){
       const token = localStorage.getItem("access_token");
       const data = {
-        "user_id_1": student1.student,
-        "user_id_2": student2.student
+        "user_id_1": student1.seating.student,
+        "user_id_2": student2.seating.student
       }
         axios
         .post(API_URL+"/rooms_managements/seatings/swap_seats/", data, {
@@ -441,8 +445,9 @@ export default {
     // },
     formatPositionData(positions) {
       positions.forEach(position => {
-        const columnIndex = position.column - 1; 
-        const rowIndex = position.row - 1; 
+        if(!position.seating) return;
+        const columnIndex = position.seating.column - 1; 
+        const rowIndex = position.seating.row - 1; 
         this.$set(this.desks[rowIndex], columnIndex, position); 
       });
       console.log(this.desks)
@@ -453,7 +458,8 @@ export default {
       const token = localStorage.getItem("access_token");
       try {
         // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
-        const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
+        // const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
+        const response = await axios.get(`${API_URL}/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

@@ -57,7 +57,7 @@ props: {
     async initializeData() {
       try {
         await this.getApiUrl();
-        await this.getStudents(this.room.name);
+        await this.getStudents(this.room.id);
       } catch (error) {
         console.error('Error initializing data:', error);
       }
@@ -68,11 +68,11 @@ props: {
         resolve();
       });
     },
-    getStudents(roomName){
+    getStudents(roomId){
       const token = localStorage.getItem("access_token");
       
         axios
-        .get(API_URL+`/rooms/roomset/${roomName}/students/`, {
+        .get(API_URL+`/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",

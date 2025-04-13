@@ -25,14 +25,14 @@
          @dragover.prevent @drop="dropStudent(rowIndex, columnIndex)" @dragstart="dragStart(seat,rowIndex,columnIndex)">
           <base-button
             v-if="seat"
-            @click="scoringAndEnroll(seat)"
-            class="btn btn-success"
+            @click="scoringAndEnroll(seat)" 
+            class="btn"
             draggable
-            :class="{'btn-success': getAttendanceStatus(seat.student) === 1, 'btn-danger': (getAttendanceStatus(seat.student) === 0) || (!getAttendanceStatus(seat.student)) , 'btn-warning': getAttendanceStatus(seat.student) === 2}"
+            :class="{'btn-success': getAttendanceStatus(seat.account) === 1, 'btn-danger': (getAttendanceStatus(seat.account) === 0) , 'btn': getAttendanceStatus(seat.account) === -1}"
             
           >
             <!-- {{ shortenName(seat.full_name) }}  -->
-            {{seat.student}}
+            {{shortenName(seat.full_name)}}
           </base-button>
         </div>
       </div>
@@ -140,7 +140,7 @@
                       </div>
                       <div class="text-muted mt-2">
                           <span v-if="newStatus == 1" class="text-success">Có mặt</span>
-                          <!-- <span v-if="newStatus == 2" class="text-warning">Đi muộn</span> -->
+                          <span v-if="newStatus != 0 && newStatus != 1" class="text-warning">Chưa điểm danh</span>
                           <span v-if="newStatus == 0" class="text-danger">Vắng mặt</span>
                       </div>
                   </card>
@@ -185,7 +185,7 @@
                               </div>
                               <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Điểm đánh giá (Số tự nhiên 0 -> 10)" v-model="lessonDetail.evaluate" placeholder="Điểm đánh giá">
+                                        <base-input label="Điểm đánh giá (A)" v-model="lessonDetail.evaluate" placeholder="Điểm đánh giá">
                                         </base-input>
                                     </div>
                               </div>
@@ -285,7 +285,7 @@ export default {
 
       // Nếu không có dữ liệu, trả về trạng thái vắng mặt = 3
       if (studentAttendance.length === 0) {
-        return 0;
+        return -1;
       }
 
       // Kiểm tra trạng thái cuối cùng của sinh viên
@@ -305,7 +305,7 @@ export default {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session_code=${this.lessonData.id}`, {
+      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session_code=${this.lessonData.id}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -313,6 +313,7 @@ export default {
       });
 
       this.attendances = response.data;
+      this.attendanceNumber = this.attendances.length;
       const newAttendance = response.data || [];
 
       if (JSON.stringify(newAttendance) !== JSON.stringify(lastAttendance)) {
@@ -367,18 +368,18 @@ export default {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
     shortenName(fullName) {
-      // const nameParts = fullName.trim().split(' '); // Tách tên thành các phần
-      // if (nameParts.length == 3) return nameParts.slice(1).join(' '); // Nếu chỉ có một phần, trả về tên gốc
-      // if (nameParts.length == 4) return nameParts.slice(2).join(' '); // Lấy các phần sau họ và ghép lại
+      const nameParts = fullName.trim().split(' '); // Tách tên thành các phần
+      if (nameParts.length == 3) return nameParts.slice(1).join(' '); // Nếu chỉ có một phần, trả về tên gốc
+      if (nameParts.length == 4) return nameParts.slice(2).join(' '); // Lấy các phần sau họ và ghép lại
       return fullName
     },
     scoringAndEnroll(index){
-      this.studentDetail.id = index.student
+      this.studentDetail.id = index.seating.student
       this.studentDetail.full_name = index.full_name
       this.studentDetail.subject = this.lessonData.subject
       this.studentDetail.semester = this.lessonData.semester
 
-      this.currentStatus = this.getAttendanceStatus(index.student);
+      this.currentStatus = this.getAttendanceStatus(index.account);
       this.newStatus = this.currentStatus;
       console.log("current and new"+this.currentStatus)
 
@@ -413,7 +414,7 @@ export default {
         console.log(data)
 
         axios
-        .post(API_URL+`/rooms_managements/attendances/${studentAttendanceId}`, data,  {
+        .put(API_URL+`/rooms_managements/attendances/${studentAttendanceId}/`, data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -447,7 +448,7 @@ export default {
       let data = {
           "session": this.lessonData.id,
           "student": this.studentDetail.id,
-          "status": true
+          "status": false
         }
         console.log(data)
         const token = localStorage.getItem("access_token");
@@ -569,6 +570,18 @@ export default {
         });
         return
       }
+      console.log(this.attendanceNumber)
+      if(this.positions.length != this.attendanceNumber){
+        this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Vui lòng cho cập nhật trạng thái điểm danh cho tất cả học sinh",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+        });
+        return
+      }
 
       const data = {
         "comment": this.lessonDetail.comment,
@@ -582,7 +595,7 @@ export default {
       const token = localStorage.getItem("access_token");
 
         axios
-        .put(API_URL+`/managements/sessions/${this.lessonData.id}/`, data,  {
+        .patch(API_URL+`/managements/sessions/${this.lessonData.id}/`, data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -654,11 +667,11 @@ export default {
       const data = {
         "row": row+1,
         "column": col+1,
-        "student": student.student,
-        "room": student.room
+        "student": student.seating.student,
+        "room": student.seating.room
       }
         axios
-        .put(API_URL+"/rooms_managements/seatings/"+ student.id +"/", data, {
+        .put(API_URL+"/rooms_managements/seatings/"+ student.seating.id +"/", data, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -690,8 +703,8 @@ export default {
     swapPosition(student1, student2){
       const token = localStorage.getItem("access_token");
       const data = {
-        "user_id_1": student1.student,
-        "user_id_2": student2.student
+        "user_id_1": student1.seating.student,
+        "user_id_2": student2.seating.student
       }
         axios
         .post(API_URL+"/rooms_managements/seatings/swap_seats/", data, {
@@ -725,8 +738,9 @@ export default {
     },
     formatPositionData(positions) {
       positions.forEach(position => {
-        const columnIndex = position.column - 1; 
-        const rowIndex = position.row - 1; 
+        if(!position.seating) return;
+        const columnIndex = position.seating.column - 1; 
+        const rowIndex = position.seating.row - 1; 
         this.$set(this.desks[rowIndex], columnIndex, position); 
       });
       console.log(this.desks)
@@ -751,7 +765,8 @@ export default {
       const token = localStorage.getItem("access_token");
       try {
         // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
-        const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
+        // const response = await axios.get(`${API_URL}/rooms_managements/seatings/?room=${roomId}`, {
+        const response = await axios.get(`${API_URL}/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -768,6 +783,7 @@ export default {
             horizontalAlign: "right",
           });
         } else {
+          console.log(this.positions)
           this.desks = this.formatPositionData(this.positions);
         }
       } catch (error) {
