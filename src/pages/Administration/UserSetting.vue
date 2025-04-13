@@ -11,7 +11,7 @@
               <label
                 v-for="(option, index) in userSettingOption"
                 :key="option"
-                class="btn btn-sm btn-success btn-simple"
+                class="btn btn-sm btn-neutral btn-simple"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -29,16 +29,15 @@
         </template>
 
         <!-- HỌC SINH -->
-        <div v-if="bigLineChart.activeIndex === 0" class="card-container">
-          <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
+        <!-- <div v-if="bigLineChart.activeIndex === 0" class="card-container">
+
           <div
             v-for="(room, index) in roomData"
             :key="index"
             class="card-item"
           >
             <card class="text-center" style="width: 10rem;">
-              <h4 class="card-title text-info">{{ room.name }}</h4>
-              <!-- <p class="card-text">Sĩ số: {{ room.students.length }}</p> -->
+              <h4 class="card-title text-dark">{{ room.name }}</h4>
               <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
                 <i class="tim-icons icon-single-02"></i>
               </base-button>
@@ -48,7 +47,7 @@
             </card>
           </div>
 
-          <!-- Card cuối cùng là nút thêm lớp -->
+
           <div class="card-item add-card">
             <card class="text-center" style="width: 10rem;">
               <h4 class="card-title">Thêm lớp</h4>
@@ -104,14 +103,14 @@
         <modal :show.sync="modals.roomDetailModal"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-lg">
-               <!-- Học sinh -->
+
             <card type="secondary"
                   header-classes="bg-white pb-5"
                   body-classes="px-lg-5 py-lg-5"
                   class="border-0 mb-0" v-if="modals.roomDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Chi tiết lớp học {{modals.roomDetail.name}}</h4>
+                        <h4 class="text-dark">Chi tiết lớp học {{modals.roomDetail.name}}</h4>
                         <p class="text-info">Giáo viên chủ nhiệm : {{modals.roomDetail.manager}}</p>
                     </div>
                 </template>
@@ -126,19 +125,19 @@
                       <th class="text-right">Actions</th>
                     </template>
                     <template slot-scope="{ row }">
-                      <td>{{ row.user_id }}</td>
+                      <td>{{ row.account }}</td>
                       <td>{{ row.full_name }}</td>
                       <td>{{ row.sex }}</td>
                       <td>{{ row.day_of_birth }}</td>
                       <td>{{ row.active_status }}</td>
                       <td class="td-actions text-right">
-                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                        <base-button type="info" size="sm" icon @click="toggleDetail(row.account)">
                           <i class="tim-icons icon-single-02"></i>
                         </base-button>
-                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.account)">
                           <i class="tim-icons icon-settings"></i>
                         </base-button>
-                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.account)">
                           <i class="tim-icons icon-simple-remove"></i>
                         </base-button>
                       </td>
@@ -184,7 +183,41 @@
                   </div>             
                 </template>
             </card>
-        </modal>
+        </modal> -->
+        <div v-if="bigLineChart.activeIndex === 0">
+          <base-table :data="studentData" :columns="student_columns">
+            <template slot="columns">
+              <th>ID</th>
+              <th>Họ và tên</th>
+              <th>Giới tính</th>
+              <th>Ngày sinh</th>
+              <th>Lớp</th>
+              <th>Trạng thái</th>
+              <th class="text-right">Actions</th>
+            </template>
+            <template slot-scope="{ row }">
+              <td>{{ row.account }}</td>
+              <td>{{ row.full_name }}</td>
+              <td>{{ row.sex }}</td>
+              <td>{{ row.day_of_birth }}</td>
+              <td>{{ row.rooms}}</td>
+              <td>{{ row.active_status }}</td>
+              <td class="td-actions text-right">
+                <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                  <i class="tim-icons icon-single-02"></i>
+                </base-button>
+                <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                  <i class="tim-icons icon-settings"></i>
+                </base-button>
+                <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                  <i class="tim-icons icon-simple-remove"></i>
+                </base-button>
+              </td>
+            </template>
+          </base-table>
+        </div>
+        
+        
         <!-- GIÁO VIÊN -->
         <div v-if="bigLineChart.activeIndex === 1">
           <base-table :data="teacherData" :columns="teacher_columns">
@@ -197,7 +230,7 @@
               <th class="text-right">Actions</th>
             </template>
             <template slot-scope="{ row }">
-              <td>{{ row.user_id }}</td>
+              <td>{{ row.account }}</td>
               <td>{{ row.full_name }}</td>
               <td>{{ row.sex }}</td>
               <td>{{ row.day_of_birth }}</td>
@@ -256,7 +289,7 @@
               <th>Chức vụ</th>
             </template>
             <template slot-scope="{ row }">
-              <td>{{ row.user_id }}</td>
+              <td>{{ row.account }}</td>
               <td>{{ row.full_name }}</td>
               <td>{{ row.sex }}</td>
               <td>{{ row.day_of_birth }}</td>
@@ -276,7 +309,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin học sinh</h4>
+                        <h4 class="text-dark">Thông tin học sinh</h4>
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
@@ -332,7 +365,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin giáo viên</h4>
+                        <h4 class="text-dark">Thông tin giáo viên</h4>
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
@@ -396,7 +429,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thông tin phụ huynh</h4>
+                        <h4 class="text-dark">Thông tin phụ huynh</h4>
                     </div>
                 </template>
                 <template v-if="modals.parentDetail">
@@ -434,7 +467,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 0 && modals.studentDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật học sinh</h4>
+                        <h4 class="text-dark">Cập nhật học sinh</h4>
                     </div>
           
                       <div class="author">
@@ -495,7 +528,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 1 && modals.teacherDetail">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật giáo viên</h4>
+                        <h4 class="text-dark">Cập nhật giáo viên</h4>
                     </div>
 
                     <div class="author">
@@ -567,7 +600,7 @@
                   class="border-0 mb-0" v-if="this.bigLineChart.activeIndex === 2">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Cập nhật phụ huynh</h4>
+                        <h4 class="text-dark">Cập nhật phụ huynh</h4>
                     </div>
                 </template>
                 <template v-if="modals.parentDetail">
@@ -691,7 +724,7 @@ export default {
         parentDetail: null,
         roomDetail: null,
     },
-    student_columns: ["user", "full_name", "sex", "day_of_birth", "active_status", "actions"],
+    student_columns: ["user", "full_name", "sex", "day_of_birth", "rooms", "active_status", "actions"],
     teacher_columns: ["user", "full_name", "sex", "day_of_birth", "subjects", "actions"],
     parent_columns: ["user", "full_name", "address"],
     admin_columns: ["user", "full_name", "sex", "day_of_birth", "description"],
@@ -758,382 +791,378 @@ export default {
     },
   },
   methods: {
-    async registerAccountsTest() {
-      this.tableSuccess = [];
-      if (!this.tableData.length) {
-        alert("Không có account nào để xử lý.");
-        return;
-      }
-      console.log("sheetName"+this.sheetName)
-      if(this.sheetName != "Cập nhật học sinh"){
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: "Vui lòng kiểm tra lại định dạng Excel" ,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-        return;
-      }
-
-      this.inProgress = true;
-      this.successValue = 0;
-      this.value = 0;
-      this.max = this.tableData.length;
-      this.processedCount = 0;
-
-      // Khởi chạy tiến trình cập nhật progress bar
-      this.startProgressUpdate();
-
-      // Xử lý từng account
-      for (const account of this.tableData) {
-        try {
-          await this.processAccount(account);
-          this.processedCount++; // Cập nhật số account đã xử lý
-        } catch (error) {
-          console.error("Lỗi khi xử lý account:", error);
-        }
-      }
-
-      // Dừng tiến trình khi hoàn thành
-      this.stopProgressUpdate();
-      this.$notify({
-            type: "success",
-            icon: 'tim-icons icon-check-2',
-            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
-            timeout: 3000,
-            verticalAlign: "top",
-            horizontalAlign: "right",
-          });
-    },
-    startProgressUpdate() {
-      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
-      this.intervalId = setInterval(() => {
-        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
-      }, 500);
-    },
-    stopProgressUpdate() {
-      // Dừng setInterval và đặt lại trạng thái
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      this.inProgress = false;
-    },
-    async processAccount(account) {
-      try {
-        let apiUrl = API_URL + `/accounts/users/${account[2]}/update/`;
-        let data = {
-          rooms: this.modals.roomDetail.code
-        };
-
-        const token = localStorage.getItem("access_token");
-
-        const response = await axios.put(apiUrl, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        this.successValue++;
-        this.tableSuccess.push(account);
-        this.$notify({
-          type: "success",
-          icon: "tim-icons icon-check-2",
-          message: response.data.detail,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        return true; // Xử lý thành công
-      } catch (error) {
-        console.error("Error registering accounts:", error);
-
-        const errorMessage =
-          error.response?.data ||
-          "Có lỗi xảy ra. Vui lòng thử lại sau";
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: errorMessage,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        return false; // Xử lý thất bại
-      }
-    },
-    addRoom() {
-      const token = localStorage.getItem("access_token");
-      let data = this.modals.roomCreate
-      axios
-        .post(API_URL+"/managements/rooms/", data, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then(() => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm lớp học thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-              this.initBigChart(this.bigLineChart.activeIndex);
-              this.modals.roomCreateModal = false;
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm lớp học không thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
-    },
-    downloadExcel() {
-      // Tìm phần tử xlsx-download và kích hoạt link download
-      const downloadLink = this.$refs.excelDownload.$el.querySelector('a');
-      if (downloadLink) {
-        downloadLink.click();
-      } else {
-        console.error("Không tìm thấy link tải xuống.");
-      }
-    },
-    updateCollection(newCollection) {
-      this.collection = newCollection; // Lưu collection vào this.collection
-      this.formatRoomData()
-    },
-    formatRoomData(){
-      console.log(this.collection)
-      console.log(this.selectedSheet)
-      const [roomName, teacherId] = this.selectedSheet.split("-");
-        
-      // Lưu vào các biến cần thiết
-      this.roomCreateName = roomName;
-      this.homeRoomTeacherId = teacherId;
-      this.allCreateStudent = this.collection.map(item => item.user_id);
-    
-      console.log(this.allCreateStudent); // Kiểm tra kết quả
-      this.createRoom()
-
-    },
-    async createRoom() {
-      try {
-        // Tạo tên lớp học
-        await this.createRoomName();
-
-        // Thêm học sinh vào lớp học
-        await this.addStudent();
-
-        await this.addHomeRoomTeacher();
-
-        // Khởi tạo biểu đồ lớn
-        this.initBigChart(this.bigLineChart.activeIndex);
-
-        // Đóng modal tạo lớp học
-        this.modals.roomCreateModal = false;
-      } catch (error) {
-        console.error("Error creating room:", error);
-        // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-      }
-    },
-    addHomeRoomTeacher(){
-      const token = localStorage.getItem("access_token");
-      axios
-        .patch(API_URL+`/rooms/${this.roomCreateName}/`, { "homeroom_teacher": this.homeRoomTeacherId }, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then(() => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm giáo viên chủ nhiệm vào lớp thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm giáo viên chủ nhiệm vào lớp không thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
-    },
-    createRoomName(){
-      const token = localStorage.getItem("access_token");
-      axios
-        .post(API_URL+`/rooms/`, { "name": this.roomCreateName }, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then(() => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: `Tạo lớp học thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Tạo lớp học thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
-    },
-    addStudent(){
-      const token = localStorage.getItem("access_token");
-      const data = {
-        "room": this.roomCreateName,
-        "students": this.allCreateStudent
-      }
-      console.log(data)
-      axios
-        .post(API_URL+`/rooms/addstudents/`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then(() => {
-          this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm học sinh vào lớp thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm học sinh vào lớp thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
-    },
-    triggerFileUpload() {
-      this.$refs.fileInput.click(); // Trigger file input click event
-    },
-    handleFileUpload(event) {
-      this.selectedFile = event.target.files[0]; // Get selected file
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        this.sheetName = workbook.SheetNames[0]; // Chọn sheet đầu tiên
-        const sheet = workbook.Sheets[this.sheetName];
-
-        // Chuyển đổi dữ liệu sheet sang JSON
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        console.log("Full data:", jsonData);
-
-        // Lấy tiêu đề cột từ dòng 5
-        this.tableHeaders = jsonData[0];
-
-        // Lấy dữ liệu từ dòng 7 trở đi
-        this.tableData = jsonData.slice(1);
-        console.log("Filtered data:", this.tableData);
-      };
-      reader.readAsArrayBuffer(this.selectedFile);
-    },
-    // triggerFileUpload() {
-    //   if(this.file) {
-    //     location.reload(); // Reload trang
+    // async registerAccountsTest() {
+    //   this.tableSuccess = [];
+    //   if (!this.tableData.length) {
+    //     alert("Không có account nào để xử lý.");
     //     return;
     //   }
+    //   console.log("sheetName"+this.sheetName)
+    //   if(this.sheetName != "Cập nhật học sinh"){
+    //     this.$notify({
+    //       type: "danger",
+    //       icon: "tim-icons icon-bell-55",
+    //       message: "Vui lòng kiểm tra lại định dạng Excel" ,
+    //       timeout: 3000,
+    //       verticalAlign: "top",
+    //       horizontalAlign: "right",
+    //     });
+    //     return;
+    //   }
+
+    //   this.inProgress = true;
+    //   this.successValue = 0;
+    //   this.value = 0;
+    //   this.max = this.tableData.length;
+    //   this.processedCount = 0;
+
+    //   // Khởi chạy tiến trình cập nhật progress bar
+    //   this.startProgressUpdate();
+
+    //   // Xử lý từng account
+    //   for (const account of this.tableData) {
+    //     try {
+    //       await this.processAccount(account);
+    //       this.processedCount++; // Cập nhật số account đã xử lý
+    //     } catch (error) {
+    //       console.error("Lỗi khi xử lý account:", error);
+    //     }
+    //   }
+
+    //   // Dừng tiến trình khi hoàn thành
+    //   this.stopProgressUpdate();
+    //   this.$notify({
+    //         type: "success",
+    //         icon: 'tim-icons icon-check-2',
+    //         message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
+    //         timeout: 3000,
+    //         verticalAlign: "top",
+    //         horizontalAlign: "right",
+    //       });
+    // },
+    // startProgressUpdate() {
+    //   // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
+    //   this.intervalId = setInterval(() => {
+    //     this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
+    //   }, 500);
+    // },
+    // stopProgressUpdate() {
+    //   // Dừng setInterval và đặt lại trạng thái
+    //   clearInterval(this.intervalId);
+    //   this.intervalId = null;
+    //   this.inProgress = false;
+    // },
+    // async processAccount(account) {
+    //   try {
+    //     let apiUrl = API_URL + `/accounts/users/${account[2]}/update/`;
+    //     let data = {
+    //       rooms: this.modals.roomDetail.code
+    //     };
+
+    //     const token = localStorage.getItem("access_token");
+
+    //     const response = await axios.put(apiUrl, data, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         "Content-Type": "application/json",
+    //       },
+    //     });
+    //     this.successValue++;
+    //     this.tableSuccess.push(account);
+    //     this.$notify({
+    //       type: "success",
+    //       icon: "tim-icons icon-check-2",
+    //       message: response.data.detail,
+    //       timeout: 3000,
+    //       verticalAlign: "top",
+    //       horizontalAlign: "right",
+    //     });
+
+    //     return true; // Xử lý thành công
+    //   } catch (error) {
+    //     console.error("Error registering accounts:", error);
+
+    //     const errorMessage =
+    //       error.response?.data ||
+    //       "Có lỗi xảy ra. Vui lòng thử lại sau";
+    //     this.$notify({
+    //       type: "danger",
+    //       icon: "tim-icons icon-bell-55",
+    //       message: errorMessage,
+    //       timeout: 3000,
+    //       verticalAlign: "top",
+    //       horizontalAlign: "right",
+    //     });
+
+    //     return false; // Xử lý thất bại
+    //   }
+    // },
+    // addRoom() {
+    //   const token = localStorage.getItem("access_token");
+    //   let data = this.modals.roomCreate
+    //   axios
+    //     .post(API_URL+"/managements/rooms/", data, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then(() => {
+    //        this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm lớp học thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //           this.initBigChart(this.bigLineChart.activeIndex);
+    //           this.modals.roomCreateModal = false;
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error create data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm lớp học không thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    // downloadExcel() {
+    //   // Tìm phần tử xlsx-download và kích hoạt link download
+    //   const downloadLink = this.$refs.excelDownload.$el.querySelector('a');
+    //   if (downloadLink) {
+    //     downloadLink.click();
+    //   } else {
+    //     console.error("Không tìm thấy link tải xuống.");
+    //   }
+    // },
+    // updateCollection(newCollection) {
+    //   this.collection = newCollection; // Lưu collection vào this.collection
+    //   this.formatRoomData()
+    // },
+    // formatRoomData(){
+    //   console.log(this.collection)
+    //   console.log(this.selectedSheet)
+    //   const [roomName, teacherId] = this.selectedSheet.split("-");
+        
+    //   // Lưu vào các biến cần thiết
+    //   this.roomCreateName = roomName;
+    //   this.homeRoomTeacherId = teacherId;
+    //   this.allCreateStudent = this.collection.map(item => item.user_id);
+    
+    //   console.log(this.allCreateStudent); // Kiểm tra kết quả
+    //   this.createRoom()
+
+    // },
+    // async createRoom() {
+    //   try {
+    //     // Tạo tên lớp học
+    //     await this.createRoomName();
+
+    //     // Thêm học sinh vào lớp học
+    //     await this.addStudent();
+
+    //     await this.addHomeRoomTeacher();
+
+    //     // Khởi tạo biểu đồ lớn
+    //     this.initBigChart(this.bigLineChart.activeIndex);
+
+    //     // Đóng modal tạo lớp học
+    //     this.modals.roomCreateModal = false;
+    //   } catch (error) {
+    //     console.error("Error creating room:", error);
+    //     // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+    //   }
+    // },
+    // addHomeRoomTeacher(){
+    //   const token = localStorage.getItem("access_token");
+    //   axios
+    //     .patch(API_URL+`/rooms/${this.roomCreateName}/`, { "homeroom_teacher": this.homeRoomTeacherId }, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then(() => {
+    //        this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm giáo viên chủ nhiệm vào lớp thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error create data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm giáo viên chủ nhiệm vào lớp không thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    // createRoomName(){
+    //   const token = localStorage.getItem("access_token");
+    //   axios
+    //     .post(API_URL+`/rooms/`, { "name": this.roomCreateName }, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then(() => {
+    //        this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Tạo lớp học thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error create data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Tạo lớp học thất bại`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    // addStudent(){
+    //   const token = localStorage.getItem("access_token");
+    //   const data = {
+    //     "room": this.roomCreateName,
+    //     "students": this.allCreateStudent
+    //   }
+    //   console.log(data)
+    //   axios
+    //     .post(API_URL+`/rooms/addstudents/`, data, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then(() => {
+    //       this.$notify({
+    //             type: "success",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm học sinh vào lớp thành công`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error create data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Thêm học sinh vào lớp thất bại`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    // triggerFileUpload() {
     //   this.$refs.fileInput.click(); // Trigger file input click event
     // },
     // handleFileUpload(event) {
-    //   this.file = event.target.files[0]; // Get selected file
+    //   this.selectedFile = event.target.files[0]; // Get selected file
+    //   const reader = new FileReader();
+    //   reader.onload = (e) => {
+    //     const data = new Uint8Array(e.target.result);
+    //     const workbook = XLSX.read(data, { type: "array" });
+    //     this.sheetName = workbook.SheetNames[0]; // Chọn sheet đầu tiên
+    //     const sheet = workbook.Sheets[this.sheetName];
+
+    //     // Chuyển đổi dữ liệu sheet sang JSON
+    //     const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    //     console.log("Full data:", jsonData);
+
+    //     // Lấy tiêu đề cột từ dòng 5
+    //     this.tableHeaders = jsonData[0];
+
+    //     // Lấy dữ liệu từ dòng 7 trở đi
+    //     this.tableData = jsonData.slice(1);
+    //     console.log("Filtered data:", this.tableData);
+    //   };
+    //   reader.readAsArrayBuffer(this.selectedFile);
     // },
-    onChange(event) {
-      this.file = event.target.files ? event.target.files[0] : null;
-    },
-    addSheet() {
-      this.sheets.push({ name: this.sheetName, data: [...this.collection] });
-      this.sheetName = null;
-    },
-    studentDataLength() {
-      return this.studentData.length
-    },
-    toggleRoomDetail(room){
-      this.modals.roomDetailModal = true;
-      this.selectedFile = null;
-      this.modals.roomDetail = room
-      console.log(this.modals.roomDetail)
 
-      //get all student of room
-      const token = localStorage.getItem("access_token");
-      axios
-        .get(API_URL+`/managements/${this.modals.roomDetail.code}/students/`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          this.studentData = response.data
-        })
-        .catch((error) => {
-          console.error("Error get user data :", error);
+    // onChange(event) {
+    //   this.file = event.target.files ? event.target.files[0] : null;
+    // },
+    // addSheet() {
+    //   this.sheets.push({ name: this.sheetName, data: [...this.collection] });
+    //   this.sheetName = null;
+    // },
+    // studentDataLength() {
+    //   return this.studentData.length
+    // },
+    // toggleRoomDetail(room){
+    //   this.modals.roomDetailModal = true;
+    //   this.selectedFile = null;
+    //   this.modals.roomDetail = room
+    //   console.log(this.modals.roomDetail)
 
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Lấy danh sách học sinh lớp ${this.modals.roomDetail.name} thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
-    },
+    //   //get all student of room
+    //   const token = localStorage.getItem("access_token");
+    //   axios
+    //     .get(API_URL+`/users/students/?rooms=${this.modals.roomDetail.code}/`, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+    //         "Content-Type": "application/json",
+    //       },
+    //     })
+    //     .then((response) => {
+    //       this.studentData = response.data
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error get user data :", error);
+
+    //       this.$notify({
+    //             type: "warning",
+    //             icon: 'tim-icons icon-bell-55',
+    //             message: `Lấy danh sách học sinh lớp ${this.modals.roomDetail.name} thất bại`,
+    //             timeout: 3000,
+    //             verticalAlign: "top",
+    //             horizontalAlign: "right",
+    //           });
+    //     });
+    // },
+    
+    
+    
+    
     removeObject(){
         const token = localStorage.getItem("access_token");
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
-        if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
-          apiUrl = API_URL + `/managements/rooms/${this.modals.idRemove}/`;
-        }else if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
+        // if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
+        //   apiUrl = API_URL + `/managements/rooms/${this.modals.idRemove}/`;
+        // }
+        if (this.bigLineChart.activeIndex === 0) {
+          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
         } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
+          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
         } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
+          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
         }
 
         axios
@@ -1178,6 +1207,10 @@ export default {
               });
         });
     },
+    
+    
+    
+    
     updateObject(){
 
         let dataUser = null;
@@ -1255,6 +1288,10 @@ export default {
               });
         });
     },
+    
+    
+    
+    
     toggleDetail(index){
         this.modals.detailModal = true;
         let data = null;
@@ -1307,6 +1344,8 @@ export default {
               });
         });
     },
+    
+    
     toggleUpdate(index){
         this.modals.updateModal = true;
 
@@ -1351,6 +1390,9 @@ export default {
               });
         });
     },
+   
+   
+   
     toggleRemove(index){
         this.modals.removeModal = true;
         this.modals.idRemove = index;
@@ -1377,7 +1419,7 @@ export default {
           },
         })
         .then((response) => {
-           this.teacherData = response.data.data
+           this.teacherData = response.data
         })
         .catch((error) => {
           console.error("Error create data :", error);
@@ -1392,6 +1434,62 @@ export default {
               });
         });
     },
+    
+
+
+    fetchRoomsAndUpdateStudents() {
+    const token = localStorage.getItem("access_token");
+    const roomsApiUrl = API_URL + "/managements/rooms/";
+    
+    axios
+      .get(roomsApiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        const roomsList = response.data;
+        
+        // Tạo map từ room ID đến room name
+        const roomMap = {};
+        roomsList.forEach(room => {
+          roomMap[room.id] = room.name;
+        });
+        
+        // Cập nhật tên phòng học cho từng học sinh
+        this.studentData.forEach(student => {
+          // Giả sử student.rooms là ID của phòng học
+          if (student.rooms && roomMap[student.rooms]) {
+            // Lưu tên phòng học vào biến tạm thời hoặc cập nhật trực tiếp
+            // const roomName = roomMap[student.rooms];
+            // student.roomName = roomName; // Lưu vào trường mới để không ghi đè lên ID
+            // Hoặc nếu bạn muốn thay thế hoàn toàn giá trị rooms:
+            // student.rooms = roomName;
+            student.rooms = roomMap[student.rooms]
+          } else {
+            // student.roomName = "Chưa phân lớp";
+            student.rooms = "Chưa phân lớp";
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching rooms:", error);
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: "Không thể lấy thông tin phòng học. Vui lòng thử lại",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      });
+  },
+    
+    
+    
+    
+    
     initBigChart(index) {
       let chartData = {
         datasets: [
@@ -1433,19 +1531,19 @@ export default {
       let data = null;
       let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
       if (this.bigLineChart.activeIndex === 0) {
-        apiUrl = API_URL + "/managements/rooms/?semester=20242/";
+        apiUrl = API_URL + "/users/students/";
       } else if (this.bigLineChart.activeIndex === 1) {
-        apiUrl = API_URL + "/accounts/get_users_detail/";
-        data = {
-              role: "teacher",
-              fields: ["user_id", "full_name", "sex", "day_of_birth", "subjects"]
-        };
+        apiUrl = API_URL + "/users/teachers/";
+        // data = {
+        //       role: "teacher",
+        //       fields: ["user_id", "full_name", "sex", "day_of_birth", "subjects"]
+        // };
       } else if (this.bigLineChart.activeIndex === 2) {
-        apiUrl = API_URL + "/accounts/get_users_detail/";
-        data = {
-              role: "admin",
-              fields: ["user_id", "full_name", "sex", "day_of_birth", "description"]
-        };
+        apiUrl = API_URL + "/users/admins/";
+        // data = {
+        //       role: "admin",
+        //       fields: ["user_id", "full_name", "sex", "day_of_birth", "description"]
+        // };
       } 
 
       //Get data
@@ -1459,7 +1557,8 @@ export default {
           },
         })
         .then((response) => {
-          this.roomData = response.data
+            this.studentData = response.data
+            this.fetchRoomsAndUpdateStudents()
           
         })
         .catch((error) => {
@@ -1477,7 +1576,7 @@ export default {
       }
       else {
         axios
-        .post(apiUrl ,data,  {
+        .get(apiUrl ,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -1485,9 +1584,9 @@ export default {
         })
         .then((response) => {
 
-          if(this.bigLineChart.activeIndex === 1) this.teacherData = response.data.data
-          else if(this.bigLineChart.activeIndex === 2) this.parentData = response.data
-          else if(this.bigLineChart.activeIndex === 3) this.adminData = response.data
+          if(this.bigLineChart.activeIndex === 1) this.teacherData = response.data
+          // else if(this.bigLineChart.activeIndex === 2) this.parentData = response.data
+          else if(this.bigLineChart.activeIndex === 2) this.adminData = response.data
           
         })
         .catch((error) => {
@@ -1505,6 +1604,7 @@ export default {
       }
       
     },
+
     resetPassword() {
       const token = localStorage.getItem("access_token");
       const resetPasswordData = {
@@ -1566,6 +1666,7 @@ export default {
           }
         });
     },
+
     registerAccounts() {
       if (!this.selectedFile) {
         this.$notify({

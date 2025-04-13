@@ -1,20 +1,20 @@
 <template>
-  <div class="wrapper study">
+  <div class="wrapper study" :style="{ backgroundImage: `url(${require('@/assets/img/PG_bg_3.png')})` }">
     <div class="navbar">
       <div>
-        <base-button @click="goToDashboard" class="dashboard-button btn-success" simple>
+        <base-button @click="goToDashboard" class="dashboard-button" simple>
           <i class="tim-icons icon-minimal-left"></i> Trang chủ
         </base-button>
       </div>
       <div class="title">
-        <h1 class="font-weight-bold">DẠY HỌC</h1>
+        <h1 class="font-weight-bold text-dark">DẠY HỌC</h1>
       </div>
       <div>
-        <base-button @click="toggleEvaluate" class="dashboard-button btn-info" simple>
+        <base-button @click="toggleEvaluate" class="dashboard-button" simple>
           <i class="tim-icons icon-notes"></i> Đánh giá
         </base-button>
       </div>
-      <div class="current-time" style=" width: 180px">{{ currentTime }}</div>
+      <div class="current-time text-dark" style=" width: 180px">{{ currentTime }}</div>
     </div>
     
     <div class="classroom-layout mt-3">
@@ -41,10 +41,10 @@
         <table class="table table-bordered class-info-table">
           <thead>
             <tr>
-              <th>Lớp</th>
-              <th>Tiết</th>
-              <th>Môn</th>
-              <th>Sỹ số</th>
+              <th class="text-white">Lớp</th>
+              <th class="text-white">Tiết</th>
+              <th class="text-white">Môn</th>
+              <th class="text-white">Sỹ số</th>
             </tr>
           </thead>
           <tbody>
@@ -59,7 +59,7 @@
       </div>
 
       <div class="teacher-desk">
-        <h3>Bàn giáo viên</h3>
+        <h3 class="text-dark">Bàn giáo viên</h3>
       </div>
 
       <!-- Scoring Modal -->
@@ -72,7 +72,7 @@
           class="border-0 mb-0">
         <template>
             <div class="text-muted mb-3">
-                <h4 class="text-success">Chấm điểm và Điểm danh</h4>
+                <h4 class="text-dark">Chấm điểm và Điểm danh</h4>
             </div>
         </template>
         <template>
@@ -163,7 +163,7 @@
                   class="border-0 mb-0">
                 <template>
                     <div class="text-muted mb-3">
-                        <h4 class="text-success">Đánh giá tiết học</h4>
+                        <h4 class="text-dark">Đánh giá tiết học</h4>
                     </div>
                 </template>
                 <template>
@@ -840,7 +840,7 @@ export default {
 }
 
 .seat {
-  border: 1px solid #DAA520;
+  border: 2px solid gray;
   width: 130px;
   height: 70px;
   display: flex;
@@ -857,7 +857,7 @@ export default {
 }
 
 .teacher-desk {
-  border: 2px solid #ff6347;
+  border: 2px solid black;
   padding: 20px;
   position: absolute;
   border-radius: 5px;

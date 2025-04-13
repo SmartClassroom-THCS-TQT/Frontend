@@ -501,7 +501,7 @@ export default {
       };
 
       axios
-        .post(API_URL + "/accounts/reset-password/", resetPasswordData, {
+        .post(API_URL + "/users/reset-password/", resetPasswordData, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",

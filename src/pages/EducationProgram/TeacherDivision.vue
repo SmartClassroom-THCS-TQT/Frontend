@@ -341,7 +341,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + `/accounts/teachers/?user_id=${teacherId}`, {
+          .get(API_URL + `/users/teachers/?user_id=${teacherId}/`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
@@ -370,7 +370,7 @@ export default {
           fields: ["user_id", "full_name"]
         };
         axios
-          .post(API_URL + "/accounts/get_users_detail/", data, {
+          .post(API_URL + "/users/accounts/get_users_detail/", data, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",

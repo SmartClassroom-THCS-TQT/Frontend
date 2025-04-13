@@ -169,8 +169,8 @@
               <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
               <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
-                        <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager.full_name}}</p>
+                        <h4 class="text-dark">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
+                        <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
                     </div>
                 </template>
                 <template>
@@ -900,7 +900,8 @@ export default {
         semesterCreate: {
           code: null,
           start_date: null,
-          weeks_count: null
+          weeks_count: null,
+          academic_year: 2024,
         },
 
         sessionCreate: {
