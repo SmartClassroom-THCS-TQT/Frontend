@@ -5,7 +5,7 @@
                   class="border-0 mb-0" >
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Danh sách học sinh lớp {{room.name}}</h4>
+                        <h4 class="text-dark">Danh sách học sinh lớp {{room.name}}</h4>
                     </div>
                 </template>
                 <template>

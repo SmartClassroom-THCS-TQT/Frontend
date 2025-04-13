@@ -85,7 +85,7 @@ export default {
     async updateUserProfile(formData) {
       try {
         const token = localStorage.getItem("access_token");
-        const response = await axios.put( API_URL + '/accounts/users/update/', formData, {
+        const response = await axios.put( API_URL + 'users/accounts/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,

@@ -21,7 +21,7 @@
                       class="border-0 mb-0">
                     <template>
                         <div class="text-muted mb-3">
-                            <h4 class="text-success">Danh sách học sinh chưa có chỗ ngồi</h4>
+                            <h4 class="text-dark">Danh sách học sinh chưa có chỗ ngồi</h4>
                         </div>
                     </template>
                     <template>
