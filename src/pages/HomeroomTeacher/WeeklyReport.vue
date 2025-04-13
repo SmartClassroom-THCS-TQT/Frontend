@@ -45,7 +45,7 @@
                         <table class="table-bordered" style="width: 863px">
                             <tbody>
                                 <tr style="height: 62px;">
-                                    <td style="width: 82px; height: 62px; ">Thứ</td>
+                                    <td style="width: 82px; height: 62px;">Thứ</td>
                                     <td style="width: 29px; height: 62px;">Tiết</td>
                                     <td style="width: 81px; height: 62px;">Môn học</td>
                                     <td style="width: 10px; height: 62px;">Tiết theo PPCT</td>
@@ -645,7 +645,7 @@ let API_URL = ""
             // Chuyển đổi weekSelected thành số nguyên
             const week_number = parseInt(this.weekSelected, 10);
             
-            const semesterStartDate = new Date(this.semesterSelected.day_begin); // Ngày bắt đầu của học kỳ
+            const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
             // Tính toán ngày bằng cách cộng thêm số tuần đã chọn
             date = new Date(semesterStartDate);
             date.setDate(semesterStartDate.getDate() + (week_number - 1) * 7);
@@ -656,7 +656,7 @@ let API_URL = ""
             const endDate = this.formatDate(endOfWeek);
             const token = localStorage.getItem("access_token");
 
-            const api = API_URL + `/adminpanel/lessons/?semester=${this.semesterSelected.name}&room=${this.room.name}&day_range_after=${startDate}&day_range_before=${endDate}`;
+            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.code}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
             axios
             .get(api, {
                 headers: {

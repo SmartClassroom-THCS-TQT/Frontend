@@ -629,8 +629,22 @@
         </modal>
 
         <!-- Remove Modal -->
-        <modal :show.sync="modals.removeModal">
-            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0">Xác nhận xóa học sinh này</h4>
+        
+        
+        <!-- Remove Room Modal -->
+        <!-- <modal :show.sync="modals.removeRoomModal">
+            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0">Xác nhận xóa lớp học này</h4>
+            <template slot="footer">
+                <base-button type="secondary" @click="removeObject">Xác nhận</base-button>
+                <base-button type="danger" class="ml-auto" @click="modals.removeRoomModal = false">Hủy
+                </base-button>
+            </template>
+        </modal> -->
+        
+
+      </card>
+      <modal :show.sync="modals.removeModal">
+            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0" >Xác nhận xóa học sinh này</h4>
             <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 1">Xác nhận xóa giáo viên này</h4>
             <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 2">Xác nhận xóa phụ huynh này</h4>
             <template slot="footer">
@@ -639,19 +653,6 @@
                 </base-button>
             </template>
         </modal>
-        
-        <!-- Remove Room Modal -->
-        <modal :show.sync="modals.removeRoomModal">
-            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0">Xác nhận xóa lớp học này</h4>
-            <template slot="footer">
-                <base-button type="secondary" @click="removeObject">Xác nhận</base-button>
-                <base-button type="danger" class="ml-auto" @click="modals.removeRoomModal = false">Hủy
-                </base-button>
-            </template>
-        </modal>
-
-
-      </card>
     </div>
   </div>
 </template>
@@ -1394,7 +1395,9 @@ export default {
    
    
     toggleRemove(index){
+        
         this.modals.removeModal = true;
+        console.log(this.modals.removeModal)
         this.modals.idRemove = index;
     },
     toggleRemoveRoom(roomName){
