@@ -1158,11 +1158,11 @@ export default {
         //   apiUrl = API_URL + `/managements/rooms/${this.modals.idRemove}/`;
         // }
         if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
+          apiUrl = API_URL + "/accounts/users/" + this.modals.idRemove + "/delete/";
         }
 
         axios

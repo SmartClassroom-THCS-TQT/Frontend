@@ -158,13 +158,13 @@
   }
 
   &.btn-simple {
-    // color: $btn-states-color;
-    // border-color: $btn-states-color;
-    // background: $transparent-bg;
-
-    color: $gray-700;
-    border-color: $gray-700;
+    color: $btn-states-color;
+    border-color: $btn-states-color;
     background: $transparent-bg;
+
+    // color: $gray-700;
+    // border-color: $gray-700;
+    // background: $transparent-bg;
 
     &:hover,
     &:focus,
