@@ -49,7 +49,7 @@
                                     <td style="width: 29px; height: 62px;">Tiết</td>
                                     <td style="width: 81px; height: 62px;">Môn học</td>
                                     <td style="width: 10px; height: 62px;">Tiết theo PPCT</td>
-                                    <td style="width: 125px; height: 62px;">Tên học sinh nghỉ</td>
+                                    <td style="width: 125px; height: 62px;">Số học sinh nghỉ</td>
                                     <td style="width: 173px; height: 62px;">Tên bài, nội dung công việc</td>
                                     <td style="width: 226px; height: 62px;">Nhận xét của giáo viên</td>
                                     <td style="width: 53px; height: 62px;">Xếp loại tiết học</td>
@@ -66,62 +66,68 @@
                                         <p></p>
                                     </td>
                                     <td style="width: 29px; height: 62px;">1</td>
-                                    <td style="width: 81px; height: 62px;">{{ this.timetableData[0].monday? this.getNameSubject(this.timetableData[0].monday.subject) : ""}}</td>
-                                    <td style="width: 10px; height: 62px;">{{ this.timetableData[0].monday? this.timetableData[0].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62px;"></td>
-                                    <td style="width: 173px; height: 62px;">{{this.timetableData[0].monday? this.timetableData[0].monday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62px;">{{this.timetableData[0].monday? this.timetableData[0].monday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62px;">{{this.timetableData[0].monday? this.timetableData[0].monday.evaluate : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].monday?this.timetableData[0].monday.subject_code.name : ""}}</td>
+                                    <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.lesson_number : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.absences : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.lesson_name : ""}}</td>
+                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.comment : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62px;"></td>
                                 </tr>
                                 <tr style="height: 62.3333px;">
                                     <td style="width: 29px; height: 62.3333px;">2</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].monday?  this.getNameSubject(this.timetableData[1].monday.subject) : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].monday?this.timetableData[1].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.comment : "" }}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.evaluate : ""}}</td>
+                                    <!-- <td style="width: 125px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.absences : ""}}</td> -->
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_name : ""}}</td>
+                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.comment : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">3</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].monday? this.getNameSubject(this.timetableData[2].monday.subject) : ""}}</td>
+                                   <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].monday?this.timetableData[2].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.name_lesson : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.absences : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">4</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].monday? this.getNameSubject(this.timetableData[3].monday.subject) : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].monday?this.timetableData[3].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.name_lesson : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.absences : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">5</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].monday? this.getNameSubject(this.timetableData[4].monday.subject) : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].monday?this.timetableData[4].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.name_lesson : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.absences : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">6</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].monday? this.getNameSubject(this.timetableData[5].monday.subject) : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].monday?this.timetableData[5].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.name_lesson : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;">
+                                        <base-button simple @click="() => toggleAbsenseDetail(this.timetableData[5].monday)" class="btn-danger" v-if="this.timetableData[5].monday && this.timetableData[5].monday.absences != 0">
+                                        {{this.timetableData[5].monday? this.timetableData[5].monday.absences : ""}}
+                                            <i class="tim-icons icon-single-02"></i>
+                                        </base-button>
+                                        <p v-else class="text-success">{{this.timetableData[5].monday? this.timetableData[5].monday.absences : ""}}</p>
+                                    </td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -554,6 +560,42 @@
             </div>
 
         </card>
+
+        <modal :show.sync="absencesDetailModal"
+               body-classes="p-0"
+               modal-classes="modal-dialog-centered modal-lg">
+
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0" >
+                <template>
+                    <div class="text-muted text-center mb-3" v-if="this.lessonDetail">
+                        <h4 class="text-dark">Danh sách học sinh nghỉ tiết {{this.lessonDetail.time_slot.code}} ngày {{this.lessonDetail.day}} ({{this.getDayNameVN(this.getDayOfWeek(this.lessonDetail.day))}})</h4>
+                    </div>
+                </template>
+                <template>
+                    <base-table :data="absenceStudentList" :columns="student_columns">
+                    <template slot="columns">
+                        
+                      <th>ID</th>
+                      <th>Họ và tên</th>
+                      <th class="text-right">Actions</th>
+                    </template>
+                    <template slot-scope="{ row }">
+                      <td>{{ row.student.account }}</td>
+                      <td>{{ row.student.full_name }}</td>
+                      <td class="td-actions text-right">
+                        <base-button type="info" size="sm" icon @click="toggleDetail(row.account)">
+                          <i class="tim-icons icon-single-02"></i>
+                        </base-button>
+                      </td>
+                    </template>
+                  </base-table>
+                </template>
+                
+            </card>
+        </modal> 
         
       </div>
     </div>
@@ -565,11 +607,14 @@ import Card from "../../components/Cards/Card.vue";
 import axios from "../../services/axios";
 import Modal from '../../components/Modal.vue';
 import * as XLSX from 'xlsx';
+import BaseButton from '../../components/BaseButton.vue';
+import BaseTable from '../../components/BaseTable.vue';
 
 let API_URL = ""
 
         
   export default {
+    components: { BaseButton, Modal, Card, BaseTable },
     props: {
         room: {
         type: Object, 
@@ -579,6 +624,10 @@ let API_URL = ""
     },
     data(){
         return {
+            absencesDetailModal: false,
+            absenceStudentList: null,
+            lessonDetail: null,
+            student_columns: ["attendance_time", "id", "session" , "status" , "student"],
             semesters: null,
             weeks: [],
             semesterSelected: null,
@@ -596,6 +645,36 @@ let API_URL = ""
       this.initializeData();
     },
     methods: {
+        toggleAbsenseDetail(lesson){
+            this.absencesDetailModal = true;
+            this.lessonDetail = lesson
+            this.getAbsenceStudentList(lesson);
+        },
+        getAbsenceStudentList(lesson){
+            const token = localStorage.getItem("access_token");
+            axios
+            .get(API_URL+`/rooms_managements/attendances/?status=false&session=${lesson.id}&q={student{account,full_name}}`,  {
+            headers: {
+                Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+                "Content-Type": "application/json",
+            },
+            })
+            .then((response) => {
+            this.absenceStudentList = response.data 
+            console.log(this.absenceStudentList)
+            })
+            .catch((error) => {
+            console.error("Error ", error);
+            this.$notify({
+                    type: "warning",
+                    icon: 'tim-icons icon-bell-55',
+                    message: "Lấy danh sách học sinh nghỉ học thất bại",
+                    timeout: 3000,
+                    verticalAlign: "top",
+                    horizontalAlign: "right",
+                });
+            });       
+        },
         getNameSubject(name){
             switch(name){
                 case "TOAN" : return "Toán"
@@ -729,13 +808,14 @@ let API_URL = ""
         formatTimetableData(lessons) {
             // Cập nhật bảng thời khóa biểu với các tiết học
             lessons.forEach(lesson => {
-            const periodIndex = lesson.period - 1;
+            const periodIndex = lesson.time_slot.code - 1;
+            console.log(periodIndex)
             const dayOfWeek = this.getDayOfWeek(lesson.day);
             if (this.timetableData[periodIndex]) {
                 this.timetableData[periodIndex][this.getDayName(dayOfWeek)] = lesson; // Thêm lesson vào đúng ngày
             }
             });
-            
+            console.log(this.timetableData)
             return this.timetableData;
         },
         getDayName(day) {
@@ -747,6 +827,17 @@ let API_URL = ""
             case 4: return 'friday';
             case 5: return 'saturday';
             default: return '';
+            }
+        },
+        getDayNameVN(day) {
+            switch (day) {
+            case 0: return 'Thứ Hai';
+            case 1: return 'Thứ Ba';
+            case 2: return 'Thứ Tư';
+            case 3: return 'Thứ Năm';
+            case 4: return 'Thứ Sáu';
+            case 5: return 'Thứ Bảy';
+            default: return 'CN';
             }
         },
         takeWeekData(){
@@ -829,3 +920,8 @@ let API_URL = ""
   };
 
 </script>
+<style scoped>
+td {
+    color: black;
+  }
+</style>

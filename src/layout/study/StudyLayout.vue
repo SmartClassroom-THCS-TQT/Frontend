@@ -280,7 +280,7 @@ export default {
       // Lọc danh sách attendance dựa trên studentId
       if(!this.attendance) return 0;
       const studentAttendance = this.attendance.filter(
-        (att) => att.student === studentId
+        (att) => att.student.account === studentId
       );
 
       // Nếu không có dữ liệu, trả về trạng thái vắng mặt = 3
@@ -305,7 +305,7 @@ export default {
 
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session_code=${this.lessonData.id}/`, {
+      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session=${this.lessonData.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
