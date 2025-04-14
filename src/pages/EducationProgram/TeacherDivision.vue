@@ -79,8 +79,17 @@
                 </template>
             </card>
   
-        <!-- Thêm phân công Modal -->
-        <modal :show.sync="divisionCreateModal"
+         
+        
+      </card>\
+
+
+
+    <!-- MODAL SECTION -->
+
+
+      <!-- Thêm phân công Modal -->
+      <modal :show.sync="divisionCreateModal"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
             <card type="secondary"
@@ -207,9 +216,7 @@
                     </fieldset>  
                 </template>
             </card>
-        </modal> 
-        
-      </card>
+        </modal>
     </div>
   </div>
 

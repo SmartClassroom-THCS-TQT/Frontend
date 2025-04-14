@@ -8,7 +8,7 @@
       <div class="block block-four"></div>
       <a href="#">
         <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-        <img class="avatar" :src="user.image ? `http://127.0.0.1:8000${user.image}` : defaultImage" 
+        <img class="avatar" :src="user.image ? `https://smartclassroom.click${user.image}` : defaultImage" 
           alt="Ảnh đại diện" 
           @click="updateAvatar"/>
         
@@ -85,7 +85,7 @@ export default {
     async updateUserProfile(formData) {
       try {
         const token = localStorage.getItem("access_token");
-        const response = await axios.put( API_URL + 'users/accounts/', formData, {
+        const response = await axios.put( API_URL + 'users/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,

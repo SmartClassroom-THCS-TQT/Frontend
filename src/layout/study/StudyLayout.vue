@@ -6,15 +6,16 @@
           <i class="tim-icons icon-minimal-left"></i> Trang chủ
         </base-button>
       </div>
-      <div class="title">
+      <!-- <div class="title">
         <h1 class="font-weight-bold text-dark">DẠY HỌC</h1>
-      </div>
+      </div> -->
+      <div class="current-time text-dark" style=" width: 180px">{{ currentTime }}</div>
       <div>
         <base-button @click="toggleEvaluate" class="dashboard-button" simple>
           <i class="tim-icons icon-notes"></i> Đánh giá
         </base-button>
       </div>
-      <div class="current-time text-dark" style=" width: 180px">{{ currentTime }}</div>
+      
     </div>
     
     <div class="classroom-layout mt-3">
@@ -28,7 +29,7 @@
             @click="scoringAndEnroll(seat)" 
             class="btn btn-simple"
             draggable
-            :class="{'btn-success': getAttendanceStatus(seat.account) === 1, 'btn-danger': (getAttendanceStatus(seat.account) === 0) , 'btn': getAttendanceStatus(seat.account) === -1}"
+            :class="{'btn-info': getAttendanceStatus(seat.account) === 1, 'btn-danger': (getAttendanceStatus(seat.account) === 0) , 'btn': getAttendanceStatus(seat.account) === -1}"
             
           >
             <!-- {{ shortenName(seat.full_name) }}  -->

@@ -41,6 +41,10 @@
       padding: 0;
     }
 
+    &.btn-gay {
+      padding: 0;
+    }
+
     &.btn-sm {
       height: $icon-size-sm;
       min-width: $icon-size-sm;
@@ -124,6 +128,7 @@
   @include btn-styles($white, $white);
 }
 
+
 .btn {
   &:disabled,
   &[disabled],
@@ -139,8 +144,16 @@
   padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
   background-color: $transparent-bg;
 }
+.btn-gay {
+  border: $border;
+  border-color: $default;
+  box-shadow: none;
+  padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
+  background-color: $transparent-bg;
+}
 
 .btn-simple,
+.btn-gay,
 .btn-link {
   &.disabled,
   &:disabled,
@@ -228,6 +241,9 @@
   border-radius: $btn-round-radius;
 
   &.btn-simple {
+    padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
+  }
+  &.btn-gay {
     padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
   }
 }

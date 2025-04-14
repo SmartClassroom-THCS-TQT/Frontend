@@ -12,7 +12,7 @@
               <label
                 v-for="(option, index) in accountSettingOption"
                 :key="option"
-                class="btn btn-sm btn-neutral btn-simple"
+                class="btn btn-sm btn-neutral btn-gay"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -316,10 +316,7 @@ export default {
             sex: account[5],
             day_of_birth: this.convertDate(account[4]),
             nation: account[6],
-            active_status: account[7],
-
-            //test
-            rooms: [1]
+            active_status: account[7]
           };
         } else if (this.registrationType === "teacher") {
           data = {
@@ -582,6 +579,7 @@ export default {
       };
       reader.readAsArrayBuffer(this.selectedFile);
     },
+
     registerAccounts() {
       if (!this.selectedFile) {
         this.$notify({

@@ -14,7 +14,7 @@
             <label
               v-for="(option, index) in adminstrationOption"
               :key="option"
-              class="btn btn-sm btn-neutral btn-simple"
+              class="btn btn-sm btn-neutral btn-gay"
               :class="{ active: bigLineChart.activeIndex === index }"
               :id="index"
             >
