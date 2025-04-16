@@ -59,6 +59,12 @@ export default {
         return {};
       },
     },
+    model: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
   },
   computed: {
     getApiUrl() {
@@ -85,7 +91,8 @@ export default {
     async updateUserProfile(formData) {
       try {
         const token = localStorage.getItem("access_token");
-        const response = await axios.put( API_URL + 'users/accounts/', formData, {
+        console.log(this.model)
+        const response = await axios.put( API_URL + `users/teachers/${this.model.user_id}/`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,

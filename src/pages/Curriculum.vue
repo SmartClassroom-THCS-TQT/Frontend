@@ -886,6 +886,7 @@ export default {
    },
   mounted() {
       this.initializeData();
+      this.initBigChart(0);
   },
   data() {
     return {
@@ -1055,7 +1056,7 @@ export default {
           [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
           [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130],
         ],
-        activeIndex: null,
+        activeIndex: 0,
         index: "Quản trị",
         chartData: {
           datasets: [{}],

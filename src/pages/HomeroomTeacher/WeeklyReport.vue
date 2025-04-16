@@ -647,9 +647,33 @@ let API_URL = ""
     },
     methods: {
         getCurrentSemester(){
-            this.semesterSelected =  JSON.parse(localStorage.getItem("current_semester"))
-            this.weekSelected = "hiện tại"
-            this.weekData = this.semesterSelected.current_week
+            const token = localStorage.getItem('access_token');
+            let apiURL = "";
+                apiURL = API_URL+`/managements/check-semester/`
+            
+            axios.get(apiURL, {
+                headers: {
+                'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+                }
+            })
+            .then((response) => {
+                this.semesterSelected =  response.data
+                this.weekSelected = "hiện tại"
+                this.weekData = this.semesterSelected.current_week
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error("Error", error);
+                this.$notify({
+                type: 'danger',
+                icon: 'tim-icons icon-alert-circle-exc',
+                message: "Lấy thông tin hoc ky hien tai that bai",
+                timeout: 3000,
+                verticalAlign: 'top',
+                horizontalAlign: 'center',
+                });
+            });
+            
         },
         toggleAbsenseDetail(lesson){
             this.absencesDetailModal = true;

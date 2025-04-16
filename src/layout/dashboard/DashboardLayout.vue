@@ -2,21 +2,31 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links" >
-        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+        <!-- <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/administration"
           :name="$t('sidebar.administration')"
           icon="tim-icons icon-bank"
-        />
+        /> -->
         <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/curriculum"
           :name="$t('sidebar.curriculum')"
           icon="tim-icons icon-bank"
         />
-        <sidebar-link  v-if="userData && this.userRole == 'admin'"
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/account_setting"
+          :name="$t('sidebar.accountSetting')"
+          icon="tim-icons icon-bank"
+        />
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/user_setting"
+          :name="$t('sidebar.userSetting')"
+          icon="tim-icons icon-bank"
+        />
+        <!-- <sidebar-link  v-if="userData && this.userRole == 'admin'"
           to="/education_program"
           :name="$t('sidebar.educationProgram')"
           icon="tim-icons icon-book-bookmark"
-        />
+        /> -->
         <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/learning_management"
           :name="$t('sidebar.learningManagement')"
