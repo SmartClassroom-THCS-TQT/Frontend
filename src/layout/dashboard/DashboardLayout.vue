@@ -7,6 +7,11 @@
           :name="$t('sidebar.administration')"
           icon="tim-icons icon-bank"
         />
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/curriculum"
+          :name="$t('sidebar.curriculum')"
+          icon="tim-icons icon-bank"
+        />
         <sidebar-link  v-if="userData && this.userRole == 'admin'"
           to="/education_program"
           :name="$t('sidebar.educationProgram')"
@@ -156,7 +161,7 @@ export default {
       } 
       else if(user_role == "teacher"){
          apiURL = API_URL+`/users/teachers/${user_id}/`
-      } 
+      }
       else if(user_role == "student"){
          apiURL = API_URL+`/users/students/${user_id}/`
       }

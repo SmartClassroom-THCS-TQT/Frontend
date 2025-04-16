@@ -7,16 +7,16 @@
             <template slot="header">
                 <div class="row">
                     <div class="col-md-5">
-                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.code : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
+                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.semester : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
                     </div>
                     <div class="col-md-7">
                     <div class="row">
                         <div class="col-md-3 pr-md-1 text-center">
-                        <base-input label="Học kỳ">
+                        <!-- <base-input label="Học kỳ">
                             <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
                             <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
                             </select>
-                        </base-input>
+                        </base-input> -->
                         </div>
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Tuần">
@@ -39,8 +39,6 @@
             </template>
             <div style="display: flex; justify-content: center; align-items: center;">
                 <div v-if="timetableData">
-                    <h4 id="topDiv" class="font-weight-bold mb-5">Tuần thứ: {{weekData}}</h4>
-
                     <div  id="tableDiv">
                         <table class="table-bordered" style="width: 863px">
                             <tbody>
@@ -78,7 +76,7 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].monday?this.timetableData[1].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_number : ""}}</td>
-                                    <!-- <td style="width: 125px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.absences : ""}}</td> -->
+                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.absences : ""}}</td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.grade : ""}}</td>
@@ -643,8 +641,16 @@ let API_URL = ""
     },
     mounted() {
       this.initializeData();
+      this.getCurrentSemester();
+      this.getWeekData();
+      this.getTimeTable();
     },
     methods: {
+        getCurrentSemester(){
+            this.semesterSelected =  JSON.parse(localStorage.getItem("current_semester"))
+            this.weekSelected = "hiện tại"
+            this.weekData = this.semesterSelected.current_week
+        },
         toggleAbsenseDetail(lesson){
             this.absencesDetailModal = true;
             this.lessonDetail = lesson
@@ -735,7 +741,7 @@ let API_URL = ""
             const endDate = this.formatDate(endOfWeek);
             const token = localStorage.getItem("access_token");
 
-            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.code}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
+            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.semester}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
             axios
             .get(api, {
                 headers: {
@@ -851,7 +857,8 @@ let API_URL = ""
 
             else {
             const arr = ["hiện tại"];
-            let number_of_week = this.semesterSelected.weeks_count
+            // let number_of_week = this.semesterSelected.weeks_count
+            let number_of_week = 15
 
             const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
             const currentDate = new Date();

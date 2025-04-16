@@ -847,14 +847,14 @@
 </template>
 
 <script>
-import axios from "../../services/axios";
+import axios from "../services/axios";
 let API_URL = ""
 
 import config from "@/config";
-import Card from "../../components/Cards/Card.vue";
-import BaseTable from '../../components/BaseTable.vue';
-import Modal from '../../components/Modal.vue';
-import BaseInput from '../../components/Inputs/BaseInput.vue';
+import Card from "../components/Cards/Card.vue";
+import BaseTable from '../components/BaseTable.vue';
+import Modal from '../components/Modal.vue';
+import BaseInput from '../components/Inputs/BaseInput.vue';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
 // import { SetupCalendar, Calendar } from 'v-calendar';
@@ -1055,7 +1055,7 @@ export default {
           [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
           [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130],
         ],
-        activeIndex: 0,
+        activeIndex: null,
         index: "Quản trị",
         chartData: {
           datasets: [{}],
@@ -1082,7 +1082,6 @@ export default {
     };
   },
   computed: {
-
     curriculumOption() {
       return this.$t("dashboard.curriculum");
     },

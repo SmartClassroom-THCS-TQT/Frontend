@@ -9,6 +9,8 @@ import StudyLayout from '@/layout/study/StudyLayout.vue'
 // Admin pages
 const Administration = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/Administration.vue");
+const Curriculum = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/Curriculum.vue");
 const EducationProgram = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/EducationProgram.vue");
 const LearingManagement = () =>
@@ -54,6 +56,11 @@ const routes = [
         path: "administration",
         name: "Quản trị hệ thống",
         component: Administration,
+      },
+      {
+        path: "curriculum",
+        name: "Chương trình đào tạo",
+        component: Curriculum,
       },
       {
         path: "education_program",

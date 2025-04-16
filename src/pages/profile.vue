@@ -56,8 +56,35 @@ export default {
   },
   mounted() {
     this.getUserData(); // Gọi API khi trang tải
+    this.getCurrentSemester();
   },
   methods: {
+    getCurrentSemester(){
+      const token = localStorage.getItem('access_token');
+      let apiURL = "";
+        apiURL = API_URL+`/managements/check-semester/`
+      
+      axios.get(apiURL, {
+        headers: {
+          'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+        }
+      })
+      .then((response) => {
+         localStorage.setItem("current_semester", response.data)
+         console.log(response.data)
+      })
+      .catch(error => {
+        console.error("Error", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy thông tin hoc ky hien tai that bai",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+      });
+    },
     getUserData(){
       const token = localStorage.getItem('access_token');
       const user_role = localStorage.getItem('user_role');
