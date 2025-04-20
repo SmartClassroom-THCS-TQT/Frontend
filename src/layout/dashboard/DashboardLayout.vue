@@ -187,9 +187,18 @@ export default {
       })
       .then((response) => {
         this.userData = response.data;
-      // Lưu dữ liệu userData vào localStorage
-      localStorage.setItem('user_data', JSON.stringify(this.userData));
-      console.log(this.userData);
+        // Lưu dữ liệu userData vào localStorage
+        localStorage.setItem('user_data', JSON.stringify(this.userData));
+        console.log(this.userData);
+        
+        // Chuyển hướng dựa trên vai trò người dùng
+        if (this.$route.path === '/') {
+          if (this.userRole === 'admin') {
+            this.$router.push('/curriculum');
+          } else {
+            this.$router.push('/time_table');
+          }
+        }
       })
       .catch(error => {
         console.error("Error fetching user data:", error);

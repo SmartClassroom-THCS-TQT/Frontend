@@ -1,57 +1,58 @@
 <template>
   <div class="card-container">
     <div class="timetable-title">
-      <h2>Thời khóa biểu giáo viên</h2>
-      <p v-if="userData">Giáo viên: {{ userData.full_name }}</p>
+      <h2>Thời khóa biểu {{ userRole === 'teacher' ? 'giáo viên' : 'học sinh' }}</h2>
+      <p v-if="userData">{{ userRole === 'teacher' ? 'Giáo viên: ' : 'Học sinh: ' }}{{ userData.full_name }}</p>
     </div>
-                <div class="row custom-time-table">
-                      <div class="calendar-container">
-                        <!-- Phần lịch -->
+    <div class="row custom-time-table">
+      <div class="calendar-container">
+        <!-- Phần lịch -->
         <div class="calendar-section">
-                          <div class="calendar-header">
+          <div class="calendar-header">
             <button class="nav-button" @click="previousMonth">&lt;</button>
             <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
             <button class="nav-button" @click="nextMonth">&gt;</button>
-                          </div>
-                          <div class="calendar-grid">
-                            <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
-                              {{ day }}
-                            </div>
-                            <div
-                              v-for="day in calendarDays"
-                              :key="formatDate(day.date)"
-                              :class="[
-                                'calendar-day',
-                                { 
-                                  'current-day': day.isToday, 
-                                  'other-month': day.isOtherMonth, 
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
+              {{ day }}
+            </div>
+            <div
+              v-for="day in calendarDays"
+              :key="formatDate(day.date)"
+              :class="[
+                'calendar-day',
+                { 
+                  'current-day': day.isToday, 
+                  'other-month': day.isOtherMonth, 
                   'has-lesson': day.hasLesson,
                   'selected-day': formatDate(day.date) === selectedDay
-                                }
-                              ]"
-                              @click="selectDay(formatDate(day.date))"
-                            >
+                }
+              ]"
+              @click="selectDay(formatDate(day.date))"
+            >
               <span class="day-number">{{ day.date.getDate() }}</span>
               <div class="day-indicator">
                 <span v-if="day.hasLesson" class="lesson-dot"></span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                        <!-- Phần danh sách tiết học -->
-                        <div class="lesson-list">
+        <!-- Phần danh sách tiết học -->
+        <div class="lesson-list">
           <div class="lesson-header">
             <h3 v-if="selectedDay">Tiết học ngày {{ formatDisplayDate(selectedDay) }}</h3>
             <h3 v-else>Danh sách tiết học</h3>
           </div>
           <div class="lesson-content">
-                          <ul v-if="selectedDayLessons.length">
-                            <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
+            <ul v-if="selectedDayLessons.length">
+              <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
                 <div class="lesson-time">Tiết {{ lesson.time_slot.code }}</div>
                 <div class="lesson-info">
                   <div class="lesson-subject">Môn học: {{ lesson.subject_code.name }}</div>
                   <div class="lesson-room">Phòng: {{ lesson.room_id.name }}</div>
+                  <div v-if="userRole === 'student'" class="lesson-teacher">Giáo viên: {{ lesson.teacher.full_name }}</div>
                 </div>
               </li>
             </ul>
@@ -67,7 +68,7 @@
         </div>
       </div>
     </div>
-          </div>
+  </div>
 </template>
 
 <script>
@@ -84,6 +85,7 @@ export default {
       selectedDay: null,
       selectedDayLessons: [],
       userData: null,
+      userRole: localStorage.getItem('user_role') || 'student' // Mặc định là student nếu không có
     };
   },
   computed: {
@@ -162,7 +164,6 @@ export default {
   methods: {
     initData() {
       this.getApiUrl();
-      this.getTeacherSessions();
     },
     getApiUrl() {
       API_URL = this.$t("dashboard.apiURL");
@@ -197,17 +198,43 @@ export default {
       }
     },
     getUserData(){
-        this.userData = JSON.parse(localStorage.getItem('user_data'));
-        console.log(this.userData.account);
+      this.userData = JSON.parse(localStorage.getItem('user_data'));
+      if (!this.userData) {
+        console.log('User data not available yet, will try again shortly');
+        // Retry after a short delay if userData is not available
+        setTimeout(() => this.getUserData(), 500);
+        return;
+      }
+      console.log(this.userData.account);
+      this.getSessions();
     },
-    getTeacherSessions() {
-      const token = localStorage.getItem("access_token");
-      // Get the current user ID
-      const teacherId = this.userData.account;
+    getSessions() {
+      if (!this.userData || !this.userData.account) {
+        console.log('Cannot get sessions because userData is not fully loaded');
+        return;
+      }
       
-      // Get teacher-specific sessions
+      const token = localStorage.getItem("access_token");
+      // Check user role and get the appropriate ID
+      const userId = this.userData.account;
+      
+      // Set query parameter based on user role
+      let queryParam = '';
+      if (this.userRole === 'teacher') {
+        queryParam = `?teacher=${userId}`;
+      } else {
+        // Assume role is student, get sessions for student's class/room
+        if (!this.userData.rooms || !this.userData.rooms.length) {
+          console.log('No rooms available for student');
+          return;
+        }
+        const roomId = this.userData.rooms[0]; // Giả sử student data có room_code
+        queryParam = `?room_id=${roomId}`;
+      }
+      
+      // Get sessions based on role
       axios
-        .get(API_URL + `/managements/sessions/?teacher=${teacherId}`, {
+        .get(API_URL + `/managements/sessions/${queryParam}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -215,18 +242,28 @@ export default {
         })
         .then((response) => {
           this.lessons = response.data;
-          console.log("Teacher sessions:", this.lessons);
+          console.log("Sessions:", this.lessons);
+          
+          // Process teacher names for students if needed
+          if (this.userRole === 'student') {
+            this.lessons.forEach(lesson => {
+              // Giả sử API trả về teacher ID, không phải teacher name
+              if (lesson.teacher) {
+                lesson.teacher.full_name = lesson.teacher.full_name || 'Chưa phân công';
+              }
+            });
+          }
           
           // Tự động chọn ngày hiện tại sau khi lấy dữ liệu xong
           const today = this.formatDate(new Date());
           this.selectDay(today);
         })
         .catch((error) => {
-          console.error("Error getting teacher sessions:", error);
+          console.error("Error getting sessions:", error);
           this.$notify({
             type: "warning",
             icon: 'tim-icons icon-bell-55',
-            message: "Lấy thời khóa biểu giáo viên thất bại",
+            message: `Lấy thời khóa biểu ${this.userRole === 'teacher' ? 'giáo viên' : 'học sinh'} thất bại`,
             timeout: 3000,
             verticalAlign: "top",
             horizontalAlign: "right",
@@ -238,10 +275,17 @@ export default {
       console.log("Session details:", sessionId);
       const session = this.selectedDayLessons.find(lesson => lesson.id === sessionId);
       if (session) {
+        let messageContent = `Tiết ${session.time_slot.code}: ${session.subject_code.name} - Phòng ${session.room_id.name}`;
+        
+        // Add teacher name for students
+        if (this.userRole === 'student' && session.teacher) {
+          messageContent += ` - Giáo viên: ${session.teacher.full_name}`;
+        }
+        
         this.$notify({
           type: "info",
           icon: 'tim-icons icon-bell-55',
-          message: `Tiết ${session.time_slot.code}: ${session.subject_code.name} - Phòng ${session.room_id.name}`,
+          message: messageContent,
           timeout: 3000,
           verticalAlign: "top",
           horizontalAlign: "right",
@@ -496,6 +540,21 @@ export default {
 .lesson-room {
   color: #757575;
   font-size: 14px;
+}
+
+.lesson-teacher {
+  color: #757575;
+  font-size: 14px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.lesson-teacher:before {
+  content: '\f007';
+  font-family: 'Font Awesome 5 Free';
+  margin-right: 5px;
+  color: #1e88e5;
 }
 
 .empty-state {

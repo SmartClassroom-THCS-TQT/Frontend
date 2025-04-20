@@ -8,28 +8,8 @@
               <h3>Thống kê điểm {{ roomSelected ? " Lớp "+ roomSelected : "" }} </h3>
             </div>
             <div class="col-md-7">
-              <div class="row">
-                <div class="col-md-3 pr-md-1 text-center">
-                  <base-input label="Học kỳ">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected">
-                      <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
-                    </select>
-                  </base-input>
-                </div>
-                <div class="col-md-3 pl-md-1 text-center">
-                  <base-input label="Lớp">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="roomSelected">
-                    <option class="text-info" v-for="(room, index) in roomOption" :key="index" :value="room" >{{ room }}</option>
-                    </select>
-                  </base-input>
-                </div>
-                <div class="col-md-3 pr-md-1 text-center">
-                  <base-input label="Loại điểm">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="scoreTypeSelected">
-                      <option class="text-info" v-for="scoreType in scoreTypes" :key="scoreType" :value="scoreType" >{{ scoreType }}</option>
-                    </select>
-                  </base-input>
-                </div>
+              <!-- <div class="row">
+                
                 <div class="col-md-3 pl-md-1 text-center">
                   <base-button 
                     class="btn btn-sm "
@@ -38,7 +18,7 @@
                   >Lọc
                   </base-button>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
         </template>
@@ -144,7 +124,7 @@ export default {
                 borderWidth: 2,
                 borderDash: [],
                 borderDashOffset: 0.0,
-                data: null,
+                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
                 
               }]
             },
@@ -157,9 +137,7 @@ export default {
       async initializeData() {
         try {
           await this.getApiUrl();
-          await this.getSemesterData();
           await this.getUserData();
-          await this.getRoomOption();
         } catch (error) {
           console.error('Error initializing data:', error);
         }
