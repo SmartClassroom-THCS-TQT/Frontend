@@ -60,11 +60,11 @@
                   <h5 class="text-dark">Năm học: {{ semester.academic_year.year_name }}</h5>
                   <div class="d-flex align-items-center mb-2">
                     <i class="tim-icons icon-calendar-60 text-muted mr-2"></i>
-                    <span>Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
+                    <span class="text-dark">Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
                   </div>
                   <div class="d-flex align-items-center">
                     <i class="tim-icons icon-watch-time text-muted mr-2"></i>
-                    <span>Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
+                    <span class="text-dark">Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
                   </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
@@ -343,18 +343,11 @@
                           </div>
                         </div>
                       </div>
+                    </div>
+            </div>
 
-
-                    
-                </div>
-
-            
-                
-
-          </div>
-
-          <!-- Phân công giáo viên section -->
-          <div v-if="optionSelected == 3" class="card-container teacher-assignment">
+            <!-- Phân công giáo viên section -->
+            <div v-if="optionSelected == 3" class="card-container teacher-assignment">
               <div class="row">
                 <div class="col-12">
                   <div class="teacher-assignment-header">
@@ -363,14 +356,26 @@
                   </div>
                   
                   <div class="teacher-assignment-content">
-                    <!-- Content will be added based on your requirements -->
-                    <div class="subject-list">
-                      <!-- Subject list will go here -->
-                    </div>
-                    
-                    <div class="teacher-list">
-                      <!-- Teacher list will go here -->
-                    </div>
+                    <base-table :data="subjectData" :columns="subject_columns">
+                      <template slot="columns">
+                        <th>ID</th>
+                        <th>Tên môn học</th>
+                        <th>Mô tả</th>
+                        <th>Giáo viên</th>
+                        <th class="text-right">Actions</th>
+                      </template>
+                      <template slot-scope="{ row }">
+                        <td>{{ row.code }}</td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.description }}</td>
+                        <td>{{ row.assigned_teacher ? row.assigned_teacher.full_name : 'Chưa phân công' }}</td>
+                        <td class="td-actions text-right">
+                          <base-button type="info" size="sm" icon @click="openAssignTeacherModal(row)">
+                            <i class="tim-icons icon-single-02"></i>
+                          </base-button>
+                        </td>
+                      </template>
+                    </base-table>
                   </div>
                 </div>
               </div>
@@ -856,6 +861,9 @@
             </template>
         </modal>
 
+
+
+
       
       
 
@@ -970,6 +978,12 @@ export default {
         plannedLessonDetail: null,
         timeslotDetail: null,
         subjectDetail: null,
+        assignTeacher: false,
+        selectedSubject: {
+          name: ""
+        },
+        selectedTeacher: null,
+        availableTeachers: []
     },
     successValue: 0,
     intervalId: null,
@@ -1057,7 +1071,7 @@ export default {
     room_columns: ["name", "students", "homeroom_teacher"],
     plannedlesson_columns: ["id", "subject", "lesson_number", "name_lesson", "semester", "room"],
     timeslot_columns: ["code", "start_time", "end_time"],
-    subject_columns: ["code", "name", "description"],
+    subject_columns: ["code", "name", "description", "assigned_teacher"],
     lesson_columns: ["user", "full_name", "sex", "day_of_birth", "description"],
       semesterData: null,
       roomData: null,
@@ -1636,18 +1650,17 @@ export default {
       this.getStudentInRoom(this.selectedRoomOption.id)
       this.getRoomData();
     },
-    getStudentInRoom(roomName){
+    getStudentInRoom(roomId){
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/users/students/?room_id=${roomName}`, {
+        .get(API_URL+`/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-          console.log(API_URL+`/users/students/?room_id=${roomName}`)
           this.studentData = response.data
         })
         .catch((error) => {
@@ -1656,7 +1669,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Lấy danh sách học sinh lớp ${roomName} thất bại`,
+                message: `Lấy danh sách học sinh lớp ${this.selectedRoomOption.name} thất bại`,
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1701,8 +1714,36 @@ export default {
     assignTeachers() {
       this.optionSelected = 3;
       this.selectedAction = "assignTeachers";
-      // We'll add API calls here based on your requirements
+      this.loadSubjects(); // Add this line to load subjects when entering teacher assignment view
     },
+
+    loadSubjects() {
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL + "/managements/subjects/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.subjectData = response.data;
+        })
+        .catch((error) => {
+          console.error("Error loading subjects:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Không thể tải danh sách môn học",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+
+
     async initializeData() {
         try {
           await this.getApiUrl();
@@ -2739,50 +2780,6 @@ export default {
 }
 
 /* ... existing styles ... */
-
-/* Teacher Assignment Section Styles */
-.teacher-assignment {
-  margin-top: 20px;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.teacher-assignment-header {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.teacher-assignment-header h3 {
-  color: #1e88e5;
-  margin-bottom: 10px;
-}
-
-.teacher-assignment-content {
-  display: flex;
-  gap: 20px;
-}
-
-.subject-list, .teacher-list {
-  flex: 1;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  min-height: 400px;
-}
-
-/* Responsive styles */
-@media (max-width: 992px) {
-  .teacher-assignment-content {
-    flex-direction: column;
-  }
-  
-  .subject-list, .teacher-list {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-}/* ... existing styles ... */
 
 /* Teacher Assignment Section Styles */
 .teacher-assignment {

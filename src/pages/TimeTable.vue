@@ -164,6 +164,7 @@ export default {
   methods: {
     initData() {
       this.getApiUrl();
+      this.getSessions();
     },
     getApiUrl() {
       API_URL = this.$t("dashboard.apiURL");
@@ -224,10 +225,6 @@ export default {
         queryParam = `?teacher=${userId}`;
       } else {
         // Assume role is student, get sessions for student's class/room
-        if (!this.userData.rooms || !this.userData.rooms.length) {
-          console.log('No rooms available for student');
-          return;
-        }
         const roomId = this.userData.rooms[0]; // Giả sử student data có room_code
         queryParam = `?room_id=${roomId}`;
       }
@@ -260,14 +257,14 @@ export default {
         })
         .catch((error) => {
           console.error("Error getting sessions:", error);
-          this.$notify({
-            type: "warning",
-            icon: 'tim-icons icon-bell-55',
-            message: `Lấy thời khóa biểu ${this.userRole === 'teacher' ? 'giáo viên' : 'học sinh'} thất bại`,
-            timeout: 3000,
-            verticalAlign: "top",
-            horizontalAlign: "right",
-          });
+          // this.$notify({
+          //   type: "warning",
+          //   icon: 'tim-icons icon-bell-55',
+          //   message: `Lấy thời khóa biểu ${this.userRole === 'teacher' ? 'giáo viên' : 'học sinh'} thất bại`,
+          //   timeout: 3000,
+          //   verticalAlign: "top",
+          //   horizontalAlign: "right",
+          // });
         });
     },
     toggleSessionDetail(sessionId) {

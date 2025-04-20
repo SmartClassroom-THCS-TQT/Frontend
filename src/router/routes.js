@@ -90,7 +90,7 @@ const routes = [
       },
       {
         path: "learning_management",
-        name: "Quản lý học tập",
+        name: "Quản lý điểm",
         component: LearingManagement,
       },
       {
@@ -100,7 +100,7 @@ const routes = [
       },
       {
         path: "homeroom_teacher",
-        name: "Quản lý lớp",
+        name: "Quản lý lớp chủ nhiệm",
         component: HomeroomTeacher,
       },
       {

@@ -4,7 +4,7 @@
       <!-- Hiển thị quản lý lớp học nếu là giáo viên chủ nhiệm -->
       <div class="row ml-2">
         <div class="col-md-6">
-          <h3 class="font-weight-bold section-name">Quản lý lớp học - Học kỳ {{currentSemester.semester }}</h3>
+          <h3 class="font-weight-bold section-name">Lớp {{ room.name }} - Học kỳ {{currentSemester.semester }}</h3>
         </div>
         <div class="col-md-6">
           <div
