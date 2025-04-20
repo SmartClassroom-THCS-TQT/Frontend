@@ -167,44 +167,14 @@
             <!-- Danh sách lớp -->
             <div v-if="optionSelected == 1" class="card-container">
               <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
-              <template>
-                    <div class="text-muted text-center mb-3">
+              <template >
+                    <div class="text-muted text-center mb-3" >
                         <h4 class="text-dark">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
                         <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
                     </div>
                 </template>
                 <template>
-                    <base-table :data="studentData" :columns="student_columns">
-                    <template slot="columns">
-                      <th>ID</th>
-                      <th>Học sinh</th>
-                      <th>Giới tính</th>
-                      <th>Ngày sinh</th>
-                      <th>Tình trạng</th>
-                      <th class="text-right">Actions</th>
-                    </template>
-                    <template slot-scope="{ row }">
-                      <td>{{ row.user_id }}</td>
-                      <td>{{ row.full_name }}</td>
-                      <td>{{ row.sex }}</td>
-                      <td>{{ row.day_of_birth }}</td>
-                      <td>{{ row.active_status }}</td>
-                      <td class="td-actions text-right">
-                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
-                          <i class="tim-icons icon-single-02"></i>
-                        </base-button>
-                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
-                          <i class="tim-icons icon-settings"></i>
-                        </base-button>
-                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
-                          <i class="tim-icons icon-simple-remove"></i>
-                        </base-button>
-                      </td>
-                    </template>
-                  </base-table>
-                </template>
-                
-                <template>
+                  <template>
                   <section>
                         <p class="text-info text-center">
                           Cập nhật danh sách học sinh bằng cách upload file excel theo định dạng :  
@@ -241,6 +211,37 @@
                     <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
                   </div>             
                 </template>
+                    <base-table :data="studentData" :columns="student_columns">
+                    <template slot="columns">
+                      <th>ID</th>
+                      <th>Học sinh</th>
+                      <th>Giới tính</th>
+                      <th>Ngày sinh</th>
+                      <th>Tình trạng</th>
+                      <th class="text-right">Actions</th>
+                    </template>
+                    <template slot-scope="{ row }">
+                      <td>{{ row.account }}</td>
+                      <td>{{ row.full_name }}</td>
+                      <td>{{ row.sex }}</td>
+                      <td>{{ row.day_of_birth }}</td>
+                      <td>{{ row.active_status }}</td>
+                      <td class="td-actions text-right">
+                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                          <i class="tim-icons icon-single-02"></i>
+                        </base-button>
+                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                          <i class="tim-icons icon-settings"></i>
+                        </base-button>
+                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                          <i class="tim-icons icon-simple-remove"></i>
+                        </base-button>
+                      </td>
+                    </template>
+                  </base-table>
+                </template>
+                
+                
             </div>
 
             <!-- Thời khóa biểu -->
@@ -465,7 +466,7 @@
                   class="border-0 mb-0">
                 <template>
                     <div class="text-muted text-center mb-3">
-                        <h4 class="text-success">Thêm lớp học</h4>
+                        <h4 class="text-dark">Thêm lớp học</h4>
                     </div>
                 </template>
                 <template>
@@ -473,7 +474,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Mã lớp học" v-model="modals.roomCreate.code"></base-input>
+                                        <base-input label="Mã lớp học (Tên lớp + năm học. VD:6A_2024_2025)" v-model="modals.roomCreate.code"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Tên lớp học" v-model="modals.roomCreate.name"></base-input>
@@ -517,7 +518,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Học kỳ (VD: 20241)" v-model="modals.semesterCreate.code"></base-input>
+                                        <base-input label="Học kỳ (Đặt theo quy tắc năm đầu + kỳ học. VD:20241 là kỳ 1 năm 2024-2025)" v-model="modals.semesterCreate.code"></base-input>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -861,7 +862,7 @@ export default {
           code: null,
           start_date: null,
           weeks_count: null,
-          academic_year: 2024,
+          academic_year: 1,
         },
 
         sessionCreate: {

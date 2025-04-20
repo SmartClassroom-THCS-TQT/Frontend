@@ -4,7 +4,7 @@
       <edit-profile-form :model="model"> </edit-profile-form>
     </div>
     <div class="col-md-4">
-      <user-card :user="user"></user-card>
+      <user-card :user="user" :model="model"></user-card>
     </div>
   </div>
 </template>
@@ -89,7 +89,7 @@ export default {
         this.model_test = response.data
 
         //fetch data to modal
-        this.model.user_id = this.userData.user_id
+        this.model.user_id = this.userData.account
         this.model.full_name = this.userData.full_name
         this.model.phone_number = this.userData.phone_number
         this.model.old_phone_number = this.userData.phone_number
@@ -107,7 +107,7 @@ export default {
         this.user.fullName = this.userData.full_name
         this.user.image =  this.userData.image ? this.userData.image : null
         if(this.user_role == "admin") {
-          this.user.title = "ADMIN"
+          this.user.title = "CÁN BỘ QUẢN LÝ"
           this.model.role = "admins"
         }
         if(this.user_role == "student"){

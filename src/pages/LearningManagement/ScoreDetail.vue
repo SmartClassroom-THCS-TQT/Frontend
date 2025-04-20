@@ -11,21 +11,21 @@
               <div class="row">
                 <div class="col-md-3 pr-md-1 text-center">
                   <base-input label="Học kỳ">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected">
+                    <select class="btn btn-simple btn-sm btn-gay" v-model="semesterSelected">
                       <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
                     </select>
                   </base-input>
                 </div>
                 <div class="col-md-3 pl-md-1 text-center">
                   <base-input label="Lớp">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="roomSelected" @change="getStudents(roomSelected.room)">
+                    <select class="btn btn-simple btn-sm btn-gay" v-model="roomSelected" @change="getStudents(roomSelected.room)">
                     <option class="text-info" v-for="(room, index) in roomOption" :key="index" :value="room" >{{ room.room }}</option>
                     </select>
                   </base-input>
                 </div>
                 <div class="col-md-3 pr-md-1 text-center">
                   <base-input label="Loại điểm">
-                    <select class="btn btn-simple btn-sm btn-success" v-model="scoreTypeSelected">
+                    <select class="btn btn-simple btn-sm btn-gay" v-model="scoreTypeSelected">
                       <option class="text-info" v-for="scoreType in scoreTypes" :key="scoreType" :value="scoreType" >{{ scoreType }}</option>
                     </select>
                   </base-input>

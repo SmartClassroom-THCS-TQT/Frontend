@@ -13,14 +13,14 @@
                     <div class="row">
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Học kỳ">
-                            <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
+                            <select class="btn btn-simple btn-sm btn-gay" v-model="semesterSelected" @change="getWeekData">
                             <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
                             </select>
                         </base-input>
                         </div>
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Tuần">
-                            <select class="btn btn-simple btn-sm btn-success" v-model="weekSelected" @change="takeWeekData">
+                            <select class="btn btn-simple btn-sm btn-gay" v-model="weekSelected" @change="takeWeekData">
                             <option class="text-info" v-for="week in weeks" :key="week" :value="week" >{{ week }}</option>
                             </select>
                         </base-input>

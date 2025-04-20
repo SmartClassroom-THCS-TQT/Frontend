@@ -77,7 +77,7 @@
           <!-- Button to Upload File -->
           <div class="row mt-4">
             <div class="col-md-6 pr-md-1">
-              <base-button type="success" @click="triggerFileUpload" simple>
+              <base-button type="info" @click="triggerFileUpload" simple>
               <i class="tim-icons icon-attach-87"></i> Upload file Excel
               </base-button>
               <p v-if="selectedFile">{{ selectedFile.name }}</p>

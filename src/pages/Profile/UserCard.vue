@@ -8,7 +8,7 @@
       <div class="block block-four"></div>
       <a href="#">
         <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-        <img class="avatar" :src="user.image ? `https://smartclassroom.click${user.image}` : defaultImage" 
+        <img class="avatar" :src="user.image ? user.image : defaultImage" 
           alt="Ảnh đại diện" 
           @click="updateAvatar"/>
         
@@ -49,11 +49,21 @@ export default {
   data() {
     return {
       defaultImage: require('@/assets/img/icon_sm2.jpg'),
-      BASE_URL: this.$t("dashboard.baseURL")
+      BASE_URL: this.$t("dashboard.baseURL"),
+      user_role: null,
     }
+  },
+  mounted() {
+    this.getUserRole()
   },
   props: {
     user: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+    model: {
       type: Object,
       default: () => {
         return {};
@@ -67,6 +77,9 @@ export default {
     },
   },
   methods: {
+    getUserRole(){
+      this.user_role = localStorage.getItem("user_role");
+    },
     // Mở cửa sổ chọn tệp
     updateAvatar() {
       this.$refs.fileInput.click(); // Kích hoạt input file
@@ -85,7 +98,7 @@ export default {
     async updateUserProfile(formData) {
       try {
         const token = localStorage.getItem("access_token");
-        const response = await axios.put( API_URL + 'users/', formData, {
+        const response = await axios.patch( API_URL + `users/${this.user_role}s/${this.model.user_id}/`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
