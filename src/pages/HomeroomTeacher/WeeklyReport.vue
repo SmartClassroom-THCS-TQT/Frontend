@@ -642,11 +642,10 @@ let API_URL = ""
     mounted() {
       this.initializeData();
       this.getCurrentSemester();
-      this.getWeekData();
-      this.getTimeTable();
     },
     methods: {
         getCurrentSemester(){
+
             const token = localStorage.getItem('access_token');
             let apiURL = "";
                 apiURL = API_URL+`/managements/check-semester/`
@@ -657,10 +656,11 @@ let API_URL = ""
                 }
             })
             .then((response) => {
-                this.semesterSelected =  response.data
+                this.semesterSelected = response.data
                 this.weekSelected = "hiện tại"
                 this.weekData = this.semesterSelected.current_week
-                console.log(response.data)
+                this.getWeekData();
+                this.getTimeTable();
             })
             .catch(error => {
                 console.error("Error", error);
@@ -673,7 +673,6 @@ let API_URL = ""
                 horizontalAlign: 'center',
                 });
             });
-            
         },
         toggleAbsenseDetail(lesson){
             this.absencesDetailModal = true;
@@ -731,6 +730,9 @@ let API_URL = ""
             return fullName
         },
         getTimeTable() {
+            console.log("test")
+            console.log(this.weekSelected)
+            console.log(this.semesterSelected)
             if(!this.weekSelected || !this.semesterSelected){
             this.$notify({
                 type: "warning",
@@ -877,6 +879,8 @@ let API_URL = ""
             else this.weekData = this.weekSelected
         },
         getWeekData(){
+            console.log("test")
+            console.log(this.semesterSelected)
             if(!this.semesterSelected) return;
 
             else {

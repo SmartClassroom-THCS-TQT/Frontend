@@ -405,8 +405,8 @@ export default {
       else {
         //update status
         let data = {
-          "session": this.lessonData.id,
-          "student": this.studentDetail.id,
+          "session_id": this.lessonData.id,
+          "student_account": this.studentDetail.id,
           "status": this.newStatus == 0 ? false : true
         }
         const token = localStorage.getItem("access_token");

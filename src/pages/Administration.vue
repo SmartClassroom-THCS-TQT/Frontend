@@ -44,7 +44,7 @@
 <script>
 import AccountSetting from './Administration/AccountSetting.vue'
 import UserSetting from './Administration/UserSetting.vue'
-import Curriculum from './Administration/Curriculum.vue';
+
 import config from "@/config";
 
 

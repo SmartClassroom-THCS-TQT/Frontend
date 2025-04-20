@@ -32,6 +32,11 @@
           :name="$t('sidebar.learningManagement')"
           icon="tim-icons icon-pencil"
         />
+        <sidebar-link v-if="userData && (this.userRole == 'teacher' || this.userRole == 'student')"
+          to="/time_table"
+          :name="$t('sidebar.timeTable')"
+          icon="tim-icons icon-pencil"
+        />
         <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/homeroom_teacher"
           :name="$t('sidebar.homeroomTeacher')"

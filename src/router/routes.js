@@ -9,6 +9,8 @@ import StudyLayout from '@/layout/study/StudyLayout.vue'
 // Admin pages
 const Administration = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/Administration.vue");
+const TimeTable = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/TimeTable.vue");
 const AccountSetting = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/AccountSetting.vue");
 const UserSetting = () =>
@@ -60,6 +62,11 @@ const routes = [
         path: "administration",
         name: "Quản trị hệ thống",
         component: Administration,
+      },
+      {
+        path: "time_table",
+        name: "Thời khóa biểu",
+        component: TimeTable,
       },
       {
         path: "account_setting",
