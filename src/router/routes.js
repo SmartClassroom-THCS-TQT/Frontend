@@ -80,7 +80,7 @@ const routes = [
       },
       {
         path: "curriculum",
-        name: "Chương trình đào tạo",
+        name: "Quản lý đào tạo",
         component: Curriculum,
       },
       {

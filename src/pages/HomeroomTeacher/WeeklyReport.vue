@@ -20,7 +20,7 @@
                         </div>
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Tuần">
-                            <select class="btn btn-simple btn-sm btn-success" v-model="weekSelected" @change="takeWeekData">
+                            <select class="btn btn-simple btn-sm btn-gay" v-model="weekSelected" @change="takeWeekData">
                             <option class="text-info" v-for="week in weeks" :key="week" :value="week" >{{ week }}</option>
                             </select>
                         </base-input>

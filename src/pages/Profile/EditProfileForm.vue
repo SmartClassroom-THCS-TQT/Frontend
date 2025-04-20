@@ -248,7 +248,7 @@ export default {
       if (updateDataUser !== null) {
         requests.push(
           axios.patch(
-            API_URL + "/accounts/users/" + this.model.user_id + "/",
+            API_URL + "/users/" + this.user_role + "s" + "/" + this.model.user_id + "/",
             updateDataUser,
             {
               headers: {
@@ -262,11 +262,10 @@ export default {
 
       // Always add the second API call
       requests.push(
-        axios.put(
+        axios.patch(
           API_URL +
-            "/accounts/users/" +
-            this.model.user_id +
-            "/update/",
+            "/users/" + this.user_role + "s" + "/" +
+            this.model.user_id + "/",
           updateDataRole,
           {
             headers: {

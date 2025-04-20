@@ -57,6 +57,33 @@
         
       </card>
 
+      <!-- Danh sách ngày nghỉ học -->
+      <card class="mt-4">
+        <template slot="header">
+          <div class="row">
+            <div class="col-md-12">
+              <h3>Danh sách ngày nghỉ học</h3>
+            </div>
+          </div>
+        </template>
+
+        <!-- Bảng danh sách ngày nghỉ -->
+        <div>
+          <base-table :data="absenceData" :columns="absence_columns">
+            <template slot="columns">
+              <th>Ngày</th>
+              <th>Thứ</th>
+              <th>Các tiết nghỉ</th>
+            </template>
+            <template slot-scope="{ row }">
+              <td>{{ row.date }}</td>
+              <td>{{ row.day_of_week }}</td>
+              <td>{{ row.periods.join(", ") }}</td>
+            </template>
+          </base-table>
+        </div>
+      </card>
+
     </div>
   </div>
 </template>
@@ -78,12 +105,15 @@ export default {
         return {
           scoreData: this.initializeScoreData(), // Dữ liệu điểm đã được định dạng
           score_columns: ['Môn', 'Thường xuyên', 'Giữa kỳ', 'Cuối kỳ'], // Cột của bảng
+          absence_columns: ['Ngày', 'Thứ', 'Các tiết nghỉ'], // Cột của bảng nghỉ học
 
           roomSelected: null,
           semesterSelected: null,
           scoreTypeSelected: null,
+          currentSemester: null,
 
           scoreData: null,
+          absenceData: [],
           userData: null,
           roomOption: null,
           semesters: null,
@@ -104,8 +134,10 @@ export default {
       async initializeData() {
         try {
           await this.getApiUrl();
-          await this.getSemesterData();
           await this.getUserData();
+          await this.getCurrentSemester();
+          // await this.getSemesterData();
+          await this.getAbsenceData();
         } catch (error) {
           console.error('Error initializing data:', error);
         }
@@ -120,87 +152,97 @@ export default {
           resolve();
         });
       },
+      getCurrentSemester() {
+        const token = localStorage.getItem("access_token");
+        
+        return new Promise((resolve, reject) => {
+          axios
+            .get(API_URL + "/managements/check-semester/", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            })
+            .then((response) => {
+              this.currentSemester = response.data;
+              resolve();
+            })
+            .catch((error) => {
+              console.error("Error getting current semester data:", error);
+              this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Lấy dữ liệu học kỳ hiện tại thất bại",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+              reject(error);
+            });
+        });
+      },
       getSemesterData() {
-        if (this.semesters) return;
         const token = localStorage.getItem("access_token");
 
-        axios
-          .get(API_URL + "/adminpanel/semesters/", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            this.semesters = response.data;
-          })
-          .catch((error) => {
-            console.error("Error getting semester data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy dữ liệu học kỳ thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
+        return new Promise((resolve, reject) => {
+          axios
+            .get(API_URL + "/adminpanel/semesters/", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            })
+            .then((response) => {
+              this.semesters = response.data;
+              
+              // Tự động chọn học kỳ hiện tại
+              if (this.currentSemester && this.semesters && this.semesters.length > 0) {
+                const currentSemValue = this.currentSemester.semester;
+                const foundSemester = this.semesters.find(sem => sem.value === currentSemValue);
+                
+                if (foundSemester) {
+                  this.semesterSelected = foundSemester;
+                  // Tự động lấy điểm cho học kỳ hiện tại
+                  this.getScoreData();
+                } else {
+                  // Nếu không tìm thấy, chọn học kỳ đầu tiên
+                  this.semesterSelected = this.semesters[0];
+                }
+              }
+              
+              resolve();
+            })
+            .catch((error) => {
+              console.error("Error getting semester data:", error);
+              this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Lấy dữ liệu học kỳ thất bại",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+              reject(error);
             });
-          });
+        });
       },
-      // getScoreData(){
-      //   const data = [
-      //         {
-      //             "subject": "VAN",
-      //             "score_type": "TX",
-      //             "grade": [
-      //                 6.0,
-      //                 6.0,
-      //                 5.5,
-      //                 5.5,
-      //                 6.5,
-      //                 6.5
-      //             ],
-      //             "student": "0181635895",
-      //             "semester": 20242
-      //         },
-      //         {
-      //             "subject": "TOAN",
-      //             "score_type": "TX",
-      //             "grade": [
-      //                 10.0,
-      //                 8.0,
-      //                 9.0,
-      //                 9.0
-      //             ],
-      //             "student": "0181635895",
-      //             "semester": 20242
-      //         },
-      //         {
-      //             "subject": "TOAN",
-      //             "score_type": "GK",
-      //             "grade": [
-      //                 8.0
-      //             ],
-      //             "student": "0181635895",
-      //             "semester": 20242
-      //         },
-      //         {
-      //             "subject": "TOAN",
-      //             "score_type": "CK",
-      //             "grade": [
-      //                 8.0
-      //             ],
-      //             "student": "0181635895",
-      //             "semester": 20242
-      //         }
-      //     ]
-      //     this.scoreData = this.formatScoreData(data);
-      // },
       getScoreData(){
         const token = localStorage.getItem("access_token");
-        this.scoreData = this.initializeScoreData()
+        this.scoreData = this.initializeScoreData();
+
+        if (!this.semesterSelected || !this.userData) {
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Vui lòng chọn học kỳ trước khi lọc dữ liệu",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          return;
+        }
 
         axios
-        // .get(API_URL + `/grades?student=${this.userData.user_id}&semester_name=${this.semesterSelected.name}`, {
           .get(API_URL + `/adminpanel/grades?student=${this.userData.user_id}&semester_name=${this.semesterSelected.name}`, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -208,7 +250,6 @@ export default {
             },
           })
           .then((response) => {
-            // Xử lý dữ liệu để sắp xếp theo từng môn
             this.$notify({
               type: "success",
               icon: 'tim-icons icon-bell-55',
@@ -231,33 +272,91 @@ export default {
             });
           });
       },
-      // formatScoreData(data) {
-      //   const groupedScores = {};
-
-      //   data.forEach(item => {
-      //     // Kiểm tra xem môn học này đã tồn tại trong groupedScores chưa
-      //     if (!groupedScores[item.subject]) {
-      //       groupedScores[item.subject] = {
-      //         subject: item.subject,
-      //         tx: [],  // Điểm thường xuyên
-      //         gk: [],  // Điểm giữa kỳ
-      //         ck: []   // Điểm cuối kỳ
-      //       };
-      //     }
-
-      //     // Sắp xếp điểm vào đúng loại điểm (TX, GK, CK)
-      //     if (item.score_type === "TX") {
-      //       groupedScores[item.subject].tx = item.grade;
-      //     } else if (item.score_type === "GK") {
-      //       groupedScores[item.subject].gk = item.grade;
-      //     } else if (item.score_type === "CK") {
-      //       groupedScores[item.subject].ck = item.grade;
-      //     }
-      //   });
-
-      //   // Chuyển đổi đối tượng thành mảng để dễ hiển thị trong bảng
-      //   return Object.values(groupedScores);
-      // },
+      getAbsenceData() {
+        const token = localStorage.getItem("access_token");
+        
+        if (!this.userData) {
+          console.error("User data not available");
+          return;
+        }
+        
+        axios
+          .get(API_URL + `/rooms_managements/attendances/?student=${this.userData.account}&status=false`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          })
+          .then((response) => {
+            console.log("response", response.data);
+            // Log the first item's session structure to check time_slot format
+            if (response.data.length > 0) {
+              console.log("Example session:", response.data[0].session);
+            }
+            this.absenceData = this.formatAbsenceData(response.data);
+            console.log("absenceData", this.absenceData);
+          })
+          .catch((error) => {
+            console.error("Error getting absence data:", error);
+            this.$notify({
+              type: "warning",
+              icon: 'tim-icons icon-bell-55',
+              message: "Lấy dữ liệu nghỉ học thất bại",
+              timeout: 3000,
+              verticalAlign: "top",
+              horizontalAlign: "right",
+            });
+          });
+      },
+      formatAbsenceData(data) {
+        // Nhóm dữ liệu điểm danh theo ngày
+        const groupedByDate = {};
+        
+        data.forEach(item => {
+          // Lấy thông tin từ session của mỗi bản ghi
+          const date = item.session.day;
+          const timeSlot = item.session.time_slot;
+          
+          if (!groupedByDate[date]) {
+            // Xác định thứ trong tuần
+            const dayOfWeek = this.getDayOfWeek(new Date(date));
+            
+            groupedByDate[date] = {
+              date: this.formatDate(date),
+              day_of_week: dayOfWeek,
+              periods: []
+            };
+          }
+          
+          // Thêm tiết học vào danh sách các tiết nghỉ của ngày đó
+          if (timeSlot && !groupedByDate[date].periods.includes(timeSlot)) {
+            groupedByDate[date].periods.push(timeSlot);
+          }
+        });
+        
+        // Sắp xếp tiết học và chuyển đối tượng thành mảng
+        Object.values(groupedByDate).forEach(day => {
+          day.periods.sort((a, b) => a - b);
+        });
+        
+        // Sắp xếp theo ngày mới nhất trước
+        return Object.values(groupedByDate).sort((a, b) => {
+          // Sắp xếp ngày theo thứ tự giảm dần (mới nhất trước)
+          return new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-'));
+        });
+      },
+      getDayOfWeek(date) {
+        const days = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
+        return days[date.getDay()];
+      },
+      formatDate(dateString) {
+        // Ensure dateString is in a format that can be parsed by new Date()
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      },
       formatScoreData(data) {
           const groupedScores = {};
 
@@ -288,7 +387,6 @@ export default {
           // Chuyển đổi đối tượng groupedScores thành mảng để dễ hiển thị trong bảng
           return Object.values(groupedScores);
       },
-
     },
 };
 </script>

@@ -131,6 +131,7 @@
       }
     }
 
+
     &.active,
     &:active,
     &:active:focus,
@@ -157,14 +158,69 @@
     color: $white;
   }
 
+
   &.btn-simple {
-    color: $btn-states-color;
-    border-color: $btn-states-color;
+    color: $btn-color;
+    border-color: $btn-color;
     background: $transparent-bg;
 
-    // color: $gray-700;
-    // border-color: $gray-700;
+    &:hover,
+    &:focus,
+    &:active,
+    &:not(:disabled):not(.disabled):active {
+      color: $btn-color;
+      border-color: $btn-color;
+      background-color: $transparent-bg !important;
+      background-image: none !important;
+      box-shadow: none;
+    }
+
+    &.active {
+      border-color: $btn-color !important;
+      &:hover,
+      &:focus,
+      &:active,
+      &:not(:disabled):not(.disabled):active {
+        color: $white;
+        border-color: $btn-color;
+        background-image: linear-gradient(
+          to bottom left,
+          $btn-color,
+          $btn-states-color,
+          $btn-color
+        ) !important;
+        background-image: -webkit-linear-gradient(
+          to bottom left,
+          $btn-color,
+          $btn-states-color,
+          $btn-color
+        ) !important;
+        background-image: -o-linear-gradient(
+          to bottom left,
+          $btn-color,
+          $btn-states-color,
+          $btn-color
+        ) !important;
+        background-image: -moz-linear-gradient(
+          to bottom left,
+          $btn-color,
+          $btn-states-color,
+          $btn-color
+        ) !important;
+        background-color: $btn-states-color !important;
+        box-shadow: none;
+      }
+    }
+  }
+
+  &.btn-gay {
+    // color: $btn-states-color;
+    // border-color: $btn-states-color;
     // background: $transparent-bg;
+
+    color: $gray-700;
+    border-color: $gray-700;
+    background: $transparent-bg;
 
     &:hover,
     &:focus,
@@ -342,6 +398,9 @@
   &.btn-simple {
     padding: $padding-vertical - 1 $padding-horizontal - 1;
   }
+  &.btn-gay {
+    padding: $padding-vertical - 1 $padding-horizontal - 1;
+  }
 }
 
 // for social buttons
@@ -385,6 +444,21 @@
   }
 
   &.btn-simple {
+    color: $state-color;
+    background-color: $transparent-bg;
+    background-image: none !important;
+    box-shadow: none;
+    border-color: $state-color;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: $state-color;
+      border-color: $state-color;
+    }
+  }
+
+  &.btn-gay {
     color: $state-color;
     background-color: $transparent-bg;
     background-image: none !important;

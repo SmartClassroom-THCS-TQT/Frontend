@@ -11,7 +11,7 @@
               <label
                 v-for="(option, index) in userSettingOption"
                 :key="option"
-                class="btn btn-sm btn-neutral btn-simple"
+                class="btn btn-sm btn-neutral btn-gay"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -298,8 +298,26 @@
           </base-table>
         </div>
 
-        <!-- Detail Modal -->
-        <modal :show.sync="modals.detailModal"
+        
+
+        <!-- Remove Modal -->
+        
+        
+        <!-- Remove Room Modal -->
+        <!-- <modal :show.sync="modals.removeRoomModal">
+            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0">Xác nhận xóa lớp học này</h4>
+            <template slot="footer">
+                <base-button type="secondary" @click="removeObject">Xác nhận</base-button>
+                <base-button type="danger" class="ml-auto" @click="modals.removeRoomModal = false">Hủy
+                </base-button>
+            </template>
+        </modal> -->
+        
+
+      </card>
+
+      <!-- Detail Modal -->
+      <modal :show.sync="modals.detailModal"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
                <!-- Học sinh -->
@@ -628,21 +646,7 @@
             </card>
         </modal>
 
-        <!-- Remove Modal -->
-        
-        
-        <!-- Remove Room Modal -->
-        <!-- <modal :show.sync="modals.removeRoomModal">
-            <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0">Xác nhận xóa lớp học này</h4>
-            <template slot="footer">
-                <base-button type="secondary" @click="removeObject">Xác nhận</base-button>
-                <base-button type="danger" class="ml-auto" @click="modals.removeRoomModal = false">Hủy
-                </base-button>
-            </template>
-        </modal> -->
-        
-
-      </card>
+      <!-- Remove Modal -->
       <modal :show.sync="modals.removeModal">
             <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 0" >Xác nhận xóa học sinh này</h4>
             <h4 slot="header" class="modal-title" id="modal-title-default" v-if="this.bigLineChart.activeIndex === 1">Xác nhận xóa giáo viên này</h4>

@@ -12,7 +12,7 @@
               <label
                 v-for="(option, index) in accountSettingOption"
                 :key="option"
-                class="btn btn-sm btn-neutral btn-simple"
+                class="btn btn-sm btn-neutral btn-gay"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -77,7 +77,7 @@
           <!-- Button to Upload File -->
           <div class="row mt-4">
             <div class="col-md-6 pr-md-1">
-              <base-button type="success" @click="triggerFileUpload" simple>
+              <base-button type="info" @click="triggerFileUpload" simple>
               <i class="tim-icons icon-attach-87"></i> Upload file Excel
               </base-button>
               <p v-if="selectedFile">{{ selectedFile.name }}</p>
@@ -316,10 +316,7 @@ export default {
             sex: account[5],
             day_of_birth: this.convertDate(account[4]),
             nation: account[6],
-            active_status: account[7],
-
-            //test
-            rooms: [1]
+            active_status: account[7]
           };
         } else if (this.registrationType === "teacher") {
           data = {
@@ -582,6 +579,7 @@ export default {
       };
       reader.readAsArrayBuffer(this.selectedFile);
     },
+
     registerAccounts() {
       if (!this.selectedFile) {
         this.$notify({

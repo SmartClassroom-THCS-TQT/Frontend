@@ -3,7 +3,7 @@
     <div class="col-12">
       <card>
         <template slot="header">
-          <h3>Quản trị tài khoản</h3>
+          <!-- <h3>Quản trị tài khoản</h3> -->
           <div class="col-sm-12">
             <div
               class="btn-group btn-group-toggle float-right"
@@ -12,7 +12,7 @@
               <label
                 v-for="(option, index) in accountSettingOption"
                 :key="option"
-                class="btn btn-sm btn-neutral btn-simple"
+                class="btn btn-sm btn-neutral btn-gay"
                 :class="{ active: bigLineChart.activeIndex === index }"
                 :id="index"
               >
@@ -77,7 +77,7 @@
           <!-- Button to Upload File -->
           <div class="row mt-4">
             <div class="col-md-6 pr-md-1">
-              <base-button type="success" @click="triggerFileUpload" simple>
+              <base-button type="info" @click="triggerFileUpload" simple>
               <i class="tim-icons icon-attach-87"></i> Upload file Excel
               </base-button>
               <p v-if="selectedFile">{{ selectedFile.name }}</p>

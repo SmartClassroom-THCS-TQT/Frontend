@@ -35,11 +35,11 @@
           <div v-for="(room, index) in roomOption" :key="index" class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="card class-card shadow h-100" @click="selectRoom(room)">
               <div class="card-body text-center">
-                <h4 class="card-title text-info">{{ room ? room.name : "" }}</h4>
+                <h4 class="card-title font-weight-bold text-dark">{{ room ? room.name : "" }}</h4>
                 <p class="text-muted">{{ subjectInfo }}</p>
               </div>
               <div class="card-footer bg-transparent">
-                <base-button class="btn-block" type="primary" @click.stop="selectRoom(room)">
+                <base-button class="btn-block" type="success" @click.stop="selectRoom(room)">
                   Chọn lớp
                 </base-button>
               </div>
@@ -59,13 +59,13 @@
         </div>
         <div class="col-md-6">
           <div class="btn-group btn-group-toggle float-right">
-            <base-button type="primary" size="sm" class="mr-2" @click="backToClassSelection">
+            <base-button type="info" size="sm" class="mr-2" @click="backToClassSelection">
               <i class="tim-icons icon-minimal-left"></i> Chọn lớp khác
             </base-button>
             <label
               v-for="(option, index) in adminstrationOption"
               :key="option"
-              class="btn btn-sm btn-neutral btn-simple"
+              class="btn btn-sm btn-neutral btn-gay"
               :class="{ active: bigLineChart.activeIndex === index }"
               :id="index"
             >

@@ -134,7 +134,7 @@ export default {
         this.user.fullName = this.userData.full_name
         this.user.image =  this.userData.image ? this.userData.image : null
         if(this.user_role == "admin") {
-          this.user.title = "ADMIN"
+          this.user.title = "CÁN BỘ QUẢN LÝ"
           this.model.role = "admins"
         }
         if(this.user_role == "student"){

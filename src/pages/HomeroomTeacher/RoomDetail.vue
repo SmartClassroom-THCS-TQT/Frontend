@@ -18,7 +18,7 @@
                       <th>Tình trạng</th>
                     </template>
                     <template slot-scope="{ row }">
-                      <td>{{ row.user }}</td>
+                      <td>{{ row.account }}</td>
                       <td>{{ row.full_name }}</td>
                       <td>{{ row.sex }}</td>
                       <td>{{ row.day_of_birth }}</td>
@@ -50,7 +50,7 @@ props: {
   data(){
     return {
         students: null,
-        student_columns: ["user", "full_name", "sex", "day_of_birth", "active_status"],
+        student_columns: ["account", "full_name", "sex", "day_of_birth", "active_status"],
     }
   },
   methods: {
