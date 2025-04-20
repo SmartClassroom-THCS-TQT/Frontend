@@ -347,9 +347,34 @@
 
                     
                 </div>
+
+            
                 
 
           </div>
+
+          <!-- Phân công giáo viên section -->
+          <div v-if="optionSelected == 3" class="card-container teacher-assignment">
+              <div class="row">
+                <div class="col-12">
+                  <div class="teacher-assignment-header">
+                    <h3>Phân công giáo viên cho lớp {{ selectedRoomOption.name }}</h3>
+                    <p class="text-muted">Quản lý phân công giáo viên cho các môn học</p>
+                  </div>
+                  
+                  <div class="teacher-assignment-content">
+                    <!-- Content will be added based on your requirements -->
+                    <div class="subject-list">
+                      <!-- Subject list will go here -->
+                    </div>
+                    
+                    <div class="teacher-list">
+                      <!-- Teacher list will go here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           
           </div>
@@ -423,6 +448,8 @@
           </base-button>
         </div> -->
 
+        
+        
         <!-- Tiết học -->
         <div v-if="bigLineChart.activeIndex === 1">
           <base-table :data="timeslotData" :columns="timeslot_columns">
@@ -1672,8 +1699,9 @@ export default {
         });
     },
     assignTeachers() {
-      // Handle assigning teachers logic
-      alert("Phân công giáo viên");
+      this.optionSelected = 3;
+      this.selectedAction = "assignTeachers";
+      // We'll add API calls here based on your requirements
     },
     async initializeData() {
         try {
@@ -2709,4 +2737,95 @@ export default {
     margin-top: 20px;
   }
 }
+
+/* ... existing styles ... */
+
+/* Teacher Assignment Section Styles */
+.teacher-assignment {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-assignment-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.teacher-assignment-header h3 {
+  color: #1e88e5;
+  margin-bottom: 10px;
+}
+
+.teacher-assignment-content {
+  display: flex;
+  gap: 20px;
+}
+
+.subject-list, .teacher-list {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .teacher-assignment-content {
+    flex-direction: column;
+  }
+  
+  .subject-list, .teacher-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}/* ... existing styles ... */
+
+/* Teacher Assignment Section Styles */
+.teacher-assignment {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-assignment-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.teacher-assignment-header h3 {
+  color: #1e88e5;
+  margin-bottom: 10px;
+}
+
+.teacher-assignment-content {
+  display: flex;
+  gap: 20px;
+}
+
+.subject-list, .teacher-list {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .teacher-assignment-content {
+    flex-direction: column;
+  }
+  
+  .subject-list, .teacher-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
 </style>
