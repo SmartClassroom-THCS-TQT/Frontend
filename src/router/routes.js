@@ -9,6 +9,14 @@ import StudyLayout from '@/layout/study/StudyLayout.vue'
 // Admin pages
 const Administration = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/Administration.vue");
+const TimeTable = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/TimeTable.vue");
+const AccountSetting = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/AccountSetting.vue");
+const UserSetting = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/UserSetting.vue");
+const Curriculum = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/Curriculum.vue");
 const EducationProgram = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/EducationProgram.vue");
 const LearingManagement = () =>
@@ -54,6 +62,26 @@ const routes = [
         path: "administration",
         name: "Quản trị hệ thống",
         component: Administration,
+      },
+      {
+        path: "time_table",
+        name: "Thời khóa biểu",
+        component: TimeTable,
+      },
+      {
+        path: "account_setting",
+        name: "Quản lý tài khoản",
+        component: AccountSetting,
+      },
+      {
+        path: "user_setting",
+        name: "Quản lý người dùng",
+        component: UserSetting,
+      },
+      {
+        path: "curriculum",
+        name: "Quản lý đào tạo",
+        component: Curriculum,
       },
       {
         path: "education_program",

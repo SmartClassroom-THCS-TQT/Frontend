@@ -7,16 +7,16 @@
             <template slot="header">
                 <div class="row">
                     <div class="col-md-5">
-                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.code : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
+                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.semester : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
                     </div>
                     <div class="col-md-7">
                     <div class="row">
                         <div class="col-md-3 pr-md-1 text-center">
-                        <base-input label="Học kỳ">
-                            <select class="btn btn-simple btn-sm btn-gay" v-model="semesterSelected" @change="getWeekData">
+                        <!-- <base-input label="Học kỳ">
+                            <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
                             <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
                             </select>
-                        </base-input>
+                        </base-input> -->
                         </div>
                         <div class="col-md-3 pr-md-1 text-center">
                         <base-input label="Tuần">
@@ -39,8 +39,6 @@
             </template>
             <div style="display: flex; justify-content: center; align-items: center;">
                 <div v-if="timetableData">
-                    <h4 id="topDiv" class="font-weight-bold mb-5">Tuần thứ: {{weekData}}</h4>
-
                     <div  id="tableDiv">
                         <table class="table-bordered" style="width: 863px">
                             <tbody>
@@ -68,7 +66,16 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].monday?this.timetableData[0].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.absences : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[0].monday && this.absentListMap[this.timetableData[0].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[0].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[0].monday && this.timetableData[0].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[0].monday.absences}} học sinh vắng
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.grade : ""}}</td>
@@ -78,7 +85,16 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].monday?this.timetableData[1].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_number : ""}}</td>
-                                    <!-- <td style="width: 125px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.absences : ""}}</td> -->
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[1].monday && this.absentListMap[this.timetableData[1].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[1].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[1].monday && this.timetableData[1].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[1].monday.absences}} học sinh vắng
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.grade : ""}}</td>
@@ -86,9 +102,21 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">3</td>
-                                   <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].monday?this.timetableData[2].monday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].monday?this.timetableData[2].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.absences : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[2].monday && this.absentListMap[this.timetableData[2].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[2].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[2].monday && this.timetableData[2].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[2].monday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[2].monday? this.timetableData[2].monday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.grade : ""}}</td>
@@ -98,7 +126,19 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].monday?this.timetableData[3].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.absences : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[3].monday && this.absentListMap[this.timetableData[3].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[3].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[3].monday && this.timetableData[3].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[3].monday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[3].monday? this.timetableData[3].monday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.grade : ""}}</td>
@@ -108,7 +148,19 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].monday?this.timetableData[4].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.absences : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[4].monday && this.absentListMap[this.timetableData[4].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[4].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[4].monday && this.timetableData[4].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[4].monday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[4].monday? this.timetableData[4].monday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.grade : ""}}</td>
@@ -118,12 +170,18 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].monday?this.timetableData[5].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;">
-                                        <base-button simple @click="() => toggleAbsenseDetail(this.timetableData[5].monday)" class="btn-danger" v-if="this.timetableData[5].monday && this.timetableData[5].monday.absences != 0">
-                                        {{this.timetableData[5].monday? this.timetableData[5].monday.absences : ""}}
-                                            <i class="tim-icons icon-single-02"></i>
-                                        </base-button>
-                                        <p v-else class="text-success">{{this.timetableData[5].monday? this.timetableData[5].monday.absences : ""}}</p>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].monday)" class="absence-cell">
+                                        <div v-if="this.timetableData[5].monday && this.absentListMap[this.timetableData[5].monday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[5].monday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[5].monday && this.timetableData[5].monday.absences > 0" class="text-danger">
+                                            {{this.timetableData[5].monday.absences}} 
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[5].monday? this.timetableData[5].monday.absences : ""}}
+                                        </div>
                                     </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.comment : ""}}</td>
@@ -141,19 +199,43 @@
                                         <p></p>
                                     </td>
                                     <td style="width: 29px; height: 62px;">1</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.getNameSubject(this.timetableData[0].tuesday.subject) : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].tuesday?this.timetableData[0].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.name_lesson : ""}}</td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[0].tuesday && this.absentListMap[this.timetableData[0].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[0].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[0].tuesday && this.timetableData[0].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[0].monday.absences}} 
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[0].tuesday? this.timetableData[0].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.evaluate : ""}}</td>
-                                    <td style="width: 58px; height: 62.3333px;"></td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.grade : ""}}</td>
+                                    <td style="width: 58px; height: 62px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.getNameSubject(this.timetableData[1].tuesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.lesson_number: "" }}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[1].tuesday && this.absentListMap[this.timetableData[1].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[1].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[1].tuesday && this.timetableData[1].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[1].tuesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[1].tuesday? this.timetableData[1].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.evaluate : ""}}</td>
@@ -163,7 +245,19 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.getNameSubject(this.timetableData[2].tuesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[2].tuesday && this.absentListMap[this.timetableData[2].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[2].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[2].tuesday && this.timetableData[2].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[2].tuesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[2].tuesday? this.timetableData[2].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.evaluate : ""}}</td>
@@ -173,7 +267,19 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.getNameSubject(this.timetableData[3].tuesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[3].tuesday && this.absentListMap[this.timetableData[3].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[3].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[3].tuesday && this.timetableData[3].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[3].tuesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[3].tuesday? this.timetableData[3].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.evaluate : ""}}</td>
@@ -183,7 +289,19 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.getNameSubject(this.timetableData[4].tuesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[4].tuesday && this.absentListMap[this.timetableData[4].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[4].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[4].tuesday && this.timetableData[4].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[4].tuesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[4].tuesday? this.timetableData[4].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.name_lesson: "" }}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.evaluate : ""}}</td>
@@ -193,7 +311,19 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.getNameSubject(this.timetableData[5].tuesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].tuesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[5].tuesday && this.absentListMap[this.timetableData[5].tuesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[5].tuesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[5].tuesday && this.timetableData[5].tuesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[5].tuesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[5].tuesday? this.timetableData[5].tuesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.evaluate : ""}}</td>
@@ -212,7 +342,19 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.getNameSubject(this.timetableData[0].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[0].wednesday && this.absentListMap[this.timetableData[0].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[0].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[0].wednesday && this.timetableData[0].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[0].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[0].wednesday? this.timetableData[0].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.evaluate : ""}}</td>
@@ -222,7 +364,19 @@
                                     <td style="width: 29px; height: 62px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.getNameSubject(this.timetableData[1].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[1].wednesday && this.absentListMap[this.timetableData[1].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[1].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[1].wednesday && this.timetableData[1].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[1].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[1].wednesday? this.timetableData[1].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.evaluate : ""}}</td>
@@ -232,7 +386,19 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.getNameSubject(this.timetableData[2].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.lesson_number: ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[2].wednesday && this.absentListMap[this.timetableData[2].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[2].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[2].wednesday && this.timetableData[2].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[2].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[2].wednesday? this.timetableData[2].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.evaluate : ""}}</td>
@@ -242,7 +408,19 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.getNameSubject(this.timetableData[3].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[3].wednesday && this.absentListMap[this.timetableData[3].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[3].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[3].wednesday && this.timetableData[3].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[3].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[3].wednesday? this.timetableData[3].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.evaluate : ""}}</td>
@@ -252,7 +430,19 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.getNameSubject(this.timetableData[4].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[4].wednesday && this.absentListMap[this.timetableData[4].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[4].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[4].wednesday && this.timetableData[4].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[4].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[4].wednesday? this.timetableData[4].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.evaluate : ""}}</td>
@@ -262,7 +452,19 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.getNameSubject(this.timetableData[5].wednesday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].wednesday)" class="absence-cell">
+                                        <div v-if="this.timetableData[5].wednesday && this.absentListMap[this.timetableData[5].wednesday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[5].wednesday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[5].wednesday && this.timetableData[5].wednesday.absences > 0" class="text-danger">
+                                            {{this.timetableData[5].wednesday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[5].wednesday? this.timetableData[5].wednesday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.evaluate : ""}}</td>
@@ -281,7 +483,19 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].thursday? this.getNameSubject(this.timetableData[0].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[0].thursday && this.absentListMap[this.timetableData[0].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[0].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[0].thursday && this.timetableData[0].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[0].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[0].thursday? this.timetableData[0].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.evaluate : ""}}</td>
@@ -291,7 +505,19 @@
                                     <td style="width: 29px; height: 62px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].thursday? this.getNameSubject(this.timetableData[1].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[1].thursday && this.absentListMap[this.timetableData[1].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[1].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[1].thursday && this.timetableData[1].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[1].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[1].thursday? this.timetableData[1].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.evaluate : ""}}</td>
@@ -301,7 +527,19 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].thursday? this.getNameSubject(this.timetableData[2].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[2].thursday && this.absentListMap[this.timetableData[2].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[2].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[2].thursday && this.timetableData[2].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[2].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[2].thursday? this.timetableData[2].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.evaluate : ""}}</td>
@@ -311,7 +549,19 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].thursday? this.getNameSubject(this.timetableData[3].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[3].thursday && this.absentListMap[this.timetableData[3].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[3].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[3].thursday && this.timetableData[3].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[3].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[3].thursday? this.timetableData[3].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.evaluate : ""}}</td>
@@ -321,7 +571,19 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].thursday? this.getNameSubject(this.timetableData[4].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[4].thursday && this.absentListMap[this.timetableData[4].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[4].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[4].thursday && this.timetableData[4].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[4].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[4].thursday? this.timetableData[4].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.evaluate : ""}}</td>
@@ -331,7 +593,19 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].thursday? this.getNameSubject(this.timetableData[5].thursday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].thursday)" class="absence-cell">
+                                        <div v-if="this.timetableData[5].thursday && this.absentListMap[this.timetableData[5].thursday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[5].thursday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[5].thursday && this.timetableData[5].thursday.absences > 0" class="text-danger">
+                                            {{this.timetableData[5].thursday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[5].thursday? this.timetableData[5].thursday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.evaluate : ""}}</td>
@@ -373,14 +647,26 @@
                                     <td style="width: 125px; height: 62.3333px;"></td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].friday? this.timetableData[2].friday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].friday? this.timetableData[2].friday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].friday? this.timetableData[2].friday.evaluate: "" }}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].friday? this.timetableData[2].friday.evaluate : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].friday? this.getNameSubject(this.timetableData[3].friday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].friday? this.timetableData[3].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].friday)" class="absence-cell">
+                                        <div v-if="this.timetableData[3].friday && this.absentListMap[this.timetableData[3].friday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[3].friday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[3].friday && this.timetableData[3].friday.absences > 0" class="text-danger">
+                                            {{this.timetableData[3].friday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[3].friday? this.timetableData[3].friday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].friday? this.timetableData[3].friday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].friday? this.timetableData[3].friday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].friday? this.timetableData[3].friday.evaluate : ""}}</td>
@@ -390,17 +676,41 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].friday? this.getNameSubject(this.timetableData[4].friday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].friday)" class="absence-cell">
+                                        <div v-if="this.timetableData[4].friday && this.absentListMap[this.timetableData[4].friday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[4].friday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[4].friday && this.timetableData[4].friday.absences > 0" class="text-danger">
+                                            {{this.timetableData[4].friday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[4].friday? this.timetableData[4].friday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.evaluate: "" }}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.evaluate : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].friday? this.getNameSubject(this.timetableData[5].friday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].friday? this.timetableData[5].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].friday)" class="absence-cell">
+                                        <div v-if="this.timetableData[5].friday && this.absentListMap[this.timetableData[5].friday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[5].friday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[5].friday && this.timetableData[5].friday.absences > 0" class="text-danger">
+                                            {{this.timetableData[5].friday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[5].friday? this.timetableData[5].friday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].friday? this.timetableData[5].friday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].friday? this.timetableData[5].friday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].friday? this.timetableData[5].friday.evaluate : ""}}</td>
@@ -419,7 +729,19 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].saturday? this.getNameSubject(this.timetableData[0].saturday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].saturday? this.timetableData[0].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].saturday)" class="absence-cell">
+                                        <div v-if="this.timetableData[0].saturday && this.absentListMap[this.timetableData[0].saturday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[0].saturday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[0].saturday && this.timetableData[0].saturday.absences > 0" class="text-danger">
+                                            {{this.timetableData[0].saturday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[0].saturday? this.timetableData[0].saturday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].saturday? this.timetableData[0].saturday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].saturday? this.timetableData[0].saturday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].saturday? this.timetableData[0].saturday.evaluate : ""}}</td>
@@ -429,9 +751,21 @@
                                     <td style="width: 29px; height: 62px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].saturday? this.getNameSubject(this.timetableData[1].saturday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].saturday)" class="absence-cell">
+                                        <div v-if="this.timetableData[1].saturday && this.absentListMap[this.timetableData[1].saturday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[1].saturday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[1].saturday && this.timetableData[1].saturday.absences > 0" class="text-danger">
+                                            {{this.timetableData[1].saturday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[1].saturday? this.timetableData[1].saturday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.comment: "" }}</td>
+                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.evaluate : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
@@ -439,40 +773,22 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].saturday? this.getNameSubject(this.timetableData[2].saturday.subject) : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].saturday? this.timetableData[2].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
+                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].saturday)" class="absence-cell">
+                                        <div v-if="this.timetableData[2].saturday && this.absentListMap[this.timetableData[2].saturday.id]">
+                                            <div v-for="(student, index) in absentListMap[this.timetableData[2].saturday.id]" :key="index" class="absent-student-name">
+                                                {{student.student.full_name}}
+                                            </div>
+                                        </div>
+                                        <div v-else-if="this.timetableData[2].saturday && this.timetableData[2].saturday.absences > 0" class="text-danger">
+                                            {{this.timetableData[2].saturday.absences}} học sinh vắng
+                                        </div>
+                                        <div v-else>
+                                            {{this.timetableData[2].saturday? this.timetableData[2].saturday.absences : ""}}
+                                        </div>
+                                    </td>
                                     <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].saturday? this.timetableData[2].saturday.name_lesson : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].saturday? this.timetableData[2].saturday.comment : ""}}</td>
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].saturday? this.timetableData[2].saturday.evaluate : ""}}</td>
-                                    <td style="width: 58px; height: 62.3333px;"></td>
-                                </tr>
-                                <tr style="height: 62px;">
-                                    <td style="width: 29px; height: 62px;">4</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].saturday? this.getNameSubject(this.timetableData[3].saturday.subject) : ""}}</td>
-                                    <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].saturday? this.timetableData[3].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].saturday? this.timetableData[3].saturday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].saturday? this.timetableData[3].saturday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].saturday? this.timetableData[3].saturday.evaluate : ""}}</td>
-                                    <td style="width: 58px; height: 62.3333px;"></td>
-                                </tr>
-                                <tr style="height: 62px;">
-                                    <td style="width: 29px; height: 62px;">5</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].saturday? this.getNameSubject(this.timetableData[4].saturday.subject) : ""}}</td>
-                                    <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].saturday? this.timetableData[4].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].saturday? this.timetableData[4].saturday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].saturday? this.timetableData[4].saturday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].saturday? this.timetableData[4].saturday.evaluate : ""}}</td>
-                                    <td style="width: 58px; height: 62.3333px;"></td>
-                                </tr>
-                                <tr style="height: 62px;">
-                                    <td style="width: 29px; height: 62px;">6</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].saturday? this.getNameSubject(this.timetableData[5].saturday.subject) : ""}}</td>
-                                    <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;"></td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.name_lesson : ""}}</td>
-                                    <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.evaluate : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -626,6 +942,7 @@ let API_URL = ""
         return {
             absencesDetailModal: false,
             absenceStudentList: null,
+            absentListMap: {}, // Lưu danh sách học sinh vắng cho mỗi tiết
             lessonDetail: null,
             student_columns: ["attendance_time", "id", "session" , "status" , "student"],
             semesters: null,
@@ -643,8 +960,39 @@ let API_URL = ""
     },
     mounted() {
       this.initializeData();
+      this.getCurrentSemester();
     },
     methods: {
+        getCurrentSemester(){
+
+            const token = localStorage.getItem('access_token');
+            let apiURL = "";
+                apiURL = API_URL+`/managements/check-semester/`
+            
+            axios.get(apiURL, {
+                headers: {
+                'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+                }
+            })
+            .then((response) => {
+                this.semesterSelected = response.data
+                this.weekSelected = "hiện tại"
+                this.weekData = this.semesterSelected.current_week
+                this.getWeekData();
+                this.getTimeTable();
+            })
+            .catch(error => {
+                console.error("Error", error);
+                this.$notify({
+                type: 'danger',
+                icon: 'tim-icons icon-alert-circle-exc',
+                message: "Lấy thông tin hoc ky hien tai that bai",
+                timeout: 3000,
+                verticalAlign: 'top',
+                horizontalAlign: 'center',
+                });
+            });
+        },
         toggleAbsenseDetail(lesson){
             this.absencesDetailModal = true;
             this.lessonDetail = lesson
@@ -701,6 +1049,9 @@ let API_URL = ""
             return fullName
         },
         getTimeTable() {
+            console.log("test")
+            console.log(this.weekSelected)
+            console.log(this.semesterSelected)
             if(!this.weekSelected || !this.semesterSelected){
             this.$notify({
                 type: "warning",
@@ -735,7 +1086,7 @@ let API_URL = ""
             const endDate = this.formatDate(endOfWeek);
             const token = localStorage.getItem("access_token");
 
-            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.code}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
+            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.semester}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
             axios
             .get(api, {
                 headers: {
@@ -813,6 +1164,11 @@ let API_URL = ""
             const dayOfWeek = this.getDayOfWeek(lesson.day);
             if (this.timetableData[periodIndex]) {
                 this.timetableData[periodIndex][this.getDayName(dayOfWeek)] = lesson; // Thêm lesson vào đúng ngày
+                
+                // Nếu có học sinh vắng, lấy danh sách
+                if (lesson.absences > 0) {
+                    this.fetchAbsentStudents(lesson);
+                }
             }
             });
             console.log(this.timetableData)
@@ -847,11 +1203,14 @@ let API_URL = ""
             else this.weekData = this.weekSelected
         },
         getWeekData(){
+            console.log("test")
+            console.log(this.semesterSelected)
             if(!this.semesterSelected) return;
 
             else {
             const arr = ["hiện tại"];
-            let number_of_week = this.semesterSelected.weeks_count
+            // let number_of_week = this.semesterSelected.weeks_count
+            let number_of_week = 15
 
             const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
             const currentDate = new Date();
@@ -916,6 +1275,26 @@ let API_URL = ""
       XLSX.writeFile(wb, `${fileName}.xlsx`);
     },
 
+    fetchAbsentStudents(lesson) {
+        if (!lesson || lesson.absences <= 0) return;
+        
+        const token = localStorage.getItem("access_token");
+        axios
+        .get(API_URL+`/rooms_managements/attendances/?status=false&session=${lesson.id}&q={student{account,full_name}}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        .then((response) => {
+            // Sử dụng $set để đảm bảo Vue cập nhật UI khi thay đổi giá trị của đối tượng
+            this.$set(this.absentListMap, lesson.id, response.data);
+        })
+        .catch((error) => {
+            console.error("Error fetching absent student list:", error);
+        });
+    },
+
     }
   };
 
@@ -923,5 +1302,25 @@ let API_URL = ""
 <style scoped>
 td {
     color: black;
-  }
+}
+
+.absence-cell {
+    cursor: pointer;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.absence-cell:hover {
+    background-color: #f8f9fa;
+}
+
+.absent-student-name {
+    margin-bottom: 2px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.text-danger {
+    color: #dc3545;
+}
 </style>

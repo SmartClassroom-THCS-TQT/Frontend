@@ -43,7 +43,7 @@
 
 <script>
 import UserSetting from './Administration/UserSetting.vue'
-import Curriculum from './Administration/Curriculum.vue';
+
 import config from "@/config";
 import TimeTable from './EducationProgram/TimeTable.vue';
 import TeacherDivision from './EducationProgram/TeacherDivision.vue';

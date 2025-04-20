@@ -2,19 +2,39 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links" >
-        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+        <!-- <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/administration"
           :name="$t('sidebar.administration')"
           icon="tim-icons icon-bank"
+        /> -->
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/curriculum"
+          :name="$t('sidebar.curriculum')"
+          icon="tim-icons icon-bank"
         />
-        <sidebar-link  v-if="userData && this.userRole == 'admin'"
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/account_setting"
+          :name="$t('sidebar.accountSetting')"
+          icon="tim-icons icon-bank"
+        />
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/user_setting"
+          :name="$t('sidebar.userSetting')"
+          icon="tim-icons icon-bank"
+        />
+        <!-- <sidebar-link  v-if="userData && this.userRole == 'admin'"
           to="/education_program"
           :name="$t('sidebar.educationProgram')"
           icon="tim-icons icon-book-bookmark"
-        />
+        /> -->
         <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/learning_management"
           :name="$t('sidebar.learningManagement')"
+          icon="tim-icons icon-pencil"
+        />
+        <sidebar-link v-if="userData && (this.userRole == 'teacher' || this.userRole == 'student')"
+          to="/time_table"
+          :name="$t('sidebar.timeTable')"
           icon="tim-icons icon-pencil"
         />
         <sidebar-link v-if="userData && this.userRole == 'teacher'"
@@ -156,7 +176,7 @@ export default {
       } 
       else if(user_role == "teacher"){
          apiURL = API_URL+`/users/teachers/${user_id}/`
-      } 
+      }
       else if(user_role == "student"){
          apiURL = API_URL+`/users/students/${user_id}/`
       }
@@ -167,9 +187,18 @@ export default {
       })
       .then((response) => {
         this.userData = response.data;
-      // Lưu dữ liệu userData vào localStorage
-      localStorage.setItem('user_data', JSON.stringify(this.userData));
-      console.log(this.userData);
+        // Lưu dữ liệu userData vào localStorage
+        localStorage.setItem('user_data', JSON.stringify(this.userData));
+        console.log(this.userData);
+        
+        // Chuyển hướng dựa trên vai trò người dùng
+        if (this.$route.path === '/') {
+          if (this.userRole === 'admin') {
+            this.$router.push('/curriculum');
+          } else {
+            this.$router.push('/time_table');
+          }
+        }
       })
       .catch(error => {
         console.error("Error fetching user data:", error);

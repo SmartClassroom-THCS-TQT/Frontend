@@ -56,7 +56,8 @@
             >
               <div class="card semester-card shadow border-0 h-100">
                 <div class="card-body">
-                  <h5 class="card-title text-primary">{{ semester.code }}</h5>
+                  <h5 class="card-title text-dark">Học kỳ: {{ semester.code }}</h5>
+                  <h5 class="text-dark">Năm học: {{ semester.academic_year.year_name }}</h5>
                   <div class="d-flex align-items-center mb-2">
                     <i class="tim-icons icon-calendar-60 text-muted mr-2"></i>
                     <span>Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
@@ -89,7 +90,8 @@
               
             </div>
 
-            <!-- Card Thêm học kỳ -->
+           
+             <!-- Card Thêm học kỳ -->
             <div class="add-semester-button">
               <button class="btn-add" @click="toggleCreate()">
                 <i class="fa fa-plus-circle"></i> Thêm học kỳ
@@ -97,33 +99,45 @@
             </div>
           </div>
 
+          
+          
+          
+          
+          
+          
           <!-- Card hiển thị lớp trong học kỳ -->
-           <div class="row" v-if="selectedSemester && roomDetailStatus">
-            <div class="semester-header">
-              <h1 class="semester-title">{{ selectedSemester }}</h1>
-              <base-button type="info" size="sm" icon @click="toggleSwitchSemester()">
-                  <i class="tim-icons icon-refresh-01"></i>
-                </base-button>
-            </div>
+          <div class="row" v-if="selectedSemester && roomDetailStatus">
+              <div class="col-12 mb-4">
+                <div class="d-flex align-items-center">
+                  <base-button type="info" size="sm" icon @click="toggleSwitchSemester()" class="mr-2">
+                    <i class="tim-icons icon-minimal-left"></i>
+                  </base-button>
+                  <h2 class="title text-dark mb-0">Học kỳ:{{ selectedSemester }}</h2>
+                </div>
+              </div>
 
-            <div v-for="(room, index) in roomData" :key="index" class="card-item" @click="toggleRoomOptionDetail(room)">
-              <card class="text-center" style="width: 10rem;">
-                <h4 class="card-title text-info">{{ room.name }}</h4>
-                <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
-                  <i class="tim-icons icon-single-02"></i>
-                </base-button>
-                <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.code)">
-                  <i class="tim-icons icon-simple-remove"></i>
-                </base-button>
-              </card>
-            </div>
+              <div v-for="(room, index) in roomData" :key="index" class="col-lg-3 col-md-4 col-sm-6 mb-4" @click="toggleRoomOptionDetail(room)">
+                <div class="card semester-card shadow border-0 h-100">
+                  <div class="card-body">
+                    <h5 class="card-title text-dark">Lớp: {{ room.name }}</h5>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between">
+                    <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
+                      <i class="tim-icons icon-single-02"></i>
+                    </base-button>
+                    <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.code)">
+                      <i class="tim-icons icon-simple-remove"></i>
+                    </base-button>
+                  </div>
+                </div>
+              </div>
 
-            <div class="add-semester-button">
-              <button class="btn-add" @click="toggleRemoveCreate()">
-                <i class="fa fa-plus-circle"></i> Thêm lớp học
-              </button>
-            </div>
-          </div>
+              <div class="add-semester-button">
+                <button class="btn-add" @click="toggleRemoveCreate()">
+                  <i class="fa fa-plus-circle"></i> Thêm lớp học
+                </button>
+              </div>
+          </div> 
 
 
           <div v-if="selectedRoomOption" class="semester-detail">
@@ -143,7 +157,7 @@
                 @click="viewClassList()"
               >
                 <i class="fas fa-users icon"></i>
-                <p class="action-text">Xem danh sách lớp</p>
+                <p class="action-text text-white">Thông tin chi tiết</p>
               </div>
               <div
                 class="action-card action-card-green"
@@ -151,7 +165,7 @@
                 @click="viewSchedule()"
               >
                 <i class="fas fa-calendar-alt icon"></i>
-                <p class="action-text">Thời khóa biểu</p>
+                <p class="action-text text-white">Thời khóa biểu</p>
               </div>
               <div
                 class="action-card action-card-red"
@@ -159,7 +173,7 @@
                 @click="assignTeachers()"
               >
                 <i class="fas fa-users icon"></i>
-                <p class="action-text">Phân công giáo viên</p>
+                <p class="action-text text-white">Phân công giáo viên</p>
               </div>
             </div>
 
@@ -167,77 +181,91 @@
             <!-- Danh sách lớp -->
             <div v-if="optionSelected == 1" class="card-container">
               <!-- Loop qua từng lớp học để hiển thị thông tin lớp -->
-              <template >
-                    <div class="text-muted text-center mb-3" >
-                        <h4 class="text-dark">Chi tiết lớp học {{selectedRoomOption.name}}</h4>
-                        <p class="text-info">Giáo viên chủ nhiệm : {{selectedRoomOption.manager}}</p>
-                    </div>
-                </template>
-                <template>
-                  <template>
+              <div class="row">
+                <!-- Class Information Section - Left Side -->
+                <div class="col-md-6">
+                  <table class="table text-center mb-3">
+                    <tbody>
+                      <tr>
+                        <td class="font-weight-bold">Giáo viên chủ nhiệm:</td>
+                        <td class="text-dark">{{selectedRoomOption.manager.full_name}}</td>
+                      </tr>
+                      <tr>
+                        <td class="font-weight-bold">ID:</td>
+                        <td class="text-dark">{{selectedRoomOption.manager.user_id}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Add Students Section - Right Side -->
+                <div class="col-md-6">
                   <section>
-                        <p class="text-info text-center">
-                          Cập nhật danh sách học sinh bằng cách upload file excel theo định dạng :  
-                          <a @click="downloadExcel" style="cursor: pointer; text-decoration: underline;">
-                            Tải xuống
-                          </a>
-                        </p>
+                    <p class="text-info text-center">
+                      Cập nhật danh sách học sinh bằng cách upload file excel theo định dạng :  
+                      <a @click="downloadExcel" style="cursor: pointer; text-decoration: underline;">
+                        Tải xuống
+                      </a>
+                    </p>
 
-                        <xlsx-workbook>
-                          <xlsx-sheet
-                            :collection="sheet.data"
-                            v-for="sheet in sheets"
-                            :key="sheet.name"
-                            :sheet-name="sheet.name"
-                          />
-                          <xlsx-download ref="excelDownload">
-                            <a ref="downloadLink" style="display: none;">Download</a>
-                          </xlsx-download>
-                        </xlsx-workbook>
+                    <xlsx-workbook>
+                      <xlsx-sheet
+                        :collection="sheet.data"
+                        v-for="sheet in sheets"
+                        :key="sheet.name"
+                        :sheet-name="sheet.name"
+                      />
+                      <xlsx-download ref="excelDownload">
+                        <a ref="downloadLink" style="display: none;">Download</a>
+                      </xlsx-download>
+                    </xlsx-workbook>
+
+                    <input
+                      type="file"
+                      ref="fileInput"
+                      @change="handleFileUpload"
+                      style="display: none"
+                    />
+                    <base-button type="" @click="triggerFileUpload" simple>
+                      <i class="tim-icons icon-attach-87"></i> Upload file Excel
+                    </base-button>
+                    <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Cập nhật danh sách học sinh</base-button>
+                    <p v-if="selectedFile" class="text-info">{{ selectedFile.name }}</p>     
+
+                    <div v-if="inProgress">
+                      <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
+                    </div>
                   </section>
-                  <input
-                    type="file"
-                    ref="fileInput"
-                    @change="handleFileUpload"
-                    style="display: none"
-                  />
-                  <base-button type="" @click="triggerFileUpload" simple>
-                    <i class="tim-icons icon-attach-87"></i> Upload file Excel
-                  </base-button>
-                  <base-button v-if="selectedFile" :loading="inProgress" @click="registerAccountsTest" type="success" fill >Cập nhật danh sách học sinh</base-button>
-                  <p v-if="selectedFile" class="text-info">{{ selectedFile.name }}</p>     
-
-                  <div v-if="inProgress">
-                    <b-progress :value="value" :max="max" show-progress animated variant="success"></b-progress>
-                  </div>             
-                </template>
+                </div>
+              </div>
+                <template>
                     <base-table :data="studentData" :columns="student_columns">
-                    <template slot="columns">
-                      <th>ID</th>
-                      <th>Học sinh</th>
-                      <th>Giới tính</th>
-                      <th>Ngày sinh</th>
-                      <th>Tình trạng</th>
-                      <th class="text-right">Actions</th>
-                    </template>
-                    <template slot-scope="{ row }">
-                      <td>{{ row.account }}</td>
-                      <td>{{ row.full_name }}</td>
-                      <td>{{ row.sex }}</td>
-                      <td>{{ row.day_of_birth }}</td>
-                      <td>{{ row.active_status }}</td>
-                      <td class="td-actions text-right">
-                        <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
-                          <i class="tim-icons icon-single-02"></i>
-                        </base-button>
-                        <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
-                          <i class="tim-icons icon-settings"></i>
-                        </base-button>
-                        <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
-                          <i class="tim-icons icon-simple-remove"></i>
-                        </base-button>
-                      </td>
-                    </template>
+                      <template slot="columns">
+                        <th>ID</th>
+                        <th>Học sinh</th>
+                        <th>Giới tính</th>
+                        <th>Ngày sinh</th>
+                        <th>Tình trạng</th>
+                        <!-- <th class="text-right">Actions</th> -->
+                      </template>
+                      <template slot-scope="{ row }">
+                        <td>{{ row.account }}</td>
+                        <td>{{ row.full_name }}</td>
+                        <td>{{ row.sex }}</td>
+                        <td>{{ row.day_of_birth }}</td>
+                        <td>{{ row.active_status }}</td>
+                        <!-- <td class="td-actions text-right">
+                          <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                            <i class="tim-icons icon-single-02"></i>
+                          </base-button>
+                          <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                            <i class="tim-icons icon-settings"></i>
+                          </base-button>
+                          <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                            <i class="tim-icons icon-simple-remove"></i>
+                          </base-button>
+                        </td> -->
+                      </template>
                   </base-table>
                 </template>
                 
@@ -245,7 +273,7 @@
             </div>
 
             <!-- Thời khóa biểu -->
-            <div v-if="optionSelected == 2" class="card-container">
+            <div v-if="optionSelected == 2" class="card-container curriculum-timetable">
               
                 <div class="row custom-time-table">
                    <!-- <vue-cal
@@ -257,11 +285,11 @@
                     
                       <div class="calendar-container">
                         <!-- Phần lịch -->
-                        <div>
+                        <div class="calendar-section">
                           <div class="calendar-header">
-                            <button @click="previousMonth">&lt;</button>
-                            <span>{{ currentMonthName }} {{ currentYear }}</span>
-                            <button @click="nextMonth">&gt;</button>
+                            <button @click="previousMonth" class="nav-button">&lt;</button>
+                            <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
+                            <button @click="nextMonth" class="nav-button">&gt;</button>
                           </div>
                           <div class="calendar-grid">
                             <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
@@ -280,11 +308,9 @@
                               ]"
                               @click="selectDay(formatDate(day.date))"
                             >
-                              <span>{{ day.date.getDate() }}</span>
-                              <div class="events">
-                                <div v-for="event in day.events" :key="event.id" class="event">
-                                  {{ event.title }}
-                                </div>
+                              <span class="day-number">{{ day.date.getDate() }}</span>
+                              <div class="day-indicator">
+                                <span v-if="day.hasLesson" class="lesson-dot"></span>
                               </div>
                             </div>
                           </div>
@@ -292,23 +318,29 @@
 
                         <!-- Phần danh sách tiết học -->
                         <div class="lesson-list">
-                          <h3 v-if="selectedDay">Tiết học ngày {{ selectedDay }}</h3>
-                          <ul v-if="selectedDayLessons.length">
-                            <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
-                              <h3>Tiết {{ lesson.time_slot.code }}</h3>
-                               <h4>Môn học: {{ lesson.subject_code.name }}, Phòng: {{ lesson.room_id.name }}</h4>
-                               
-                            </li>
-                             <div class="add-semester-button">
-                              <button class="btn-add" @click="toggleCreateSession()">
-                                <i class="fa fa-plus-circle"></i> Thêm tiết học (chưa được)
-                              </button>
+                          <div class="lesson-header">
+                            <h3 v-if="selectedDay">Tiết học ngày {{ formatDisplayDate(selectedDay) }}</h3>
+                          </div>
+                          <div class="lesson-content">
+                            <ul v-if="selectedDayLessons.length">
+                              <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
+                                <div class="lesson-time">Tiết {{ lesson.time_slot.code }}</div>
+                                <div class="lesson-info">
+                                  <div class="lesson-subject">Môn học: {{ lesson.subject_code.name }}</div>
+                                  <div class="lesson-room">Phòng: {{ lesson.room_id.name }}</div>
+                                </div>
+                              </li>
+                            </ul>
+                            <div v-if="(!selectedDayLessons.length) && selectedDay" class="empty-state">
+                              <i class="fas fa-calendar-times"></i>
+                              <p>Không có tiết học nào.</p>
                             </div>
-                          </ul>
-                          <button v-if="(!selectedDayLessons.length) && selectedDay" class="btn-add" @click="toggleCreateSession()">
-                              <i class="fa fa-plus-circle"></i> Thêm tiết học (chưa được)
-                          </button>
-                          <p v-if="(!selectedDayLessons.length) && !selectedDay">Không có tiết học nào.</p>
+                          </div>
+                          <div class="add-session-button">
+                            <button class="btn-add-session" @click="toggleCreateSession()">
+                              <i class="fa fa-plus-circle"></i> Thêm tiết học
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -805,14 +837,14 @@
 </template>
 
 <script>
-import axios from "../../services/axios";
+import axios from "../services/axios";
 let API_URL = ""
 
 import config from "@/config";
-import Card from "../../components/Cards/Card.vue";
-import BaseTable from '../../components/BaseTable.vue';
-import Modal from '../../components/Modal.vue';
-import BaseInput from '../../components/Inputs/BaseInput.vue';
+import Card from "../components/Cards/Card.vue";
+import BaseTable from '../components/BaseTable.vue';
+import Modal from '../components/Modal.vue';
+import BaseInput from '../components/Inputs/BaseInput.vue';
 import VueCal from 'vue-cal';
 import 'vue-cal/dist/vuecal.css';
 // import { SetupCalendar, Calendar } from 'v-calendar';
@@ -844,6 +876,7 @@ export default {
    },
   mounted() {
       this.initializeData();
+      this.initBigChart(0);
   },
   data() {
     return {
@@ -1013,7 +1046,7 @@ export default {
           [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
           [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130],
         ],
-        activeIndex: null,
+        activeIndex: 0,
         index: "Quản trị",
         chartData: {
           datasets: [{}],
@@ -1134,6 +1167,10 @@ export default {
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
+    },
+    formatDisplayDate(date) {
+      const [year, month, day] = date.split('-');
+      return `${day}/${month}/${year}`;
     },
     getTimeSlot(){
       const token = localStorage.getItem("access_token");
@@ -2052,7 +2089,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-container {
   margin-top: 50px;
   display: flex;
@@ -2126,7 +2163,7 @@ export default {
 
 .semester-detail {
   display: flex;
-  flex-direction: column;
+  flex-direction:column;
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -2139,6 +2176,7 @@ export default {
   
   position: relative;
 }
+
 
 /* Nút quay lại */
 .back-button {
@@ -2384,5 +2422,291 @@ export default {
 
 .lesson-list li:last-child {
   border-bottom: none;
+}
+
+/* CSS thời khóa biểu mới */
+.curriculum-timetable .timetable-title {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.curriculum-timetable .timetable-title h2 {
+  color: #1e88e5;
+  margin-bottom: 5px;
+}
+
+.curriculum-timetable .timetable-title p {
+  color: #757575;
+  margin: 0;
+}
+
+.curriculum-timetable .calendar-section {
+  flex: 1.2;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.curriculum-timetable .month-title {
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.curriculum-timetable .nav-button {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.curriculum-timetable .nav-button:hover {
+  background-color: #1565c0;
+}
+
+.curriculum-timetable .calendar-day {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 5px;
+  min-height: 70px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+  background-color: white;
+}
+
+.curriculum-timetable .calendar-day:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.curriculum-timetable .calendar-day.header {
+  font-weight: bold;
+  text-align: center;
+  background-color: #f5f5f5;
+  min-height: auto;
+  padding: 10px;
+  border: none;
+  color: #616161;
+}
+
+.curriculum-timetable .calendar-day.current-day {
+  background-color: #e3f2fd;
+  border-color: #1e88e5;
+}
+
+.curriculum-timetable .calendar-day.other-month {
+  color: #bdbdbd;
+  background-color: #fafafa;
+}
+
+.curriculum-timetable .calendar-day.has-lesson {
+  background-color: #e8f5e9;
+  border-color: #43a047;
+}
+
+.curriculum-timetable .calendar-day.selected-day {
+  background-color: #bbdefb;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px #1976d2;
+}
+
+.curriculum-timetable .day-number {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.curriculum-timetable .day-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.curriculum-timetable .lesson-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #43a047;
+  border-radius: 50%;
+}
+
+.curriculum-timetable .calendar-container {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  width: 100%;
+}
+
+.curriculum-timetable .calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.curriculum-timetable .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.curriculum-timetable .lesson-list {
+  flex: 1;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.curriculum-timetable .lesson-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.curriculum-timetable .lesson-header h3 {
+  margin: 0;
+  color: #1e88e5;
+  font-size: 1.3rem;
+}
+
+.curriculum-timetable .lesson-content {
+  padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.curriculum-timetable .lesson-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.curriculum-timetable .lesson-list li {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  border-left: 4px solid #1e88e5;
+}
+
+.curriculum-timetable .lesson-list li:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.curriculum-timetable .lesson-time {
+  background-color: #1e88e5;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-right: 15px;
+  font-size: 14px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.curriculum-timetable .lesson-info {
+  flex: 1;
+}
+
+.curriculum-timetable .lesson-subject {
+  font-weight: bold;
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.curriculum-timetable .lesson-room {
+  color: #757575;
+  font-size: 14px;
+}
+
+.curriculum-timetable .empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #9e9e9e;
+  text-align: center;
+}
+
+.curriculum-timetable .empty-state i {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.curriculum-timetable .empty-state p {
+  font-size: 16px;
+}
+
+.curriculum-timetable .add-session-button {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.curriculum-timetable .btn-add-session {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.curriculum-timetable .btn-add-session i {
+  margin-right: 8px;
+}
+
+.curriculum-timetable .btn-add-session:hover {
+  background-color: #388e3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 992px) {
+  .curriculum-timetable .calendar-container {
+    flex-direction: column;
+  }
+  
+  .curriculum-timetable .calendar-section, 
+  .curriculum-timetable .lesson-list {
+    width: 100%;
+  }
+  
+  .curriculum-timetable .lesson-list {
+    margin-top: 20px;
+  }
 }
 </style>

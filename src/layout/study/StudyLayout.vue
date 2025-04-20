@@ -50,10 +50,10 @@
           </thead>
           <tbody>
             <tr>
-              <td>{{this.lessonData.room_id.name}}</td>
-              <td>{{this.lessonData.time_slot.code}}</td>
-              <td>{{this.lessonData.subject_code.name}}</td>
-              <td> {{ this.attendances ? this.countUsersWithStatus12(attendances)+"/" : "" }}<strong>{{this.positions.length }}</strong></td>
+              <td>{{this.lessonData ? this.lessonData.room_id.name : ""}}</td>
+              <td>{{this.lessonData ? this.lessonData.time_slot.code : ""}}</td>
+              <td>{{this.lessonData ? this.lessonData.subject_code.name : ""}}</td>
+              <td> {{ ( this.attendances && this.positions ) ? this.countUsersWithStatus12(this.attendances)+"/" : "" }}<strong>{{this.positions.length }}</strong></td>
             </tr>
           </tbody>
         </table>
@@ -186,8 +186,25 @@
                               </div>
                               <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Điểm đánh giá (A)" v-model="lessonDetail.evaluate" placeholder="Điểm đánh giá">
-                                        </base-input>
+                                        <label>Điểm đánh giá</label>
+                                        <div class="d-flex justify-content-around mt-2">
+                                            <div class="grade-option">
+                                                <input type="radio" id="evaluateA" name="evaluate" class="grade-input" value="A" v-model="lessonDetail.evaluate">
+                                                <label for="evaluateA" class="grade-label grade-a">A</label>
+                                            </div>
+                                            <div class="grade-option">
+                                                <input type="radio" id="evaluateB" name="evaluate" class="grade-input" value="B" v-model="lessonDetail.evaluate">
+                                                <label for="evaluateB" class="grade-label grade-b">B</label>
+                                            </div>
+                                            <div class="grade-option">
+                                                <input type="radio" id="evaluateC" name="evaluate" class="grade-input" value="C" v-model="lessonDetail.evaluate">
+                                                <label for="evaluateC" class="grade-label grade-c">C</label>
+                                            </div>
+                                            <div class="grade-option">
+                                                <input type="radio" id="evaluateD" name="evaluate" class="grade-input" value="D" v-model="lessonDetail.evaluate">
+                                                <label for="evaluateD" class="grade-label grade-d">D</label>
+                                            </div>
+                                        </div>
                                     </div>
                               </div>
                               <div class="row">
@@ -217,6 +234,7 @@ export default {
   components: { Modal },
   mounted() {
     this.startLongPolling();
+    this.getRoomId();
   },
   data() {
     return {
@@ -226,7 +244,7 @@ export default {
       attendanceStatus: 1,
 
       isActive: false,
-      attendance: null,
+      attendance: [],
       scoreModal : false,
       evaluateModal: false,
 
@@ -266,7 +284,22 @@ export default {
     };
   },
   methods: {
+    getRoomId(){
+      const lessonDataStr = localStorage.getItem("lesson_data");
+      if (!lessonDataStr) {
+        console.error("No lesson data found in localStorage");
+        return;
+      }
+      try {
+        this.lessonData = JSON.parse(lessonDataStr);
+      } catch (error) {
+        console.error("Error parsing lesson data:", error);
+      }
+    },
     countUsersWithStatus12(attendances) {
+        // Kiểm tra nếu attendances là null hoặc undefined
+        if (!attendances) return 0;
+        
         // Lọc các đối tượng có status là 1 hoặc 2
         const filteredUsers = attendances.filter(item => item.status );
         
@@ -279,12 +312,13 @@ export default {
     },
     getAttendanceStatus(studentId) {
       // Lọc danh sách attendance dựa trên studentId
-      if(!this.attendance) return 0;
+      if(!this.attendance || !this.attendance.length) return -1;
+      
       const studentAttendance = this.attendance.filter(
-        (att) => att.student.account === studentId
+        (att) => att.student && att.student.account === studentId
       );
 
-      // Nếu không có dữ liệu, trả về trạng thái vắng mặt = 3
+      // Nếu không có dữ liệu, trả về trạng thái chưa điểm danh = -1
       if (studentAttendance.length === 0) {
         return -1;
       }
@@ -294,59 +328,67 @@ export default {
       return lastStatus ? 1 : 0
     },
     async startLongPolling() {
-  let lastAttendance = [];
-  this.polling = true;
+      let lastAttendance = [];
+      this.polling = true;
 
-  // Sử dụng setInterval với khoảng thời gian 500ms
-  this.pollingInterval = setInterval(async () => {
-    if (!this.polling) {
-      clearInterval(this.pollingInterval);
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session=${this.lessonData.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      this.attendances = response.data;
-      this.attendanceNumber = this.attendances.length;
-      const newAttendance = response.data || [];
-
-      if (JSON.stringify(newAttendance) !== JSON.stringify(lastAttendance)) {
-        const differences = this.getDifferences(lastAttendance, newAttendance);
-        if (differences.length > 0) {
-          this.attendance = newAttendance;
-          console.log('New attendance data:', this.attendance);
-
-          if (differences.length !== newAttendance.length) {
-            differences.forEach(difference => {
-              if (difference.status === 1 && difference.lesson == this.lessonData.id) {
-                // this.$notify({
-                //   type: "success",
-                //   icon: 'tim-icons icon-badge',
-                //   title: "Điểm danh thành công",
-                //   message: `Học sinh ${difference.user}`,
-                //   timeout: 1000,
-                //   verticalAlign: "bottom",
-                //   horizontalAlign: "left",
-                // });
-              }
-            });
-          }
-          lastAttendance = newAttendance;
+      // Sử dụng setInterval với khoảng thời gian 500ms
+      this.pollingInterval = setInterval(async () => {
+        if (!this.polling) {
+          clearInterval(this.pollingInterval);
+          return;
         }
-      }
 
-    } catch (error) {
-      console.error('Error fetching attendance data:', error);
-    }
-  }, 500); // Polling mỗi 0.5 giây
-},
+        // Kiểm tra xem lessonData đã được load chưa
+        if (!this.lessonData || !this.lessonData.id) {
+          console.log("Waiting for lesson data to be loaded...");
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await axios.get(`${API_URL}/rooms_managements/attendances/?session=${this.lessonData.id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          this.attendances = response.data;
+          this.attendance = response.data || []; // Cập nhật attendance từ attendances
+          this.attendanceNumber = this.attendances ? this.attendances.length : 0;
+          const newAttendance = response.data || [];
+
+          if (JSON.stringify(newAttendance) !== JSON.stringify(lastAttendance)) {
+            const differences = this.getDifferences(lastAttendance, newAttendance);
+            if (differences.length > 0) {
+              this.attendances = newAttendance;
+              this.attendance = newAttendance; // Cập nhật cả hai biến
+              console.log('New attendance data:', this.attendance);
+
+              if (differences.length !== newAttendance.length) {
+                differences.forEach(difference => {
+                  if (difference.status === 1 && difference.lesson == this.lessonData.id) {
+                    // this.$notify({
+                    //   type: "success",
+                    //   icon: 'tim-icons icon-badge',
+                    //   title: "Điểm danh thành công",
+                    //   message: `Học sinh ${difference.user}`,
+                    //   timeout: 1000,
+                    //   verticalAlign: "bottom",
+                    //   horizontalAlign: "left",
+                    // });
+                  }
+                });
+              }
+              lastAttendance = newAttendance;
+            }
+          }
+
+        } catch (error) {
+          console.error('Error fetching attendance data:', error);
+        }
+      }, 500); // Polling mỗi 0.5 giây
+    },
 
     // Hàm để lấy ra các phần tử khác nhau
     getDifferences(oldData, newData) {
@@ -388,8 +430,14 @@ export default {
     },
     updateStatus(){
       console.log(this.studentDetail.id)
+      
+      if(!this.attendance || !this.attendance.length) {
+        this.createStatus();
+        return;
+      }
+      
       const studentAttendance = this.attendance.filter(
-        (att) => att.student === this.studentDetail.id
+        (att) => att.student_account === this.studentDetail.id
       );
 
       if(studentAttendance.length === 0) {
@@ -406,8 +454,8 @@ export default {
       else {
         //update status
         let data = {
-          "session": this.lessonData.id,
-          "student": this.studentDetail.id,
+          "session_id": this.lessonData.id,
+          "student_account": this.studentDetail.id,
           "status": this.newStatus == 0 ? false : true
         }
         const token = localStorage.getItem("access_token");
@@ -447,8 +495,8 @@ export default {
     },
     createStatus(){
       let data = {
-          "session": this.lessonData.id,
-          "student": this.studentDetail.id,
+          "session_id": this.lessonData.id,
+          "student_account": this.studentDetail.id,
           "status": false
         }
         console.log(data)
@@ -560,6 +608,20 @@ export default {
         });
         return
       }
+      
+      // Kiểm tra xem điểm đánh giá có hợp lệ không
+      if (!['A', 'B', 'C', 'D'].includes(this.lessonDetail.evaluate)) {
+        this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Điểm đánh giá phải là A, B, C hoặc D",
+                timeout: 1000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+        });
+        return
+      }
+      
       if(!this.lessonDetail.comment) {
         this.$notify({
                 type: "warning",
@@ -755,14 +817,16 @@ export default {
       this.$router.push('/profile');  
     },
     async getPositionData() {
-      this.lessonData = JSON.parse(localStorage.getItem("lesson_data"));
+      
+      const roomId = this.lessonData.room_id.id
       console.log(this.lessonData)
       this.lessonDetail.lessonNumber = this.lessonData.lesson_number
       this.lessonDetail.nameLesson = this.lessonData.lesson_name
       this.lessonDetail.evaluate = this.lessonData.grade
       this.lessonDetail.comment = this.lessonData.comment
      
-      const roomId = this.lessonData.room_id.id
+      
+      console.log(roomId)
       const token = localStorage.getItem("access_token");
       try {
         // const response = await axios.get(`${API_URL}/rooms/${roomName}/allseatings/`, {
@@ -987,6 +1051,60 @@ export default {
 
 .class-info-table tr:nth-child(even) {
   background-color: #f2f2f2; /* Màu nền so le */
+}
+
+/* Styling cho các nút điểm đánh giá */
+.grade-option {
+  position: relative;
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.grade-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.grade-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 3px solid transparent;
+}
+
+.grade-a {
+  background-color: #1ab394;
+}
+
+.grade-b {
+  background-color: #1c84c6;
+}
+
+.grade-c {
+  background-color: #f8ac59;
+}
+
+.grade-d {
+  background-color: #ed5565;
+}
+
+.grade-input:checked + .grade-label {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-color: #ffffff;
+}
+
+.grade-input:hover + .grade-label {
+  transform: scale(1.1);
 }
 
 </style>

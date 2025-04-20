@@ -4,7 +4,7 @@
       <!-- Hiển thị quản lý lớp học nếu là giáo viên chủ nhiệm -->
       <div class="row ml-2">
         <div class="col-md-6">
-          <h3 class="font-weight-bold section-name">Quản lý lớp học</h3>
+          <h3 class="font-weight-bold section-name">Quản lý lớp học - Học kỳ {{currentSemester.semester }}</h3>
         </div>
         <div class="col-md-6">
           <div
@@ -70,6 +70,7 @@ let API_URL = "";
 export default {
     mounted() {
       this.initializeData();
+      this.getCurrentSemester();
     },
   components: { 
     UserSetting,
@@ -83,9 +84,11 @@ export default {
     adminstrationOption() {
       return this.$t("dashboard.homeroomTeacher");
     },
+    
   },
   data() {
     return {
+    currentSemester: null,
     rooms: null,
     room: null,
     isHomeroomTeacher: false,
@@ -100,6 +103,33 @@ export default {
     }
   },
   methods: {
+    getCurrentSemester(){
+      // this.currentSemester =  JSON.parse(localStorage.getItem("current_semester"))
+      const token = localStorage.getItem('access_token');
+      let apiURL = "";
+        apiURL = API_URL+`/managements/check-semester/`
+      
+      axios.get(apiURL, {
+        headers: {
+          'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
+        }
+      })
+      .then((response) => {
+         this.currentSemester = response.data
+         console.log(response.data)
+      })
+      .catch(error => {
+        console.error("Error", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy thông tin hoc ky hien tai that bai",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+      });
+    },
     initBigChart(index) {
       let chartData = {
         datasets: [

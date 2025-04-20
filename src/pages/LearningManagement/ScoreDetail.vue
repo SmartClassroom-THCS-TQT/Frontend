@@ -5,31 +5,11 @@
         <template slot="header">
           <div class="row">
             <div class="col-md-5">
-              <h3>Bảng điểm {{ roomSelected ? " Lớp "+ roomSelected.room : "" }} </h3>
+              <h3>Bảng điểm</h3>
             </div>
             <div class="col-md-7">
               <div class="row">
-                <div class="col-md-3 pr-md-1 text-center">
-                  <base-input label="Học kỳ">
-                    <select class="btn btn-simple btn-sm btn-gay" v-model="semesterSelected">
-                      <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
-                    </select>
-                  </base-input>
-                </div>
-                <div class="col-md-3 pl-md-1 text-center">
-                  <base-input label="Lớp">
-                    <select class="btn btn-simple btn-sm btn-gay" v-model="roomSelected" @change="getStudents(roomSelected.room)">
-                    <option class="text-info" v-for="(room, index) in roomOption" :key="index" :value="room" >{{ room.room }}</option>
-                    </select>
-                  </base-input>
-                </div>
-                <div class="col-md-3 pr-md-1 text-center">
-                  <base-input label="Loại điểm">
-                    <select class="btn btn-simple btn-sm btn-gay" v-model="scoreTypeSelected">
-                      <option class="text-info" v-for="scoreType in scoreTypes" :key="scoreType" :value="scoreType" >{{ scoreType }}</option>
-                    </select>
-                  </base-input>
-                </div>
+                
                 <div class="col-md-3 pl-md-1 text-center">
                   <base-button 
                     class="btn btn-sm "
@@ -157,9 +137,7 @@ export default {
       async initializeData() {
         try {
           await this.getApiUrl();
-          await this.getSemesterData();
           await this.getUserData();
-          await this.getRoomOption();
         } catch (error) {
           console.error('Error initializing data:', error);
         }
