@@ -2652,25 +2652,6 @@ export default {
   font-size: 14px;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #9e9e9e;
-  text-align: center;
-}
-
-.empty-state i {
-  font-size: 48px;
-  margin-bottom: 15px;
-}
-
-.empty-state p {
-  font-size: 16px;
-}
-
 .btn-add-session {
   background-color: #007bff;
   color: #fff;
@@ -2704,4 +2685,25 @@ export default {
     margin-top: 20px;
   }
 }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #9e9e9e;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  font-size: 16px;
+}
+
+
 </style>
