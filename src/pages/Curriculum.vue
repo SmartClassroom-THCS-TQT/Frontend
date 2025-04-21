@@ -282,7 +282,7 @@
             <!-- Thời khóa biểu -->
             <div v-if="optionSelected == 2" class="card-container">
               <div class="timetable-title">
-                <h2>Thời khóa biểu của lớp {{ selectedRoomOption.name }}</h2>
+                <h2>Thời khóa biểu lớp {{ selectedRoomOption.name }}</h2>
               </div>
               <div class="calendar-container">
                 <!-- Phần lịch -->
