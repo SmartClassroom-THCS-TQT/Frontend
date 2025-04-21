@@ -1456,13 +1456,71 @@ export default {
     // selectAction(action) {
     //   this.selectedAction = action; // Cập nhật nút được chọn
     // },
+    async processAccount(account) {
+      try {
+        if (!this.selectedRoomOption || !this.selectedRoomOption.id) {
+          throw new Error('No room selected or invalid room ID');
+        }
+
+        let apiUrl = API_URL + `/users/students/${account[2]}/`;
+        let data = {
+          "rooms": [this.selectedRoomOption.id]
+        };
+        const token = localStorage.getItem("access_token");
+
+        // First, check if student is already in the class
+        try {
+          const checkResponse = await axios.get(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          // If student's current rooms include our target room, they're already in the class
+          if (checkResponse.data.rooms && checkResponse.data.rooms.includes(this.selectedRoomOption.id)) {
+            console.log("Student already in class:", account[2]);
+            return { status: 'existing' };
+          }
+        } catch (error) {
+          console.error("Error checking student status:", error);
+        }
+
+        // If we get here, attempt to add the student
+        const response = await axios.patch(apiUrl, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.data.detail?.toLowerCase().includes("already")) {
+          console.log("Student already in class (from PATCH response):", account[2]);
+          return { status: 'existing' };
+        } else {
+          console.log("New student added:", account[2]);
+          return { status: 'success' };
+        }
+      } catch (error) {
+        console.error("Error processing account:", error);
+        return { status: 'error', error };
+      }
+    },
+
     async registerAccountsTest() {
       this.tableSuccess = [];
       if (!this.tableData.length) {
-        alert("Không có account nào để xử lý.");
+        this.$notify({
+          type: "warning",
+          icon: "tim-icons icon-bell-55",
+          message: "Không có account nào để xử lý.",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
         return;
       }
-      console.log("sheetName"+this.sheetName)
+
       if(this.sheetName != "Cập nhật học sinh"){
         this.$notify({
           type: "danger",
@@ -1476,92 +1534,100 @@ export default {
       }
 
       this.inProgress = true;
-      this.successValue = 0;
       this.value = 0;
       this.max = this.tableData.length;
       this.processedCount = 0;
+      this.successValue = 0;
 
-      // Khởi chạy tiến trình cập nhật progress bar
-      this.startProgressUpdate();
-
-      // Xử lý từng account
-      for (const account of this.tableData) {
-        try {
-          await this.processAccount(account);
-          this.processedCount++; // Cập nhật số account đã xử lý
-        } catch (error) {
-          console.error("Lỗi khi xử lý account:", error);
-        }
-      }
-
-      // Dừng tiến trình khi hoàn thành
-      this.stopProgressUpdate();
-      this.$notify({
-            type: "success",
-            icon: 'tim-icons icon-check-2',
-            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
-            timeout: 3000,
-            verticalAlign: "top",
-            horizontalAlign: "right",
-          });
-    },
-    startProgressUpdate() {
-      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
-      this.intervalId = setInterval(() => {
-        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
-      }, 500);
-    },
-    stopProgressUpdate() {
-      // Dừng setInterval và đặt lại trạng thái
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      this.inProgress = false;
-    },
-    async processAccount(account) {
+      // Get initial student count
+      let initialStudentCount = 0;
       try {
-        let apiUrl = API_URL + `/users/students/${account[2]}/`;
-        let data = {
-          "room": this.selectedRoomOption.name
-          
-        };
-        console.log(apiUrl)
         const token = localStorage.getItem("access_token");
-
-        const response = await axios.put(apiUrl, data, {
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        this.successValue++;
-        this.tableSuccess.push(account);
+        initialStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting initial student count:", error);
+      }
+
+      // Start progress bar update
+      this.intervalId = setInterval(() => {
+        this.value = this.processedCount;
+      }, 500);
+
+      let hasError = false;
+
+      // Process each account
+      for (const account of this.tableData) {
+        try {
+          await this.processAccount(account);
+          this.processedCount++;
+        } catch (error) {
+          console.error("Lỗi khi xử lý account:", error);
+          hasError = true;
+        }
+      }
+
+      // Stop progress bar update
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.inProgress = false;
+
+      // Get final student count
+      let finalStudentCount = 0;
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        finalStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting final student count:", error);
+      }
+
+      // Calculate number of new students added
+      const newStudentsAdded = finalStudentCount - initialStudentCount;
+      this.successValue = newStudentsAdded;
+
+      // Show appropriate notification based on results
+      if (newStudentsAdded === 0) {
+        this.$notify({
+          type: "info",
+          icon: 'tim-icons icon-bell-55',
+          message: "Không có học sinh mới nào được thêm vào lớp",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else if (hasError) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp. Một số học sinh không thể thêm do lỗi.`,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else {
         this.$notify({
           type: "success",
-          icon: "tim-icons icon-check-2",
-          message: response.data.detail,
+          icon: 'tim-icons icon-check-2',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp`,
           timeout: 3000,
           verticalAlign: "top",
           horizontalAlign: "right",
         });
-
-        return true; // Xử lý thành công
-      } catch (error) {
-        console.error("Error registering accounts:", error);
-
-        const errorMessage =
-          error.response?.data ||
-          "Có lỗi xảy ra. Vui lòng thử lại sau";
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: errorMessage,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        return false; // Xử lý thất bại
       }
+
+      // Reset success value after showing notification
+      this.successValue = 0;
     },
     triggerFileUpload() {
       this.$refs.fileInput.click(); // Trigger file input click event
@@ -1635,7 +1701,12 @@ export default {
     },
     toggleRoomOptionDetail(room){
       this.roomDetailStatus = false;
-      this.selectedRoomOption = room;
+      console.log("Selected room data:", room); // Add logging
+      this.selectedRoomOption = {
+        ...room,
+        id: room.id // Ensure we capture the room ID
+      };
+      console.log("Set selectedRoomOption:", this.selectedRoomOption); // Add logging
     },
     closeSemesterDetail() {
       this.selectedRoomOption = null;
