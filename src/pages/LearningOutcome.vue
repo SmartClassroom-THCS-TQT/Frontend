@@ -1,9 +1,9 @@
 <template>
   <div class="row">
      <div class="row ml-2">
-      <div class="">
+      <!-- <div class="">
         <h3 class="font-weight-bold section-name">Kết quả học tập</h3>
-      </div>
+      </div> -->
       <!-- <div class="col-md-6">
         <div
               class="btn-group btn-group-toggle float-right"

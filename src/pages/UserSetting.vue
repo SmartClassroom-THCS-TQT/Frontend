@@ -203,13 +203,13 @@
               <td>{{ row.rooms}}</td>
               <td>{{ row.active_status }}</td>
               <td class="td-actions text-right">
-                <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                <base-button type="info" size="sm" icon @click="toggleDetail(row.account)">
                   <i class="tim-icons icon-single-02"></i>
                 </base-button>
-                <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                <base-button type="success" size="sm" icon @click="toggleUpdate(row.account)">
                   <i class="tim-icons icon-settings"></i>
                 </base-button>
-                <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                <base-button type="danger" size="sm" icon @click="toggleRemove(row.account)">
                   <i class="tim-icons icon-simple-remove"></i>
                 </base-button>
               </td>
@@ -236,13 +236,13 @@
               <td>{{ row.day_of_birth }}</td>
               <td>{{ row.subjects }}</td>
               <td class="td-actions text-right">
-                <base-button type="info" size="sm" icon @click="toggleDetail(row.user_id)">
+                <base-button type="info" size="sm" icon @click="toggleDetail(row.account)">
                   <i class="tim-icons icon-single-02"></i>
                 </base-button>
-                <base-button type="success" size="sm" icon @click="toggleUpdate(row.user_id)">
+                <base-button type="success" size="sm" icon @click="toggleUpdate(row.account)">
                   <i class="tim-icons icon-settings"></i>
                 </base-button>
-                <base-button type="danger" size="sm" icon @click="toggleRemove(row.user_id)">
+                <base-button type="danger" size="sm" icon @click="toggleRemove(row.account)">
                   <i class="tim-icons icon-simple-remove"></i>
                 </base-button>
               </td>
@@ -331,7 +331,7 @@
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-                          <img class="avatar" :src="modals.studentDetail.image ? `http://127.0.0.1:8000${modals.studentDetail.image}` : defaultImage" 
+                          <img class="avatar" :src="modals.studentDetail.image ? modals.studentDetail.image : defaultImage" 
                             alt="Ảnh đại diện" 
                             />
                     </div> 
@@ -342,7 +342,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.studentDetail.user_id"></base-input>
+                                        <base-input label="ID" v-model="modals.studentDetail.account"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.studentDetail.full_name"></base-input>
@@ -350,7 +350,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Lớp" v-model="modals.roomDetail.name"></base-input>
+                                        <base-input label="Lớp" v-model="modals.studentDetail.rooms"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Giới tính" v-model="modals.studentDetail.sex"></base-input>
@@ -364,11 +364,6 @@
                                         <base-input label="Trạng thái" v-model="modals.studentDetail.active_status"></base-input>
                                     </div>
                                 </div>
-                                <!-- <div class="row">
-                                    <div class="col-md-12 pr-md-1">
-                                        <base-input label="Phụ huynh" v-model="modals.studentDetail.parent"></base-input>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </fieldset>  
@@ -387,7 +382,7 @@
                     </div>
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-                          <img class="avatar" :src="modals.teacherDetail.image ? `http://127.0.0.1:8000${modals.teacherDetail.image}` : defaultImage" 
+                          <img class="avatar" :src="modals.teacherDetail.image ? modals.teacherDetail.image : defaultImage" 
                             alt="Ảnh đại diện" 
                             />
                     </div> 
@@ -398,7 +393,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.teacherDetail.user_id"></base-input>
+                                        <base-input label="ID" v-model="modals.teacherDetail.account"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.teacherDetail.full_name"></base-input>
@@ -406,7 +401,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.teacher.subjects"></base-input>
+                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.subjects"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Giới tính" v-model="modals.teacherDetail.sex"></base-input>
@@ -422,7 +417,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Học vấn" v-model="modals.teacherDetail.teacher.expertise_levels"></base-input>
+                                        <base-input label="Học vấn" v-model="modals.teacherDetail.expertise_levels"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Số điện thoại" v-model="modals.teacherDetail.phone_number"></base-input>
@@ -430,7 +425,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.teacher.contract_types"></base-input>
+                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.contract_types"></base-input>
                                     </div>
                                 </div>
                             </div>
@@ -490,7 +485,7 @@
           
                       <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-                          <img class="avatar" :src="modals.studentDetail.image ? `http://127.0.0.1:8000${modals.studentDetail.image}` : defaultImage" 
+                          <img class="avatar" :src="modals.studentDetail.image ? modals.studentDetail.image : defaultImage" 
                             alt="Ảnh đại diện" 
                             />
                       </div>          
@@ -500,7 +495,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input disabled label="ID" v-model="modals.studentDetail.user_id"></base-input>
+                                        <base-input disabled label="ID" v-model="modals.studentDetail.account"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.studentDetail.full_name"></base-input>
@@ -508,7 +503,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input disabled label="Lớp" v-model="modals.roomDetail.name"></base-input>
+                                        <base-input disabled label="Lớp" v-model="modals.studentDetail.rooms"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Giới tính" >
@@ -528,11 +523,6 @@
                                         <base-input label="Trạng thái" v-model="modals.studentDetail.active_status"></base-input>
                                     </div>
                                 </div>
-                                <!-- <div class="row">
-                                    <div class="col-md-12 pr-md-1">
-                                        <base-input label="Phụ huynh" v-model="modals.studentDetail.parent"></base-input>
-                                    </div>
-                                </div> -->
                                 <base-button @click="updateObject" type="secondary" fill>Xác nhận</base-button>
                             </div>
                         </div>
@@ -551,7 +541,7 @@
 
                     <div class="author">
                           <!-- <img class="avatar"  src="img/anime6.png" alt="..."  /> -->
-                          <img class="avatar" :src="modals.teacherDetail.image ? `http://127.0.0.1:8000${modals.teacherDetail.image}` : defaultImage" 
+                          <img class="avatar" :src="modals.teacherDetail.image ? modals.teacherDetail.image : defaultImage" 
                             alt="Ảnh đại diện" 
                             />
                     </div> 
@@ -562,7 +552,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input disabled label="ID" v-model="modals.teacherDetail.user_id"></base-input>
+                                        <base-input disabled label="ID" v-model="modals.teacherDetail.account"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.teacherDetail.full_name"></base-input>
@@ -570,10 +560,9 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.teacher.subjects"></base-input>
+                                        <base-input label="Môn dạy" v-model="modals.teacherDetail.subjects"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
-                                       
                                         <base-input label="Giới tính" >
                                           <select v-model="modals.teacherDetail.sex" class="form-control">
                                             <option class="text-info">Nam</option>
@@ -593,7 +582,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="Học vấn" v-model="modals.teacherDetail.teacher.expertise_levels"></base-input>
+                                        <base-input label="Học vấn" v-model="modals.teacherDetail.expertise_levels"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Số điện thoại" v-model="modals.teacherDetail.phone_number"></base-input>
@@ -601,7 +590,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 pr-md-1">
-                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.teacher.contract_types"></base-input>
+                                        <base-input label="Chức vụ" v-model="modals.teacherDetail.contract_types"></base-input>
                                     </div>
                                 </div>
                                 <base-button @click="updateObject" type="secondary" fill>Xác nhận</base-button>
@@ -627,7 +616,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input label="ID" v-model="modals.parentDetail.user_id"></base-input>
+                                        <base-input label="ID" v-model="modals.parentDetail.account"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input label="Họ và tên" v-model="modals.parentDetail.full_name"></base-input>
@@ -1162,13 +1151,10 @@ export default {
     removeObject(){
         const token = localStorage.getItem("access_token");
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
-        // if (this.bigLineChart.activeIndex === 0 && this.modals.removeRoomModal) {
-        //   apiUrl = API_URL + `/managements/rooms/${this.modals.idRemove}/`;
-        // }
         if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
+          apiUrl = API_URL + `/users/students/${this.modals.idRemove}/`;
         } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
+          apiUrl = API_URL + `/users/teachers/${this.modals.idRemove}/`; // Updated API endpoint
         } else if (this.bigLineChart.activeIndex === 2) {
           apiUrl = API_URL + "/users/accounts/" + this.modals.idRemove;
         }
@@ -1220,59 +1206,54 @@ export default {
     
     
     updateObject(){
-
         let dataUser = null;
         let formData = new FormData();
         let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
         if (this.bigLineChart.activeIndex === 0) {
-          apiUrl = API_URL+ `/accounts/users/${this.modals.studentDetail.user_id}/update/`;
-          dataUser = this.modals.studentDetail
-          // formData.append('full_name', this.modals.studentDetail.full_name);
-          // formData.append('sex', this.modals.studentDetail.sex);
-          // formData.append('day_of_birth', this.modals.studentDetail.day_of_birth);
-          // formData.append('active_status', this.modals.studentDetail.active_status);
-        } else if (this.bigLineChart.activeIndex === 1) {
-          apiUrl = API_URL+ `/accounts/users/${this.modals.teacherDetail.user_id}/update/`;
+          apiUrl = API_URL + `/users/students/${this.modals.studentDetail.account}/`;
           dataUser = {
-              email: this.modals.teacherDetail.email,
-              phone_number: this.modals.teacherDetail.phone_number,
-              full_name: this.modals.teacherDetail.full_name,
-              sex: this.modals.teacherDetail.sex,
-              day_of_birth: this.modals.teacherDetail.day_of_birth,
-              nation: this.modals.teacherDetail.nation,
-              active_status: this.modals.teacherDetail.active_status,
-              contract_types: this.modals.teacherDetail.teacher.contract_types,
-              expertise_levels: this.modals.teacherDetail.teacher.expertise_levels,
-              subjects: this.modals.teacherDetail.teacher.subjects
-              // subjects: "Toán, Lý"
+            full_name: this.modals.studentDetail.full_name,
+            sex: this.modals.studentDetail.sex,
+            day_of_birth: this.modals.studentDetail.day_of_birth,
+            active_status: this.modals.studentDetail.active_status
+          }
+        } else if (this.bigLineChart.activeIndex === 1) {
+          apiUrl = API_URL + `/users/teachers/${this.modals.teacherDetail.account}/`;
+          dataUser = {
+            full_name: this.modals.teacherDetail.full_name,
+            sex: this.modals.teacherDetail.sex,
+            day_of_birth: this.modals.teacherDetail.day_of_birth,
+            phone_number: this.modals.teacherDetail.phone_number,
+            nation: this.modals.teacherDetail.nation,
+            active_status: this.modals.teacherDetail.active_status,
+            contract_types: this.modals.teacherDetail.contract_types,
+            expertise_levels: this.modals.teacherDetail.expertise_levels,
+            subjects: this.modals.teacherDetail.subjects
           }
         } else if (this.bigLineChart.activeIndex === 2) {
-          apiUrl = API_URL+ `/accounts/users/${this.modals.teacherDetail.user_id}/update/`;
+          apiUrl = API_URL+ `/accounts/users/${this.modals.teacherDetail.account}/update/`;
           dataUser = this.modals.parentDetail
         }
 
         console.log(dataUser)
         const token = localStorage.getItem("access_token");
         axios
-        .put(apiUrl, dataUser, {
+        .patch(apiUrl, dataUser, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         })
         .then((response) => {
           let message = "";
           if (this.bigLineChart.activeIndex === 0) {
-          
-          message = "Cập nhật thông tin học sinh thành công"
-        } else if (this.bigLineChart.activeIndex === 1) {
-          
-           message = "Cập nhật thông tin giáo viên thành công"
-        } else if (this.bigLineChart.activeIndex === 2) {
-          
-           message = "Cập nhật thông tin phụ huynh thành công"
-        }
-        this.$notify({
+            message = "Cập nhật thông tin học sinh thành công"
+          } else if (this.bigLineChart.activeIndex === 1) {
+            message = "Cập nhật thông tin giáo viên thành công"
+          } else if (this.bigLineChart.activeIndex === 2) {
+            message = "Cập nhật thông tin phụ huynh thành công"
+          }
+          this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-check-2',
                 message: message,
@@ -1304,20 +1285,14 @@ export default {
         this.modals.detailModal = true;
         let data = null;
 
-        let apiUrl = API_URL + `/accounts/users/detail/${index}/`; // API URL sẽ thay đổi dựa trên loại đăng ký
-        // if (this.bigLineChart.activeIndex === 0) {
-        //   apiUrl = API_URL + "/accounts/students/" + index + "/";
-        // } else if (this.bigLineChart.activeIndex === 1) {
-        //   data = {
-        //       role: "teacher",
-        //       fields: ["user_id", "full_name", "sex", "phone_number", "day_of_birth", "nation", "expertise_levels","contract_type", "subjects"]
-
-        //   };
-        // } else if (this.bigLineChart.activeIndex === 2) {
-        //   apiUrl = API_URL + "/accounts/parents/" + index + "/";
-        // }
-
-
+        let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
+        if (this.bigLineChart.activeIndex === 0) {
+          apiUrl = API_URL + `/users/students/${index}/`;
+        } else if (this.bigLineChart.activeIndex === 1) {
+          apiUrl = API_URL + `/users/teachers/${index}/`;
+        } else if (this.bigLineChart.activeIndex === 2) {
+          apiUrl = API_URL + `/accounts/users/detail/${index}/`;
+        }
 
         const token = localStorage.getItem("access_token");
         axios
@@ -1328,13 +1303,14 @@ export default {
           },
         })
         .then((response) => {
-
           if (this.bigLineChart.activeIndex === 0) {
-            this.modals.studentDetail = response.data
+            this.modals.studentDetail = response.data;
+            // Fetch rooms after getting student detail
+            this.fetchRoomsAndUpdateStudents();
           } else if (this.bigLineChart.activeIndex === 1) {
-            this.modals.teacherDetail = response.data
+            this.modals.teacherDetail = response.data;
           } else if (this.bigLineChart.activeIndex === 2) {
-            this.modals.parentDetail = response.data
+            this.modals.parentDetail = response.data;
           }
 
           console.log(response.data)
@@ -1357,14 +1333,14 @@ export default {
     toggleUpdate(index){
         this.modals.updateModal = true;
 
-        let apiUrl = API_URL + `/accounts/users/detail/${index}/`; // API URL sẽ thay đổi dựa trên loại đăng ký
-        // if (this.bigLineChart.activeIndex === 0) {
-        //   apiUrl = API_URL + "/accounts/students/" + index + "/";
-        // } else if (this.bigLineChart.activeIndex === 1) {
-        //   apiUrl = API_URL + "/accounts/teachers/" + index + "/";
-        // } else if (this.bigLineChart.activeIndex === 2) {
-        //   apiUrl = API_URL + "/accounts/parents/" + index + "/";
-        // }
+        let apiUrl = ""; // API URL sẽ thay đổi dựa trên loại đăng ký
+        if (this.bigLineChart.activeIndex === 0) {
+          apiUrl = API_URL + `/users/students/${index}/`;
+        } else if (this.bigLineChart.activeIndex === 1) {
+          apiUrl = API_URL + `/users/teachers/${index}/`;
+        } else if (this.bigLineChart.activeIndex === 2) {
+          apiUrl = API_URL + `/accounts/users/detail/${index}/`;
+        }
 
         const token = localStorage.getItem("access_token");
         axios
@@ -1376,11 +1352,13 @@ export default {
         })
         .then((response) => {
            if (this.bigLineChart.activeIndex === 0) {
-            this.modals.studentDetail = response.data
+            this.modals.studentDetail = response.data;
+            // Fetch rooms after getting student detail
+            this.fetchRoomsAndUpdateStudents();
           } else if (this.bigLineChart.activeIndex === 1) {
-            this.modals.teacherDetail = response.data
+            this.modals.teacherDetail = response.data;
           } else if (this.bigLineChart.activeIndex === 2) {
-            this.modals.parentDetail = response.data
+            this.modals.parentDetail = response.data;
           }
 
           console.log(response.data)
@@ -1469,19 +1447,17 @@ export default {
         
         // Cập nhật tên phòng học cho từng học sinh
         this.studentData.forEach(student => {
-          // Giả sử student.rooms là ID của phòng học
           if (student.rooms && roomMap[student.rooms]) {
-            // Lưu tên phòng học vào biến tạm thời hoặc cập nhật trực tiếp
-            // const roomName = roomMap[student.rooms];
-            // student.roomName = roomName; // Lưu vào trường mới để không ghi đè lên ID
-            // Hoặc nếu bạn muốn thay thế hoàn toàn giá trị rooms:
-            // student.rooms = roomName;
             student.rooms = roomMap[student.rooms]
           } else {
-            // student.roomName = "Chưa phân lớp";
             student.rooms = "Chưa phân lớp";
           }
         });
+
+        // Cập nhật tên phòng học cho studentDetail nếu có
+        if (this.modals.studentDetail && this.modals.studentDetail.rooms) {
+          this.modals.studentDetail.rooms = roomMap[this.modals.studentDetail.rooms] || "Chưa phân lớp";
+        }
       })
       .catch((error) => {
         console.error("Error fetching rooms:", error);

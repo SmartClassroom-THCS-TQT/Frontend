@@ -58,7 +58,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
-                                        <p>Thứ Hai</p>
+                                        <p class="font-weight-bold">Thứ Hai</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -196,7 +196,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 62px;" rowspan="6">
-                                        <p>Thứ Ba</p>
+                                        <p class="font-weight-bold" >Thứ Ba</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -340,7 +340,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 62px;" rowspan="6">
-                                        <p>Thứ Tư</p>
+                                        <p class="font-weight-bold">Thứ Tư</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -484,7 +484,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 62px;" rowspan="6">
-                                        <p>Thứ Năm</p>
+                                        <p class="font-weight-bold">Thứ Năm</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -628,7 +628,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
-                                        <p>Thứ Sáu</p>
+                                        <p class="font-weight-bold">Thứ Sáu</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -765,7 +765,7 @@
                                 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
-                                        <p>Thứ Bảy</p>
+                                        <p class="font-weight-bold">Thứ Bảy</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -902,7 +902,7 @@
 
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
-                                        <p>Chủ Nhật</p>
+                                        <p class="font-weight-bold">Chủ Nhật</p>
                                         <p></p>
                                         <p></p>
                                         <p></p>
@@ -1476,6 +1476,17 @@ let API_URL = ""
 
 </script>
 <style scoped>
+.table-bordered {
+    border-width: 2px;
+    border-style: solid;
+}
+
+.table-bordered td,
+.table-bordered th {
+    border-width: 2px;
+    border-style: solid;
+}
+
 td {
     color: black;
 }
