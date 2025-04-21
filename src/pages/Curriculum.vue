@@ -273,44 +273,77 @@
             </div>
 
             <!-- Thời khóa biểu -->
-            <div v-if="optionSelected == 2" class="card-container">
-              <div class="timetable-title">
-                <h2>Thời khóa biểu lớp {{ selectedRoomOption.name }}</h2>
-              </div>
-              <div class="calendar-container">
-                <!-- Phần lịch -->
-                <div class="calendar-section">
-                  <div class="calendar-header">
-                    <button class="nav-button" @click="previousMonth">&lt;</button>
-                    <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
-                    <button class="nav-button" @click="nextMonth">&gt;</button>
-                  </div>
-                  <div class="calendar-grid">
-                    <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
-                      {{ day }}
-                    </div>
-                    <div
-                      v-for="day in calendarDays"
-                      :key="formatDate(day.date)"
-                      :class="[
-                        'calendar-day',
-                        { 
-                          'current-day': day.isToday, 
-                          'other-month': day.isOtherMonth, 
-                          'has-lesson': day.hasLesson,
-                          'selected-day': formatDate(day.date) === selectedDay
-                        }
-                      ]"
-                      @click="selectDay(formatDate(day.date))"
-                    >
-                      <span class="day-number">{{ day.date.getDate() }}</span>
-                      <div class="day-indicator">
-                        <span v-if="day.hasLesson" class="lesson-dot"></span>
+            <div v-if="optionSelected == 2" class="card-container curriculum-timetable">
+              
+                <div class="row custom-time-table">
+                   <!-- <vue-cal
+                      :events="events"
+                      default-view="month"
+                      locale="vi" 
+                      style="height: 500px;"
+                    /> -->
+                    
+                      <div class="calendar-container">
+                        <!-- Phần lịch -->
+                        <div class="calendar-section">
+                          <div class="calendar-header">
+                            <button @click="previousMonth" class="nav-button">&lt;</button>
+                            <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
+                            <button @click="nextMonth" class="nav-button">&gt;</button>
+                          </div>
+                          <div class="calendar-grid">
+                            <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
+                              {{ day }}
+                            </div>
+                            <div
+                              v-for="day in calendarDays"
+                              :key="formatDate(day.date)"
+                              :class="[
+                                'calendar-day',
+                                { 
+                                  'current-day': day.isToday, 
+                                  'other-month': day.isOtherMonth, 
+                                  'has-lesson': day.hasLesson 
+                                }
+                              ]"
+                              @click="selectDay(formatDate(day.date))"
+                            >
+                              <span class="day-number">{{ day.date.getDate() }}</span>
+                              <div class="day-indicator">
+                                <span v-if="day.hasLesson" class="lesson-dot"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Phần danh sách tiết học -->
+                        <div class="lesson-list">
+                          <div class="lesson-header">
+                            <h3 v-if="selectedDay">Tiết học ngày {{ formatDisplayDate(selectedDay) }}</h3>
+                          </div>
+                          <div class="lesson-content">
+                            <ul v-if="selectedDayLessons.length">
+                              <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
+                                <div class="lesson-time">Tiết {{ lesson.time_slot.code }}</div>
+                                <div class="lesson-info">
+                                  <div class="lesson-subject">Môn học: {{ lesson.subject_code.name }}</div>
+                                  <div class="lesson-room">Phòng: {{ lesson.room_id.name }}</div>
+                                </div>
+                              </li>
+                            </ul>
+                            <div v-if="(!selectedDayLessons.length) && selectedDay" class="empty-state">
+                              <i class="fas fa-calendar-times"></i>
+                              <p>Không có tiết học nào.</p>
+                            </div>
+                          </div>
+                          <div class="add-session-button">
+                            <button class="btn-add-session" @click="toggleCreateSession()">
+                              <i class="fa fa-plus-circle"></i> Thêm tiết học
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>    
             </div>
 
             <!-- Phân công giáo viên section -->
