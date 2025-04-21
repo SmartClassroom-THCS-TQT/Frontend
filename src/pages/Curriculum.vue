@@ -60,11 +60,11 @@
                   <h5 class="text-dark">Năm học: {{ semester.academic_year.year_name }}</h5>
                   <div class="d-flex align-items-center mb-2">
                     <i class="tim-icons icon-calendar-60 text-muted mr-2"></i>
-                    <span>Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
+                    <span class="text-dark">Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
                   </div>
                   <div class="d-flex align-items-center">
                     <i class="tim-icons icon-watch-time text-muted mr-2"></i>
-                    <span>Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
+                    <span class="text-dark">Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
                   </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
@@ -142,16 +142,9 @@
 
           <div v-if="selectedRoomOption" class="semester-detail">
             <!-- Nút quay lại -->
-            <!-- <button class="back-button" @click="closeSemesterDetail">
+            <button class="back-button" @click="closeSemesterDetail">
               Quay lại
-            </button> -->
-            <div class="col-12 mb-4">
-                <div class="d-flex align-items-center">
-                  <base-button type="info" size="sm" icon @click="closeSemesterDetail()" class="mr-2">
-                    <i class="tim-icons icon-minimal-left"></i>
-                  </base-button>
-                </div>
-              </div>
+            </button>
 
             <!-- Tiêu đề học kỳ -->
             <h1 class="semester-title">Học kỳ {{  selectedSemester  }} - {{ selectedRoomOption.name}}</h1>
@@ -280,79 +273,115 @@
             </div>
 
             <!-- Thời khóa biểu -->
-            <div v-if="optionSelected == 2" class="card-container">
-              <div class="timetable-title">
-                <h2>Thời khóa biểu của lớp {{ selectedRoomOption.name }}</h2>
-              </div>
-              <div class="calendar-container">
-                <!-- Phần lịch -->
-                <div class="calendar-section">
-                  <div class="calendar-header">
-                    <button class="nav-button" @click="previousMonth">&lt;</button>
-                    <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
-                    <button class="nav-button" @click="nextMonth">&gt;</button>
-                  </div>
-                  <div class="calendar-grid">
-                    <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
-                      {{ day }}
-                    </div>
-                    <div
-                      v-for="day in calendarDays"
-                      :key="formatDate(day.date)"
-                      :class="[
-                        'calendar-day',
-                        { 
-                          'current-day': day.isToday, 
-                          'other-month': day.isOtherMonth, 
-                          'has-lesson': day.hasLesson,
-                          'selected-day': formatDate(day.date) === selectedDay
-                        }
-                      ]"
-                      @click="selectDay(formatDate(day.date))"
-                    >
-                      <span class="day-number">{{ day.date.getDate() }}</span>
-                      <div class="day-indicator">
-                        <span v-if="day.hasLesson" class="lesson-dot"></span>
+            <div v-if="optionSelected == 2" class="card-container curriculum-timetable">
+              
+                <div class="row custom-time-table">
+                   <!-- <vue-cal
+                      :events="events"
+                      default-view="month"
+                      locale="vi" 
+                      style="height: 500px;"
+                    /> -->
+                    
+                      <div class="calendar-container">
+                        <!-- Phần lịch -->
+                        <div class="calendar-section">
+                          <div class="calendar-header">
+                            <button @click="previousMonth" class="nav-button">&lt;</button>
+                            <span class="month-title">{{ currentMonthName }} {{ currentYear }}</span>
+                            <button @click="nextMonth" class="nav-button">&gt;</button>
+                          </div>
+                          <div class="calendar-grid">
+                            <div class="calendar-day header" v-for="day in daysOfWeek" :key="day">
+                              {{ day }}
+                            </div>
+                            <div
+                              v-for="day in calendarDays"
+                              :key="formatDate(day.date)"
+                              :class="[
+                                'calendar-day',
+                                { 
+                                  'current-day': day.isToday, 
+                                  'other-month': day.isOtherMonth, 
+                                  'has-lesson': day.hasLesson 
+                                }
+                              ]"
+                              @click="selectDay(formatDate(day.date))"
+                            >
+                              <span class="day-number">{{ day.date.getDate() }}</span>
+                              <div class="day-indicator">
+                                <span v-if="day.hasLesson" class="lesson-dot"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Phần danh sách tiết học -->
+                        <div class="lesson-list">
+                          <div class="lesson-header">
+                            <h3 v-if="selectedDay">Tiết học ngày {{ formatDisplayDate(selectedDay) }}</h3>
+                          </div>
+                          <div class="lesson-content">
+                            <ul v-if="selectedDayLessons.length">
+                              <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
+                                <div class="lesson-time">Tiết {{ lesson.time_slot.code }}</div>
+                                <div class="lesson-info">
+                                  <div class="lesson-subject">Môn học: {{ lesson.subject_code.name }}</div>
+                                  <div class="lesson-room">Phòng: {{ lesson.room_id.name }}</div>
+                                </div>
+                              </li>
+                            </ul>
+                            <div v-if="(!selectedDayLessons.length) && selectedDay" class="empty-state">
+                              <i class="fas fa-calendar-times"></i>
+                              <p>Không có tiết học nào.</p>
+                            </div>
+                          </div>
+                          <div class="add-session-button">
+                            <button class="btn-add-session" @click="toggleCreateSession()">
+                              <i class="fa fa-plus-circle"></i> Thêm tiết học
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+            </div>
 
-                <!-- Phần danh sách tiết học -->
-                <div class="lesson-list">
-                  <div class="lesson-header">
-                    <h3 v-if="selectedDay">Tiết học ngày {{ formatDisplayDate(selectedDay) }}</h3>
-                    <h3 v-else>Danh sách tiết học</h3>
+            <!-- Phân công giáo viên section -->
+            <div v-if="optionSelected == 3" class="card-container teacher-assignment">
+              <div class="row">
+                <div class="col-12">
+                  <div class="teacher-assignment-header">
+                    <h3>Phân công giáo viên cho lớp {{ selectedRoomOption.name }}</h3>
+                    <p class="text-muted">Quản lý phân công giáo viên cho các môn học</p>
                   </div>
-                  <div class="lesson-content">
-                    <ul v-if="selectedDayLessons.length">
-                      <li v-for="lesson in selectedDayLessons" :key="lesson.id" @click="toggleSessionDetail(lesson.id)">
-                        <div class="lesson-time">Tiết {{ lesson.time_slot.code }}</div>
-                        <div class="lesson-info">
-                          <div class="lesson-subject">Môn học: {{ lesson.subject_code.name }}</div>
-                          <div class="lesson-room">Phòng: {{ lesson.room_id.name }}</div>
-                          <div class="lesson-teacher" v-if="lesson.teacher">Giáo viên: {{ lesson.teacher.full_name }}</div>
-                        </div>
-                      </li>
-                    </ul>
-                    <div class="empty-state" v-if="(!selectedDayLessons.length) && selectedDay">
-                      <i class="fas fa-calendar-times"></i>
-                      <p>Không có tiết học nào.</p>
-                    </div>
-                    <div class="empty-state" v-if="(!selectedDayLessons.length) && !selectedDay">
-                      <i class="tim-icons icon-calendar-60"></i>
-                      <p>Chọn một ngày để xem tiết học.</p>
-                    </div>
-                  </div>
-                  <div class="add-session-button">
-                    <button class="btn-add-session" @click="toggleCreateSession()">
-                      <i class="fa fa-plus-circle"></i> Thêm tiết học
-                    </button>
+                  
+                  <div class="teacher-assignment-content">
+                    <base-table :data="subjectData" :columns="subject_columns">
+                      <template slot="columns">
+                        <th>ID</th>
+                        <th>Tên môn học</th>
+                        <th>Mô tả</th>
+                        <th>Giáo viên</th>
+                        <th class="text-right">Actions</th>
+                      </template>
+                      <template slot-scope="{ row }">
+                        <td>{{ row.code }}</td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.description }}</td>
+                        <td>{{ row.assigned_teacher ? row.assigned_teacher.full_name : 'Chưa phân công' }}</td>
+                        <td class="td-actions text-right">
+                          <base-button type="info" size="sm" icon @click="openAssignTeacherModal(row)">
+                            <i class="tim-icons icon-single-02"></i>
+                          </base-button>
+                        </td>
+                      </template>
+                    </base-table>
                   </div>
                 </div>
               </div>
             </div>
 
+          
           </div>
         </div>
 
@@ -424,6 +453,8 @@
           </base-button>
         </div> -->
 
+        
+        
         <!-- Tiết học -->
         <div v-if="bigLineChart.activeIndex === 1">
           <base-table :data="timeslotData" :columns="timeslot_columns">
@@ -757,25 +788,28 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="row">
-                                    <div class="col-md-6 pr-md-1">
+                                    <div class="col-md-4 pr-md-1">
                                         <base-input type="" label="Tiết" >
-                                          <select v-model="sessionData.time_slot.code" class="form-control">
+                                          <select v-model="sessionData.time_slot" class="form-control">
                                               <option class="text-info" v-for="(timeSlot, index) in timeSlotData" :key="index" :value="timeSlot.code">{{ timeSlot.code}}</option>
                                           </select>
                                         </base-input>
                                     </div>
-                                    <div class="col-md-6 pl-md-1">
+                                    <div class="col-md-4 pr-md-1">
                                         <base-input type="" label="Môn" >
-                                          <select v-model="sessionData.subject_code.code" class="form-control">
+                                          <select v-model="sessionData.subject_code" class="form-control">
                                               <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.name}}</option>
                                           </select>
                                         </base-input>
+                                    </div>
+                                    <div class="col-md-4 pr-md-1">
+                                        <base-input type="" label="Học kỳ" v-model="sessionData.semester_code"></base-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
                                         <base-input type="" label="Giáo viên" >
-                                          <select v-model="sessionData.teacher.account" class="form-control">
+                                          <select v-model="sessionData.teacher" class="form-control">
                                               <option class="text-info" v-for="(teacher, index) in teacherData" :key="index" :value="teacher.account">{{ teacher.full_name + " - " + teacher.account }}</option>
                                           </select>
                                         </base-input>
@@ -794,7 +828,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 pr-md-1">
-                                        <base-input type="number" label="Vắng" v-model="sessionData.absences"></base-input>
+                                        <base-input type="number" label="Vắng" v-model="sessionData.absent"></base-input>
                                     </div>
                                     <div class="col-md-6 pl-md-1">
                                         <base-input  label="Nhận xét" >
@@ -804,58 +838,6 @@
                                 </div>
                                 <base-button @click="updateSession" type="secondary" fill>Cập nhật</base-button>
                                 <base-button @click="deleteSession" type="danger" fill>Xóa tiết học</base-button>
-                            </div>
-                        </div>
-                </template>
-            </card>
-
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" v-if="this.createSessionModal">
-
-                <template v-if="modals.sessionCreate">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-md-6 pr-md-1">
-                                        <base-input type="" label="Tiết" >
-                                          <select v-model="modals.sessionCreate.time_slot" class="form-control">
-                                              <option class="text-info" v-for="(timeSlot, index) in timeSlotData" :key="index" :value="timeSlot.code">{{ timeSlot.code}}</option>
-                                          </select>
-                                        </base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input type="" label="Môn" >
-                                          <select v-model="modals.sessionCreate.subject_code" class="form-control">
-                                              <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.name}}</option>
-                                          </select>
-                                        </base-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pr-md-1">
-                                        <base-input type="" label="Giáo viên" >
-                                          <select v-model="modals.sessionCreate.teacher" class="form-control">
-                                              <option class="text-info" v-for="(teacher, index) in teacherData" :key="index" :value="teacher.account">{{ teacher.full_name + " - " + teacher.account }}</option>
-                                          </select>
-                                        </base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input type="date" label="Ngày" v-model="modals.sessionCreate.day"></base-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pr-md-1">
-                                        <base-input type="number" label="Bài số" v-model="modals.sessionCreate.lesson_number"></base-input>
-                                    </div>
-                                    <div class="col-md-6 pl-md-1">
-                                        <base-input type="text" label="Tên bài học" v-model="modals.sessionCreate.lesson_name"></base-input>
-                                    </div>
-                                </div>
-                                
-                                <base-button @click="createOneSession" type="secondary" fill>Thêm 1 phiên học</base-button>
-                                <base-button @click="createFullSession" type="secondary" fill>Thêm phiên học cả kỳ</base-button>
                             </div>
                         </div>
                 </template>
@@ -878,6 +860,9 @@
                 </base-button>
             </template>
         </modal>
+
+
+
 
       
       
@@ -993,6 +978,12 @@ export default {
         plannedLessonDetail: null,
         timeslotDetail: null,
         subjectDetail: null,
+        assignTeacher: false,
+        selectedSubject: {
+          name: ""
+        },
+        selectedTeacher: null,
+        availableTeachers: []
     },
     successValue: 0,
     intervalId: null,
@@ -1080,7 +1071,7 @@ export default {
     room_columns: ["name", "students", "homeroom_teacher"],
     plannedlesson_columns: ["id", "subject", "lesson_number", "name_lesson", "semester", "room"],
     timeslot_columns: ["code", "start_time", "end_time"],
-    subject_columns: ["code", "name", "description"],
+    subject_columns: ["code", "name", "description", "assigned_teacher"],
     lesson_columns: ["user", "full_name", "sex", "day_of_birth", "description"],
       semesterData: null,
       roomData: null,
@@ -1187,80 +1178,10 @@ export default {
   },
   methods: {
     createOneSession(){
-      const token = localStorage.getItem("access_token");
-      let data = this.modals.sessionCreate
-      console.log(data)
-      axios
-        .post(API_URL+"/managements/sessions/", data, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thành công`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-              this.createSessionModal = false;
-              this.modals.updateModal = false
-              this.getSession();
 
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
     },
     createFullSession(){
-      const token = localStorage.getItem("access_token");
-      let data = this.modals.sessionCreate
-      console.log(data)
-      axios
-        .post(API_URL+"/managements/generate-timetable/", data, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: response.data.message,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-              this.createSessionModal = false;
-              this.modals.updateModal = false
-              this.getSession();
 
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
     },
     selectDay(date) {
       console.log(date); // Kiểm tra giá trị của date
@@ -1348,10 +1269,6 @@ export default {
       this.getAllTeacher();
       this.getTimeSlot();
       this.getSubject();
-      this.modals.sessionCreate.day = this.selectedDay
-      this.modals.sessionCreate.room_id = this.selectedRoomOption.id
-      this.modals.sessionCreate.semester_code = this.selectedSemester
-      this.sessionModal = false
       this.createSessionModal = true;
       this.modals.updateModal = true
     },
@@ -1361,7 +1278,6 @@ export default {
       this.getSubject();
 
       this.modals.updateModal = true
-      this.createSessionModal = false
       this.sessionModal = true
       const token = localStorage.getItem("access_token");
       axios
@@ -1373,7 +1289,6 @@ export default {
         })
         .then((response) => {
            this.sessionData = response.data
-           console.log("sessionData")
            console.log(this.sessionData)
         })
         .catch((error) => {
@@ -1541,13 +1456,71 @@ export default {
     // selectAction(action) {
     //   this.selectedAction = action; // Cập nhật nút được chọn
     // },
+    async processAccount(account) {
+      try {
+        if (!this.selectedRoomOption || !this.selectedRoomOption.id) {
+          throw new Error('No room selected or invalid room ID');
+        }
+
+        let apiUrl = API_URL + `/users/students/${account[2]}/`;
+        let data = {
+          "rooms": [this.selectedRoomOption.id]
+        };
+        const token = localStorage.getItem("access_token");
+
+        // First, check if student is already in the class
+        try {
+          const checkResponse = await axios.get(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          // If student's current rooms include our target room, they're already in the class
+          if (checkResponse.data.rooms && checkResponse.data.rooms.includes(this.selectedRoomOption.id)) {
+            console.log("Student already in class:", account[2]);
+            return { status: 'existing' };
+          }
+        } catch (error) {
+          console.error("Error checking student status:", error);
+        }
+
+        // If we get here, attempt to add the student
+        const response = await axios.patch(apiUrl, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.data.detail?.toLowerCase().includes("already")) {
+          console.log("Student already in class (from PATCH response):", account[2]);
+          return { status: 'existing' };
+        } else {
+          console.log("New student added:", account[2]);
+          return { status: 'success' };
+        }
+      } catch (error) {
+        console.error("Error processing account:", error);
+        return { status: 'error', error };
+      }
+    },
+
     async registerAccountsTest() {
       this.tableSuccess = [];
       if (!this.tableData.length) {
-        alert("Không có account nào để xử lý.");
+        this.$notify({
+          type: "warning",
+          icon: "tim-icons icon-bell-55",
+          message: "Không có account nào để xử lý.",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
         return;
       }
-      console.log("sheetName"+this.sheetName)
+
       if(this.sheetName != "Cập nhật học sinh"){
         this.$notify({
           type: "danger",
@@ -1561,92 +1534,100 @@ export default {
       }
 
       this.inProgress = true;
-      this.successValue = 0;
       this.value = 0;
       this.max = this.tableData.length;
       this.processedCount = 0;
+      this.successValue = 0;
 
-      // Khởi chạy tiến trình cập nhật progress bar
-      this.startProgressUpdate();
-
-      // Xử lý từng account
-      for (const account of this.tableData) {
-        try {
-          await this.processAccount(account);
-          this.processedCount++; // Cập nhật số account đã xử lý
-        } catch (error) {
-          console.error("Lỗi khi xử lý account:", error);
-        }
-      }
-
-      // Dừng tiến trình khi hoàn thành
-      this.stopProgressUpdate();
-      this.$notify({
-            type: "success",
-            icon: 'tim-icons icon-check-2',
-            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
-            timeout: 3000,
-            verticalAlign: "top",
-            horizontalAlign: "right",
-          });
-    },
-    startProgressUpdate() {
-      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
-      this.intervalId = setInterval(() => {
-        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
-      }, 500);
-    },
-    stopProgressUpdate() {
-      // Dừng setInterval và đặt lại trạng thái
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      this.inProgress = false;
-    },
-    async processAccount(account) {
+      // Get initial student count
+      let initialStudentCount = 0;
       try {
-        let apiUrl = API_URL + `/users/students/${account[2]}/`;
-        let data = {
-          "room": this.selectedRoomOption.name
-          
-        };
-        console.log(apiUrl)
         const token = localStorage.getItem("access_token");
-
-        const response = await axios.put(apiUrl, data, {
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        this.successValue++;
-        this.tableSuccess.push(account);
+        initialStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting initial student count:", error);
+      }
+
+      // Start progress bar update
+      this.intervalId = setInterval(() => {
+        this.value = this.processedCount;
+      }, 500);
+
+      let hasError = false;
+
+      // Process each account
+      for (const account of this.tableData) {
+        try {
+          await this.processAccount(account);
+          this.processedCount++;
+        } catch (error) {
+          console.error("Lỗi khi xử lý account:", error);
+          hasError = true;
+        }
+      }
+
+      // Stop progress bar update
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.inProgress = false;
+
+      // Get final student count
+      let finalStudentCount = 0;
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        finalStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting final student count:", error);
+      }
+
+      // Calculate number of new students added
+      const newStudentsAdded = finalStudentCount - initialStudentCount;
+      this.successValue = newStudentsAdded;
+
+      // Show appropriate notification based on results
+      if (newStudentsAdded === 0) {
+        this.$notify({
+          type: "info",
+          icon: 'tim-icons icon-bell-55',
+          message: "Không có học sinh mới nào được thêm vào lớp",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else if (hasError) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp. Một số học sinh không thể thêm do lỗi.`,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else {
         this.$notify({
           type: "success",
-          icon: "tim-icons icon-check-2",
-          message: response.data.detail,
+          icon: 'tim-icons icon-check-2',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp`,
           timeout: 3000,
           verticalAlign: "top",
           horizontalAlign: "right",
         });
-
-        return true; // Xử lý thành công
-      } catch (error) {
-        console.error("Error registering accounts:", error);
-
-        const errorMessage =
-          error.response?.data ||
-          "Có lỗi xảy ra. Vui lòng thử lại sau";
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: errorMessage,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        return false; // Xử lý thất bại
       }
+
+      // Reset success value after showing notification
+      this.successValue = 0;
     },
     triggerFileUpload() {
       this.$refs.fileInput.click(); // Trigger file input click event
@@ -1720,7 +1701,12 @@ export default {
     },
     toggleRoomOptionDetail(room){
       this.roomDetailStatus = false;
-      this.selectedRoomOption = room;
+      console.log("Selected room data:", room); // Add logging
+      this.selectedRoomOption = {
+        ...room,
+        id: room.id // Ensure we capture the room ID
+      };
+      console.log("Set selectedRoomOption:", this.selectedRoomOption); // Add logging
     },
     closeSemesterDetail() {
       this.selectedRoomOption = null;
@@ -1735,18 +1721,17 @@ export default {
       this.getStudentInRoom(this.selectedRoomOption.id)
       this.getRoomData();
     },
-    getStudentInRoom(roomName){
+    getStudentInRoom(roomId){
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/users/students/?room_id=${roomName}`, {
+        .get(API_URL+`/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-          console.log(API_URL+`/users/students/?room_id=${roomName}`)
           this.studentData = response.data
         })
         .catch((error) => {
@@ -1755,7 +1740,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Lấy danh sách học sinh lớp ${roomName} thất bại`,
+                message: `Lấy danh sách học sinh lớp ${this.selectedRoomOption.name} thất bại`,
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1773,7 +1758,7 @@ export default {
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}&room_id=${this.selectedRoomOption.id}`, {
+        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -1798,9 +1783,38 @@ export default {
         });
     },
     assignTeachers() {
-      // Handle assigning teachers logic
-      alert("Phân công giáo viên");
+      this.optionSelected = 3;
+      this.selectedAction = "assignTeachers";
+      this.loadSubjects(); // Add this line to load subjects when entering teacher assignment view
     },
+
+    loadSubjects() {
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL + "/managements/subjects/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.subjectData = response.data;
+        })
+        .catch((error) => {
+          console.error("Error loading subjects:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Không thể tải danh sách môn học",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+
+
     async initializeData() {
         try {
           await this.getApiUrl();
@@ -2408,38 +2422,167 @@ export default {
   transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* CSS cho thời khóa biểu */
-.timetable-title {
+/* Đổi màu nền và màu chữ cho lịch */
+.vuecal {
+  background-color: #ffffff; /* Nền trắng */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu tiêu đề tháng, tuần */
+.vuecal__header,
+.vuecal__title {
+  background-color: #f0f0f0; /* Nền sáng hơn */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu ngày hiện tại */
+.vuecal__current-day {
+  background-color: #d0ebff; /* Nền xanh nhạt */
+  color: #333333; /* Chữ tối */
+}
+
+/* Đổi màu các ngày đã chọn */
+.vuecal__selected {
+  background-color: #26dd6f; 
+  color: #333333; /* Chữ tối */
+}
+
+.calendar-container {
+  display: flex;
+  gap: 16px;
+  max-width: 900px; /* Tăng chiều rộng nếu cần */
+  margin: auto; /* Căn giữa */
+}
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.calendar-grid {
+  flex: 2; /* Dành nhiều không gian hơn cho lịch */
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* Mỗi tuần 7 cột */
+  gap: 4px; /* Khoảng cách giữa các ô */
+}
+.calendar-day {
+  border: 1px solid #ddd;
+  color: rgb(66, 174, 190);
+  padding: 10px;
+  text-align: center;
+  position: relative;
+  background-color: white;
+  border-radius: 5px;
+  
+}
+.calendar-day.header {
+  font-weight: bold;
+  background-color: #f4f4f4;
+}
+.current-day {
+  background-color: #007bff;
+  color: white;
+}
+.other-month {
+  color: #aaa;
+}
+.event {
+  margin-top: 5px;
+  padding: 2px 5px;
+  background-color: #28a745;
+  color: white;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.calendar-day.has-lesson {
+  border: 2px solid #28a745;
+  background-color: rgba(40, 167, 69, 0.1); /* Thêm nền để làm nổi bật */
+  border-radius: 4px;
+}
+
+.calendar-day:hover {
+  background-color: #28a745;; /* Thay đổi màu nền khi hover */
+  color: #fff; /* Thay đổi màu chữ khi hover */
+  cursor: pointer; /* Đổi con trỏ thành hình bàn tay */
+}
+
+.calendar-container {
+  display: flex;
+  gap: 16px;
+}
+
+.calendar-grid {
+  flex: 2;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.lesson-list {
+  flex: 1;
+  padding: 16px;
+  background: #f1f1f1; /* Thay đổi màu nền để sáng hơn */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem; /* Tăng kích thước chữ */
+}
+
+.lesson-list h3 {
+  margin-bottom: 12px;
+  font-size: 1.4rem; /* Tăng kích thước tiêu đề */
+  color: #333; /* Thay đổi màu chữ */
+}
+
+.lesson-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.lesson-list li {
+  padding: 5px; /* Tăng khoảng cách padding */
+  background-color: #ffffff; /* Màu nền trắng */
+  color: #333; /* Màu chữ đen */
+  border: 1px solid #ddd; /* Thêm đường viền để nổi bật */
+  border-radius: 8px;
+  margin-bottom: 8px; /* Khoảng cách giữa các mục */
+  font-weight: bold; /* Làm chữ đậm hơn */
+}
+
+.lesson-list li:hover {
+  background-color: rgba(40, 167, 69, 0.1);; /* Thay đổi màu nền khi hover */
+  color: #fff; /* Thay đổi màu chữ khi hover */
+  cursor: pointer; /* Đổi con trỏ thành hình bàn tay */
+  border: 2px solid #28a745;
+}
+
+.lesson-list li:last-child {
+  border-bottom: none;
+}
+
+/* CSS thời khóa biểu mới */
+.curriculum-timetable .timetable-title {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
   text-align: center;
 }
 
-.timetable-title h2 {
+.curriculum-timetable .timetable-title h2 {
   color: #1e88e5;
   margin-bottom: 5px;
 }
 
-.timetable-title p {
+.curriculum-timetable .timetable-title p {
   color: #757575;
   margin: 0;
 }
 
-.custom-time-table {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.calendar-container {
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  width: 100%;
-}
-
-.calendar-section {
+.curriculum-timetable .calendar-section {
   flex: 1.2;
   background: #fff;
   border-radius: 8px;
@@ -2447,25 +2590,14 @@ export default {
   padding: 20px;
 }
 
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-}
-
-.month-title {
+.curriculum-timetable .month-title {
   font-weight: bold;
   font-size: 1.3rem;
-  color: white;
+  color: #333;
 }
 
-.nav-button {
-  background-color: rgba(255, 255, 255, 0.2);
+.curriculum-timetable .nav-button {
+  background-color: #1e88e5;
   color: white;
   border: none;
   border-radius: 50%;
@@ -2480,20 +2612,12 @@ export default {
   font-weight: bold;
 }
 
-.nav-button:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+.curriculum-timetable .nav-button:hover {
+  background-color: #1565c0;
 }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  width: 100%;
-}
-
-.calendar-day {
-  border: 1px solid #ddd;
-  color: rgb(66, 174, 190);
+.curriculum-timetable .calendar-day {
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 5px;
   min-height: 70px;
@@ -2503,46 +2627,44 @@ export default {
   background-color: white;
 }
 
-.calendar-day:hover {
-  background-color: #28a745;
-  color: #fff;
+.curriculum-timetable .calendar-day:hover {
+  background-color: #f5f5f5;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.calendar-day.header {
+.curriculum-timetable .calendar-day.header {
   font-weight: bold;
   text-align: center;
-  background-color: #f4f4f4;
+  background-color: #f5f5f5;
   min-height: auto;
   padding: 10px;
   border: none;
   color: #616161;
 }
 
-.calendar-day.current-day {
-  background-color: #d0ebff;
+.curriculum-timetable .calendar-day.current-day {
+  background-color: #e3f2fd;
   border-color: #1e88e5;
 }
 
-.calendar-day.other-month {
-  color: #aaa;
+.curriculum-timetable .calendar-day.other-month {
+  color: #bdbdbd;
   background-color: #fafafa;
 }
 
-.calendar-day.has-lesson {
-  background-color: rgba(40, 167, 69, 0.1);
-  border: 2px solid #28a745;
-  border-radius: 4px;
+.curriculum-timetable .calendar-day.has-lesson {
+  background-color: #e8f5e9;
+  border-color: #43a047;
 }
 
-.calendar-day.selected-day {
+.curriculum-timetable .calendar-day.selected-day {
   background-color: #bbdefb;
   border-color: #1976d2;
   box-shadow: 0 0 0 2px #1976d2;
 }
 
-.day-number {
+.curriculum-timetable .day-number {
   position: absolute;
   top: 5px;
   left: 5px;
@@ -2550,56 +2672,77 @@ export default {
   font-size: 14px;
 }
 
-.day-indicator {
+.curriculum-timetable .day-indicator {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
 }
 
-.lesson-dot {
+.curriculum-timetable .lesson-dot {
   width: 6px;
   height: 6px;
   background-color: #43a047;
   border-radius: 50%;
-  display: inline-block;
 }
 
-.lesson-list {
+.curriculum-timetable .calendar-container {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  width: 100%;
+}
+
+.curriculum-timetable .calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.curriculum-timetable .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.curriculum-timetable .lesson-list {
   flex: 1;
-  background: #f1f1f1;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  font-size: 1.1rem;
 }
 
-.lesson-header {
+.curriculum-timetable .lesson-header {
   padding: 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
 }
 
-.lesson-header h3 {
+.curriculum-timetable .lesson-header h3 {
   margin: 0;
-  color: #333;
-  font-size: 1.4rem;
+  color: #1e88e5;
+  font-size: 1.3rem;
 }
 
-.lesson-content {
+.curriculum-timetable .lesson-content {
   padding: 20px;
   flex-grow: 1;
   overflow-y: auto;
   max-height: 500px;
 }
 
-.lesson-list ul {
+.curriculum-timetable .lesson-list ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.lesson-list li {
+.curriculum-timetable .lesson-list li {
   padding: 15px;
   margin-bottom: 15px;
   background-color: white;
@@ -2612,14 +2755,12 @@ export default {
   border-left: 4px solid #1e88e5;
 }
 
-.lesson-list li:hover {
-  background-color: rgba(40, 167, 69, 0.1);
-  border: 2px solid #28a745;
+.curriculum-timetable .lesson-list li:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
-.lesson-time {
+.curriculum-timetable .lesson-time {
   background-color: #1e88e5;
   color: white;
   padding: 8px 12px;
@@ -2631,28 +2772,23 @@ export default {
   text-align: center;
 }
 
-.lesson-info {
+.curriculum-timetable .lesson-info {
   flex: 1;
 }
 
-.lesson-subject {
+.curriculum-timetable .lesson-subject {
   font-weight: bold;
   color: #333;
   font-size: 16px;
   margin-bottom: 5px;
 }
 
-.lesson-room {
+.curriculum-timetable .lesson-room {
   color: #757575;
   font-size: 14px;
 }
 
-.lesson-teacher {
-  color: #757575;
-  font-size: 14px;
-}
-
-.empty-state {
+.curriculum-timetable .empty-state {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2662,47 +2798,102 @@ export default {
   text-align: center;
 }
 
-.empty-state i {
+.curriculum-timetable .empty-state i {
   font-size: 48px;
   margin-bottom: 15px;
 }
 
-.empty-state p {
+.curriculum-timetable .empty-state p {
   font-size: 16px;
 }
 
-.btn-add-session {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 20px;
-  font-size: 16px;
+.curriculum-timetable .add-session-button {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.curriculum-timetable .btn-add-session {
+  background-color: #4caf50;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin: 10px 20px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-add-session:hover {
-  background-color: #0056b3;
-}
-
-.btn-add-session i {
+.curriculum-timetable .btn-add-session i {
   margin-right: 8px;
 }
 
+.curriculum-timetable .btn-add-session:hover {
+  background-color: #388e3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 992px) {
-  .calendar-container {
+  .curriculum-timetable .calendar-container {
     flex-direction: column;
   }
   
-  .calendar-section, .lesson-list {
+  .curriculum-timetable .calendar-section, 
+  .curriculum-timetable .lesson-list {
     width: 100%;
   }
   
-  .lesson-list {
+  .curriculum-timetable .lesson-list {
     margin-top: 20px;
   }
 }
-</style>
+
+/* ... existing styles ... */
+
+/* Teacher Assignment Section Styles */
+.teacher-assignment {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-assignment-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.teacher-assignment-header h3 {
+  color: #1e88e5;
+  margin-bottom: 10px;
+}
+
+.teacher-assignment-content {
+  display: flex;
+  gap: 20px;
+}
+
+.subject-list, .teacher-list {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .teacher-assignment-content {
+    flex-direction: column;
+  }
+  
+  .subject-list, .teacher-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
 </style>
