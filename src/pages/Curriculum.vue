@@ -2688,7 +2688,7 @@ export default {
 }
 
 .btn-add-session i {
-  margin-right: 8px;
+  margin-right: 9px;
 }
 
 @media (max-width: 992px) {
@@ -2704,5 +2704,4 @@ export default {
     margin-top: 20px;
   }
 }
-</style>
 </style>
