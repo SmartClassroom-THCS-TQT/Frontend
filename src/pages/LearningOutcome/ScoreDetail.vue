@@ -11,7 +11,7 @@
               <div class="row">
                 <div class="col-md-3 pr-md-1 text-center">
                   <base-input label="Học kỳ">
-                    <select class="btn btn-simple btn-sm btn-info" v-model="semesterSelected">
+                    <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected">
                       <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.name }}</option>
                     </select>
                   </base-input>

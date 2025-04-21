@@ -95,7 +95,7 @@ const routes = [
       },
       {
         path: "learning_outcome",
-        name: "Thông tin học tập",
+        name: "Kết quả học tập",
         component: LearningOutcome,
       },
       {
