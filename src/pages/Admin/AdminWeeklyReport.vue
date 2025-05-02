@@ -1,43 +1,76 @@
 <template>
-    
-    <div class="row">
-      <div class="col-12">
-        <!-- <div class="wrapper study"> -->
-        <card>
-            <template slot="header">
-                <div class="row">
-                    <div class="col-md-5">
-                    <h3>Kết quả tuần học lớp {{ room.name }} {{ semesterSelected ? " - "+semesterSelected.semester : "" }} {{ weekSelected ? " - Tuần "+ weekData : "" }} </h3>
-                    </div>
-                    <div class="col-md-7">
-                    <div class="row">
-                        <div class="col-md-3 pr-md-1 text-center">
-                        <!-- <base-input label="Học kỳ">
-                            <select class="btn btn-simple btn-sm btn-success" v-model="semesterSelected" @change="getWeekData">
-                            <option class="text-info" v-for="(semester, index) in semesters" :key="index" :value="semester">{{ semester.code }}</option>
-                            </select>
-                        </base-input> -->
-                        </div>
-                        <div class="col-md-3 pr-md-1 text-center">
-                        <base-input label="Tuần">
-                            <select class="btn btn-simple btn-sm btn-gay" v-model="weekSelected" @change="takeWeekData">
-                            <option class="text-info" v-for="week in weeks" :key="week" :value="week" >{{ week }}</option>
-                            </select>
-                        </base-input>
-                        </div>
-                        <div class="col-md-3 pl-md-1 text-center">
-                        <base-button 
-                            class="btn btn-sm "
-                            @click="getTimeTable"
-                            fill
-                        >Lọc
-                        </base-button>
-                        </div>
-                    </div>
-                    </div>
+  <div class="row">
+    <div class="col-12">
+      <card>
+        <template slot="header">
+          <div class="row">
+            <div class="col-md-5">
+              <h3>Tổng kết tuần học {{ weekSelected ? " - Tuần " + weekSelected : "" }}</h3>
+            </div>
+            <div class="col-md-7">
+              <div class="row">
+                <div class="col-md-3 pr-md-1 text-center">
+                  <base-input label="Học kỳ">
+                    <select class="btn btn-simple btn-sm btn-gay" v-model="semesterSelected" @change="onSemesterChange">
+                      <option class="text-info" v-for="semester in semesters" :key="semester.code" :value="semester.code">{{ semester.code }}</option>
+                    </select>
+                  </base-input>
                 </div>
-            </template>
-            <div style="display: flex; justify-content: center; align-items: center;">
+                <div class="col-md-3 pr-md-1 text-center">
+                  <base-input label="Tuần">
+                    <select class="btn btn-simple btn-sm btn-gay" v-model="weekSelected" @change="getWeeklyReports">
+                      <option class="text-info" v-for="week in weeks" :key="week" :value="week">{{ week }}</option>
+                    </select>
+                  </base-input>
+                </div>
+                <div class="col-md-3 pl-md-1 text-center">
+                  <base-button 
+                    class="btn btn-sm"
+                    @click="getWeeklyReports"
+                    fill
+                  >Lọc
+                  </base-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Lớp</th>
+                <th>Giáo viên chủ nhiệm</th>
+                <th>Năm học</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="room in rooms" :key="room.id">
+                <td>{{ room.name }}</td>
+                <td>{{ room.manager.full_name }}</td>
+                <td>{{ room.academic_year.year_name }}</td>
+                <td>
+                  <base-button
+                    type="success"
+                    size="sm"
+                    @click="showRoomReport(room)"
+                  >
+                    Xem báo cáo
+                  </base-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </card>
+
+      <!-- Modal for showing room report -->
+      <modal :show.sync="showReportModal" :show-close="true" modal-classes="modal-dialog-centered modal-xl">
+        <template slot="header">
+          <h5 class="modal-title font-weight-bold">Báo cáo tuần học - Lớp {{ selectedRoom?.name }}</h5>
+        </template>
+        <div style="display: flex; justify-content: center; align-items: center;">
                 <div v-if="timetableData">
                     <div  id="tableDiv">
                         <table class="table-bordered" style="width: 863px">
@@ -69,7 +102,7 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].monday?this.timetableData[0].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].monday? this.timetableData[0].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].monday && this.absentListMap[this.timetableData[0].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -88,7 +121,7 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].monday?this.timetableData[1].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].monday? this.timetableData[1].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].monday && this.absentListMap[this.timetableData[1].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -107,7 +140,7 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].monday?this.timetableData[2].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].monday? this.timetableData[2].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].monday && this.absentListMap[this.timetableData[2].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -129,7 +162,7 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].monday?this.timetableData[3].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].monday? this.timetableData[3].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].monday && this.absentListMap[this.timetableData[3].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -151,7 +184,7 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].monday?this.timetableData[4].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].monday? this.timetableData[4].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].monday && this.absentListMap[this.timetableData[4].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -173,7 +206,7 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].monday?this.timetableData[5].monday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].monday? this.timetableData[5].monday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].monday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].monday && this.absentListMap[this.timetableData[5].monday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].monday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -207,7 +240,7 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].tuesday?this.timetableData[0].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].tuesday? this.timetableData[0].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].tuesday && this.absentListMap[this.timetableData[0].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -227,9 +260,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">2</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].tuesday?this.timetableData[1].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.lesson_number: "" }}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].tuesday && this.absentListMap[this.timetableData[1].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -249,9 +282,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">3</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].tuesday?this.timetableData[2].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].tuesday && this.absentListMap[this.timetableData[2].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -271,9 +304,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">4</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].tuesday?this.timetableData[3].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].tuesday && this.absentListMap[this.timetableData[3].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -293,9 +326,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">5</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].tuesday?this.timetableData[4].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].tuesday && this.absentListMap[this.timetableData[4].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -315,9 +348,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">6</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].tuesday?this.timetableData[5].tuesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].tuesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].tuesday && this.absentListMap[this.timetableData[5].tuesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].tuesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -349,9 +382,9 @@
                                         <p></p>
                                     </td>
                                     <td style="width: 29px; height: 62px;">1</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].wednesday?this.timetableData[0].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].wednesday && this.absentListMap[this.timetableData[0].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -371,9 +404,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">2</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].wednesday?this.timetableData[1].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].wednesday && this.absentListMap[this.timetableData[1].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -393,9 +426,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">3</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].wednesday?this.timetableData[2].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.lesson_number: ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].wednesday && this.absentListMap[this.timetableData[2].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -415,9 +448,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">4</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].wednesday?this.timetableData[3].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].wednesday && this.absentListMap[this.timetableData[3].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -437,9 +470,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">5</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].wednesday?this.timetableData[4].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].wednesday && this.absentListMap[this.timetableData[4].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -459,9 +492,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">6</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].wednesday?this.timetableData[5].wednesday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].wednesday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].wednesday && this.absentListMap[this.timetableData[5].wednesday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].wednesday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -493,9 +526,9 @@
                                         <p></p>
                                     </td>
                                     <td style="width: 29px; height: 62px;">1</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].thursday?this.timetableData[0].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].thursday && this.absentListMap[this.timetableData[0].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -515,9 +548,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">2</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].thursday?this.timetableData[1].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].thursday && this.absentListMap[this.timetableData[1].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -537,9 +570,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">3</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].thursday?this.timetableData[2].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].thursday && this.absentListMap[this.timetableData[2].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -559,9 +592,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">4</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].thursday?this.timetableData[3].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].thursday && this.absentListMap[this.timetableData[3].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -581,9 +614,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">5</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].thursday?this.timetableData[4].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].thursday && this.absentListMap[this.timetableData[4].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -603,9 +636,9 @@
                                 </tr>
                                 <tr style="height: 62px;">
                                     <td style="width: 29px; height: 62px;">6</td>
-                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.subject_code.name : ""}}</td>
+                                    <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].thursday?this.timetableData[5].thursday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].thursday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].thursday && this.absentListMap[this.timetableData[5].thursday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].thursday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -639,7 +672,7 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].friday?this.timetableData[0].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].friday? this.timetableData[0].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].friday && this.absentListMap[this.timetableData[0].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -658,7 +691,7 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].friday?this.timetableData[1].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].friday? this.timetableData[1].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].friday && this.absentListMap[this.timetableData[1].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -677,7 +710,7 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].friday?this.timetableData[2].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].friday? this.timetableData[2].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].friday && this.absentListMap[this.timetableData[2].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -699,7 +732,7 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].friday?this.timetableData[3].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].friday? this.timetableData[3].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].friday && this.absentListMap[this.timetableData[3].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -721,7 +754,7 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].friday?this.timetableData[4].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].friday? this.timetableData[4].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].friday && this.absentListMap[this.timetableData[4].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -743,7 +776,7 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].friday?this.timetableData[5].friday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].friday? this.timetableData[5].friday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].friday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].friday && this.absentListMap[this.timetableData[5].friday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].friday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -776,7 +809,7 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].saturday?this.timetableData[0].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].saturday? this.timetableData[0].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].saturday && this.absentListMap[this.timetableData[0].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -795,7 +828,7 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].saturday?this.timetableData[1].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].saturday? this.timetableData[1].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].saturday && this.absentListMap[this.timetableData[1].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -814,7 +847,7 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].saturday?this.timetableData[2].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].saturday? this.timetableData[2].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].saturday && this.absentListMap[this.timetableData[2].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -836,7 +869,7 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].saturday?this.timetableData[3].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].saturday? this.timetableData[3].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].saturday && this.absentListMap[this.timetableData[3].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -858,7 +891,7 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].saturday?this.timetableData[4].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].saturday? this.timetableData[4].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].saturday && this.absentListMap[this.timetableData[4].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -880,7 +913,7 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].saturday?this.timetableData[5].saturday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].saturday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].saturday && this.absentListMap[this.timetableData[5].saturday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].saturday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -898,8 +931,8 @@
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
-
-
+                                
+                                
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
                                         <p class="font-weight-bold">Chủ Nhật</p>
@@ -913,7 +946,7 @@
                                     <td style="width: 29px; height: 62px;">1</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[0].sunday?this.timetableData[0].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[0].sunday? this.timetableData[0].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[0].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[0].sunday && this.absentListMap[this.timetableData[0].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[0].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -932,7 +965,7 @@
                                     <td style="width: 29px; height: 62.3333px;">2</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[1].sunday?this.timetableData[1].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[1].sunday? this.timetableData[1].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[1].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[1].sunday && this.absentListMap[this.timetableData[1].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[1].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -951,7 +984,7 @@
                                     <td style="width: 29px; height: 62px;">3</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[2].sunday?this.timetableData[2].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[2].sunday? this.timetableData[2].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[2].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[2].sunday && this.absentListMap[this.timetableData[2].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[2].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -973,7 +1006,7 @@
                                     <td style="width: 29px; height: 62px;">4</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[3].sunday?this.timetableData[3].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[3].sunday? this.timetableData[3].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[3].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[3].sunday && this.absentListMap[this.timetableData[3].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[3].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -995,7 +1028,7 @@
                                     <td style="width: 29px; height: 62px;">5</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[4].sunday?this.timetableData[4].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[4].sunday? this.timetableData[4].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[4].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[4].sunday && this.absentListMap[this.timetableData[4].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[4].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -1017,7 +1050,7 @@
                                     <td style="width: 29px; height: 62px;">6</td>
                                     <td style="width: 81px; height: 62.3333px;">{{this.timetableData[5].sunday?this.timetableData[5].sunday.subject_code.name : ""}}</td>
                                     <td style="width: 10px; height: 62.3333px;">{{this.timetableData[5].sunday? this.timetableData[5].sunday.lesson_number : ""}}</td>
-                                    <td style="width: 125px; height: 62.3333px;" @click="() => toggleAbsenseDetail(this.timetableData[5].sunday)" class="absence-cell">
+                                    <td style="width: 125px; height: 62.3333px;" class="absence-cell">
                                         <div v-if="this.timetableData[5].sunday && this.absentListMap[this.timetableData[5].sunday.id]">
                                             <div v-for="(student, index) in absentListMap[this.timetableData[5].sunday.id]" :key="index" class="absent-student-name">
                                                 {{student.student.full_name}}
@@ -1038,457 +1071,483 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="mt-5 mb-5">
-
-                        <input type="text" class="form-control" id="fileNameInput" placeholder="Nhập tên file" style="width: 300px; border-radius: 5px; border-color: aqua;">
-                        <small slot="helperText" id="emailHelp" class="form-text text-muted">Nhập theo mẫu: Tuan6_12A1</small>
-
-                        <base-button class="btn-success" @click="ExportToExcel">Xuất ra file xlsx</base-button>
-                    </div>
                 </div>
-                
-            </div>
+            </div> 
+      </modal>
 
-        </card>
-
-        <modal :show.sync="absencesDetailModal"
-               body-classes="p-0"
-               modal-classes="modal-dialog-centered modal-lg">
-
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0" >
-                <template>
-                    <div class="text-muted text-center mb-3" v-if="this.lessonDetail">
-                        <h4 class="text-dark">Danh sách học sinh nghỉ tiết {{this.lessonDetail.time_slot.code}} ngày {{this.lessonDetail.day}} ({{this.getDayNameVN(this.getDayOfWeek(this.lessonDetail.day))}})</h4>
-                    </div>
-                </template>
-                <template>
-                    <base-table :data="absenceStudentList" :columns="student_columns">
-                    <template slot="columns">
-                        
-                      <th>ID</th>
-                      <th>Họ và tên</th>
-                      <th class="text-right">Actions</th>
-                    </template>
-                    <template slot-scope="{ row }">
-                      <td>{{ row.student.account }}</td>
-                      <td>{{ row.student.full_name }}</td>
-                      <td class="td-actions text-right">
-                        <base-button type="info" size="sm" icon @click="toggleDetail(row.account)">
-                          <i class="tim-icons icon-single-02"></i>
-                        </base-button>
-                      </td>
-                    </template>
-                  </base-table>
-                </template>
-                
-            </card>
-        </modal> 
-        
-      </div>
     </div>
-    
+  </div>
 </template>
 
 <script>
-import Card from "../../components/Cards/Card.vue";
-import axios from "../../services/axios";
-import Modal from '../../components/Modal.vue';
-import * as XLSX from 'xlsx';
-import BaseButton from '../../components/BaseButton.vue';
-import BaseTable from '../../components/BaseTable.vue';
+import { Card, BaseButton, BaseInput, Modal } from "@/components";
+import axios from "@/services/axios";
 
-let API_URL = ""
-
-        
-  export default {
-    components: { BaseButton, Modal, Card, BaseTable },
-    props: {
-        room: {
-        type: Object, 
-        required: true,
-        default: "room",
-        }
-    },
-    data(){
-        return {
-            absencesDetailModal: false,
-            absenceStudentList: null,
-            absentListMap: {}, // Lưu danh sách học sinh vắng cho mỗi tiết
-            lessonDetail: null,
-            student_columns: ["attendance_time", "id", "session" , "status" , "student"],
-            semesters: null,
-            weeks: [],
-            semesterSelected: null,
-            weekSelected: null,
-            currentWeek: null,
-            weekData: null,
-            checkTimeTable: false,
-
-            timetableData: null,
-            dynamicData: [ { name: 'John Doe', age: 30 },
-            { name: 'Jane Smith', age: 25 },],
-        }
-    },
-    mounted() {
-      this.initializeData();
-      this.getCurrentSemester();
-    },
-    methods: {
-        getCurrentSemester(){
-
-            const token = localStorage.getItem('access_token');
-            let apiURL = "";
-                apiURL = API_URL+`/managements/check-semester/`
-            
-            axios.get(apiURL, {
-                headers: {
-                'Authorization': `Bearer ${token}`  // Đính kèm token vào headers
-                }
-            })
-            .then((response) => {
-                this.semesterSelected = response.data
-                this.weekSelected = "hiện tại"
-                this.weekData = this.semesterSelected.current_week
-                this.getWeekData();
-                this.getTimeTable();
-            })
-            .catch(error => {
-                console.error("Error", error);
-                this.$notify({
-                type: 'danger',
-                icon: 'tim-icons icon-alert-circle-exc',
-                message: "Lấy thông tin hoc ky hien tai that bai",
-                timeout: 3000,
-                verticalAlign: 'top',
-                horizontalAlign: 'center',
-                });
-            });
-        },
-        toggleAbsenseDetail(lesson){
-            this.absencesDetailModal = true;
-            this.lessonDetail = lesson
-            this.getAbsenceStudentList(lesson);
-        },
-        getAbsenceStudentList(lesson){
-            const token = localStorage.getItem("access_token");
-            axios
-            .get(API_URL+`/rooms_managements/attendances/?status=false&session=${lesson.id}&q={student{account,full_name}}`,  {
-            headers: {
-                Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-                "Content-Type": "application/json",
-            },
-            })
-            .then((response) => {
-            this.absenceStudentList = response.data 
-            console.log(this.absenceStudentList)
-            })
-            .catch((error) => {
-            console.error("Error ", error);
-            this.$notify({
-                    type: "warning",
-                    icon: 'tim-icons icon-bell-55',
-                    message: "Lấy danh sách học sinh nghỉ học thất bại",
-                    timeout: 3000,
-                    verticalAlign: "top",
-                    horizontalAlign: "right",
-                });
-            });       
-        },
-        shortenName(fullName) {
-            const nameParts = fullName.trim().split(' '); // Tách tên thành các phần
-            if (nameParts.length == 3) return nameParts.slice(1).join(' '); // Nếu chỉ có một phần, trả về tên gốc
-            if (nameParts.length == 4) return nameParts.slice(2).join(' '); // Lấy các phần sau họ và ghép lại
-            return fullName
-        },
-        getTimeTable() {
-            console.log("test")
-            console.log(this.weekSelected)
-            console.log(this.semesterSelected)
-            if(!this.weekSelected || !this.semesterSelected){
-            this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: "Vui lòng chọn đầy đủ lựa chọn học kỳ, tuần.",
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-            });
-            return
-            }
-            this.checkTimeTable =false;
-
-            this.timetableData = this.initializeTimetableData()
-
-            let date = null
-            if(this.weekSelected === "hiện tại") {
-            date = new Date();
-            }
-            else {
-            // Chuyển đổi weekSelected thành số nguyên
-            const week_number = parseInt(this.weekSelected, 10);
-            
-            const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
-            // Tính toán ngày bằng cách cộng thêm số tuần đã chọn
-            date = new Date(semesterStartDate);
-            date.setDate(semesterStartDate.getDate() + (week_number - 1) * 7);
-            }
-            const startOfWeek = this.getStartOfWeek(date);
-            const endOfWeek = this.getEndOfWeek(date);
-            const startDate = this.formatDate(startOfWeek);
-            const endDate = this.formatDate(endOfWeek);
-            const token = localStorage.getItem("access_token");
-
-            const api = API_URL + `/managements/sessions?semester_code__code=${this.semesterSelected.semester}&room_id=${this.room.id}&start_date=${startDate}&end_date=${endDate}`;
-            axios
-            .get(api, {
-                headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                },
-            })
-            .then((response) => {
-                this.lessons = response.data;
-                console.log(this.lessons)
-                if(response.data.length === 0) {
-                this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: "Không tồn tại kết quả tiết học của lớp " +this.room.name + " trong tuần " + this.weekData,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-                });
-                }
-                else {
-                this.timetableData = this.formatTimetableData(this.lessons);
-
-                this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: "Lọc thành công sổ đầu bài lớp " +this.room.name + " tuần " + this.weekData,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-                });
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting timetable:", error);
-            });
-        },
-        getStartOfWeek(date) {
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
-        },
-        getEndOfWeek(date) {
-            const startOfWeek = this.getStartOfWeek(date);
-            return new Date(startOfWeek.setDate(startOfWeek.getDate() + 6));
-        },
-        formatDate(date) {
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        },
-        getDayOfWeek(dateString) {
-            const date = new Date(dateString);
-            const day = date.getDay();
-            return (day === 0) ? 6 : day - 1; // Chủ nhật là 6
-        },
-        initializeTimetableData() {
-            // Tạo một mảng với các tiết từ 1 đến 5
-            return Array.from({ length: 6 }, (_, index) => ({
-            period: index + 1,
-            monday: null,
-            tuesday: null,
-            wednesday: null,
-            thursday: null,
-            friday: null,
-            saturday: null,
-            sunday: null,
-            }));
-        },
-        formatTimetableData(lessons) {
-            // Cập nhật bảng thời khóa biểu với các tiết học
-            lessons.forEach(lesson => {
-            const periodIndex = lesson.time_slot.code - 1;
-            console.log(periodIndex)
-            const dayOfWeek = this.getDayOfWeek(lesson.day);
-            if (this.timetableData[periodIndex]) {
-                this.timetableData[periodIndex][this.getDayName(dayOfWeek)] = lesson; // Thêm lesson vào đúng ngày
-                
-                // Nếu có học sinh vắng, lấy danh sách
-                if (lesson.absences > 0) {
-                    this.fetchAbsentStudents(lesson);
-                }
-            }
-            });
-            console.log(this.timetableData)
-            return this.timetableData;
-        },
-        getDayName(day) {
-            switch (day) {
-            case 0: return 'monday';
-            case 1: return 'tuesday';
-            case 2: return 'wednesday';
-            case 3: return 'thursday';
-            case 4: return 'friday';
-            case 5: return 'saturday';
-            default: return 'sunday';
-            }
-        },
-        getDayNameVN(day) {
-            switch (day) {
-            case 0: return 'Thứ Hai';
-            case 1: return 'Thứ Ba';
-            case 2: return 'Thứ Tư';
-            case 3: return 'Thứ Năm';
-            case 4: return 'Thứ Sáu';
-            case 5: return 'Thứ Bảy';
-            default: return 'Chủ nhật';
-            }
-        },
-        takeWeekData(){
-            if(this.weekSelected === "hiện tại") {
-            this.weekData = this.currentWeek
-            }
-            else this.weekData = this.weekSelected
-        },
-        getWeekData(){
-            console.log("test")
-            console.log(this.semesterSelected)
-            if(!this.semesterSelected) return;
-
-            else {
-            const arr = ["hiện tại"];
-            // let number_of_week = this.semesterSelected.weeks_count
-            let number_of_week = 15
-
-            const semesterStartDate = new Date(this.semesterSelected.start_date); // Ngày bắt đầu của học kỳ
-            const currentDate = new Date();
-
-            // Tính toán tuần hiện tại
-            const diffTime = currentDate - semesterStartDate; // Chênh lệch thời gian
-            this.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; // Tính số tuần
-
-            for (let i = 1; i <= number_of_week; i++) {
-                arr.push(i);
-            }
-            this.weeks = arr
-            } 
-        },
-        async initializeData() {
-        try {
-          await this.getApiUrl();
-          await this.getSemesterData();
-        } catch (error) {
-          console.error('Error initializing data:', error);
-        }
-      },
-      getApiUrl() {
-        return new Promise((resolve) => {
-          API_URL = this.$t("dashboard.apiURL");
-          resolve();
-        });
-      },
-      getSemesterData() {
-        if (this.semesters) return;
+export default {
+  components: {
+    Card,
+    BaseButton,
+    BaseInput,
+    Modal
+  },
+  data() {
+    return {
+      API_URL: "",
+      rooms: [],
+      allSessions: [], // Store all sessions for the selected semester and week
+      weekSelected: null,
+      semesterSelected: null,
+      semesters: [],
+      weeks: [],
+      showReportModal: false,
+      selectedRoom: null,
+      timetableData: null,
+      absentListMap: {},
+      currentWeek: null,
+      loading: false
+      // Remove modal related properties
+    };
+  },
+  async created() {
+    this.API_URL = this.$t("dashboard.apiURL") || "";
+    try {
+      this.loading = true;
+      await this.getSemesters();
+      await this.getCurrentSemesterAndWeek();
+      await this.getRooms();
+      await this.getAllSessions();
+      this.loading = false;
+    } catch (error) {
+      console.error("Error during initialization:", error);
+      this.loading = false;
+      this.$notify({
+        type: 'danger',
+        icon: 'tim-icons icon-alert-circle-exc',
+        message: "Lỗi khởi tạo dữ liệu: " + error.message,
+        timeout: 3000,
+        verticalAlign: 'top',
+        horizontalAlign: 'center',
+      });
+    }
+  },
+  methods: {
+    async getSemesters() {
+      try {
         const token = localStorage.getItem("access_token");
-
-        axios
-          .get(API_URL + "/managements/semesters/", {
+        const response = await axios.get("/managements/semesters/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        });
+        this.semesters = response.data;
+      } catch (error) {
+        console.error("Error fetching semesters:", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy danh sách học kỳ thất bại",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+      }
+    },
+    async getCurrentSemesterAndWeek() {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`/managements/check-semester/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const currentSemester = response.data;
+        this.semesterSelected = currentSemester.semester;
+        this.currentWeek = currentSemester.current_week;
+        this.weekSelected = this.currentWeek;
+        
+        // Fetch the complete semester information to get the weeks_count
+        await this.updateWeekOptions();
+      } catch (error) {
+        console.error("Error getting current semester:", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy thông tin học kỳ hiện tại thất bại",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+      }
+    },
+    async updateWeekOptions() {
+      try {
+        if (!this.semesterSelected) return;
+        
+        const selectedSemester = this.semesters.find(s => s.code === this.semesterSelected);
+        
+        if (selectedSemester && selectedSemester.weeks_count) {
+          this.generateWeekOptions(selectedSemester.weeks_count);
+        } else {
+          const token = localStorage.getItem("access_token");
+          const response = await axios.get(`/managements/semesters/?code=${this.semesterSelected}`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            this.semesters = response.data;
-          })
-          .catch((error) => {
-            console.error("Error getting semester data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy dữ liệu học kỳ thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
+            }
           });
-      },
-
-
-    ExportToExcel() {
-      const fileName = document.getElementById('fileNameInput').value || 'DynamicData';
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.table_to_sheet(document.getElementById('tableDiv').querySelector('table'));
-      XLSX.utils.book_append_sheet(wb, ws, 'Dynamic Data');
-      XLSX.writeFile(wb, `${fileName}.xlsx`);
+          
+          if (response.data && response.data.length > 0) {
+            const semester = response.data[0];
+            this.generateWeekOptions(semester.weeks_count || 15);
+          } else {
+            this.generateWeekOptions(15);
+          }
+        }
+      } catch (error) {
+        console.error("Error updating week options:", error);
+        this.generateWeekOptions(15);
+      }
     },
-
-    fetchAbsentStudents(lesson) {
-        if (!lesson || lesson.absences <= 0) return;
-        
-        const token = localStorage.getItem("access_token");
-        axios
-        .get(API_URL+`/rooms_managements/attendances/?status=false&session=${lesson.id}&q={student{account,full_name}}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        })
-        .then((response) => {
-            // Sử dụng $set để đảm bảo Vue cập nhật UI khi thay đổi giá trị của đối tượng
-            this.$set(this.absentListMap, lesson.id, response.data);
-        })
-        .catch((error) => {
-            console.error("Error fetching absent student list:", error);
+    generateWeekOptions(weekCount) {
+      const arr = [];
+      for (let i = 1; i <= weekCount; i++) {
+        arr.push(i);
+      }
+      this.weeks = arr;
+    },
+    async getRooms() {
+      try {
+        const response = await axios.get("/managements/rooms/");
+        this.rooms = response.data;
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lấy danh sách lớp học thất bại",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
         });
+      }
+    },
+    async getAllSessions() {
+      try {
+        this.loading = true;
+        if (!this.semesterSelected || !this.weekSelected) {
+          throw new Error("Chưa chọn học kỳ hoặc tuần");
+        }
+        
+        const selectedSemester = this.semesters.find(s => s.code === this.semesterSelected);
+        let startDate, endDate;
+        
+        if (selectedSemester && selectedSemester.start_date) {
+          const dates = this.calculateWeekDates(selectedSemester.start_date, this.weekSelected);
+          startDate = dates.startDate;
+          endDate = dates.endDate;
+        } else {
+          // Get semester details if not available
+          const token = localStorage.getItem("access_token");
+          const semesterResponse = await axios.get(`/managements/semesters/?code=${this.semesterSelected}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+          });
+          
+          if (semesterResponse.data && semesterResponse.data.length > 0) {
+            const semester = semesterResponse.data[0];
+            if (semester.start_date) {
+              const dates = this.calculateWeekDates(semester.start_date, this.weekSelected);
+              startDate = dates.startDate;
+              endDate = dates.endDate;
+            } else {
+              throw new Error("Không tìm thấy ngày bắt đầu của học kỳ");
+            }
+          } else {
+            throw new Error("Không tìm thấy thông tin học kỳ");
+          }
+        }
+        
+        // Now fetch all sessions for this semester and date range
+        const token = localStorage.getItem("access_token");
+        // Use the date range in the API query - use exact date range with __gte and __lte
+        const api = `/managements/sessions/?semester_code__code=${this.semesterSelected}&day__gte=${startDate}&day__lte=${endDate}`;
+        
+        console.log(`Fetching sessions for semester ${this.semesterSelected}, week ${this.weekSelected}, dates ${startDate} to ${endDate}`);
+        
+        const response = await axios.get(api, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        
+        // Clear previous data
+        this.allSessions = [];
+        
+        // Only include sessions within the exact date range
+        this.allSessions = response.data.filter(session => {
+          const sessionDate = new Date(session.day);
+          const startDateObj = new Date(startDate);
+          const endDateObj = new Date(endDate);
+          
+          // Ensure the session date is within the week's range (inclusive)
+          return sessionDate >= startDateObj && sessionDate <= endDateObj;
+        });
+        
+        console.log(`Retrieved ${this.allSessions.length} sessions for week ${this.weekSelected}`);
+        
+        this.$notify({
+          type: "success",
+          icon: 'tim-icons icon-bell-55',
+          message: `Đã tải ${this.allSessions.length} tiết học của tuần ${this.weekSelected}`,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        
+        this.loading = false;
+        
+      } catch (error) {
+        this.loading = false;
+        console.error("Error fetching all sessions:", error);
+        this.$notify({
+          type: "danger",
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Lỗi khi tải dữ liệu tiết học: " + error.message,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "center",
+        });
+      }
+    },
+    onSemesterChange() {
+      this.updateWeekOptions();
+      this.weekSelected = 1; // Reset to first week when semester changes
+      this.getAllSessions(); // Reload sessions for new semester and week
+    },
+    async getWeeklyReports() {
+      // When filters change, reload all sessions
+      this.timetableData = null; // Clear existing timetable data
+      this.absentListMap = {}; // Clear existing absent data
+      this.showReportModal = false; // Close any open report modal
+      
+      await this.getAllSessions();
+      
+      // If a room is already selected, refresh the report
+      if (this.selectedRoom) {
+        this.showRoomReport(this.selectedRoom);
+      }
+      
+      this.$notify({
+        type: "success",
+        icon: 'tim-icons icon-bell-55',
+        message: "Đã lọc danh sách lớp theo học kỳ " + this.semesterSelected + ", tuần " + this.weekSelected,
+        timeout: 3000,
+        verticalAlign: "top",
+        horizontalAlign: "right",
+      });
+    },
+    showRoomReport(room) {
+      this.selectedRoom = room;
+      this.showReportModal = true;
+      
+      // Reset data structures
+      this.timetableData = this.initializeTimetableData();
+      this.absentListMap = {};
+      
+      // Filter sessions for this room from the current week's data only
+      const roomSessions = this.allSessions.filter(session => 
+        session.room_id && session.room_id.id === room.id
+      );
+      
+      console.log(`Filtering sessions for room ${room.id} (${room.name}) in week ${this.weekSelected}: found ${roomSessions.length} sessions`);
+      
+      if (roomSessions.length === 0) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-alert-circle-exc',
+          message: "Không tìm thấy dữ liệu tiết học của lớp " + room.name + " trong tuần " + this.weekSelected,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else {
+        // Process and display the sessions
+        this.formatTimetableData(roomSessions);
+        
+        this.$notify({
+          type: "success",
+          icon: 'tim-icons icon-bell-55',
+          message: "Đã tải báo cáo lớp " + room.name + ", tuần " + this.weekSelected,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      }
+    },
+    calculateWeekDates(semesterStartDateStr, weekNumber) {
+      const semesterStartDate = new Date(semesterStartDateStr);
+      
+      // Calculate the start of the selected week
+      const startOfWeek = new Date(semesterStartDate);
+      startOfWeek.setDate(semesterStartDate.getDate() + (weekNumber - 1) * 7);
+      
+      // Calculate the end of the selected week (6 days later)
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      
+      return {
+        startDate: this.formatDate(startOfWeek),
+        endDate: this.formatDate(endOfWeek)
+      };
+    },
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+    initializeTimetableData() {
+      // Create a data structure for the timetable with all days initialized
+      return Array.from({ length: 6 }, (_, index) => ({
+        period: index + 1,
+        monday: null,
+        tuesday: null,
+        wednesday: null,
+        thursday: null,
+        friday: null,
+        saturday: null,
+        sunday: null,
+      }));
+    },
+    formatTimetableData(sessions) {
+      console.log("Formatting timetable data from sessions:", sessions);
+      
+      // Reset the absent list map
+      this.absentListMap = {};
+      
+      // Initialize timetable data structure
+      this.timetableData = this.initializeTimetableData();
+      
+      // Organize the sessions by day and period
+      sessions.forEach(session => {
+        try {
+          const day = this.getDayOfWeek(session.day);
+          const dayName = this.getDayName(day);
+          const periodIndex = session.time_slot.code - 1;
+          
+          console.log(`Processing session: day=${dayName}, period=${periodIndex+1}, subject=${session.subject_code?.name}`);
+          
+          if (periodIndex >= 0 && periodIndex < 6) {
+            // Make sure we're properly setting this property
+            this.$set(this.timetableData[periodIndex], dayName, session);
+            
+            // If there are absences, fetch the list of absent students
+            if (session.absences && session.absences > 0) {
+              this.fetchAbsentStudents(session);
+            }
+          }
+        } catch (error) {
+          console.error("Error processing session:", session, error);
+        }
+      });
+      
+      console.log("Timetable data after formatting:", JSON.parse(JSON.stringify(this.timetableData)));
+      return this.timetableData;
+    },
+    getDayOfWeek(dateString) {
+      try {
+        const date = new Date(dateString);
+        const day = date.getDay(); // 0 is Sunday, 1 is Monday, etc.
+        return day === 0 ? 6 : day - 1; // Convert to 0 = Monday, 6 = Sunday
+      } catch (error) {
+        console.error("Error parsing date:", dateString, error);
+        return 0; // Default to Monday on error
+      }
+    },
+    getDayName(day) {
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      return days[day] || 'monday'; // Default to monday if invalid day
+    },
+    getDayNameVN(day) {
+      switch (day) {
+        case 0: return 'Thứ Hai';
+        case 1: return 'Thứ Ba';
+        case 2: return 'Thứ Tư';
+        case 3: return 'Thứ Năm';
+        case 4: return 'Thứ Sáu';
+        case 5: return 'Thứ Bảy';
+        default: return 'Chủ nhật';
+      }
+    },
+    fetchAbsentStudents(lesson) {
+      if (!lesson || !lesson.id || !lesson.absences || lesson.absences <= 0) return;
+      
+      try {
+        const token = localStorage.getItem("access_token");
+        axios.get(`/rooms_managements/attendances/?status=false&session=${lesson.id}&q={student{account,full_name}}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(response => {
+          // Use $set to ensure Vue updates the UI
+          this.$set(this.absentListMap, lesson.id, response.data);
+        })
+        .catch(error => {
+          console.error("Error fetching absent student list:", error);
+        });
+      } catch (error) {
+        console.error("Error in fetchAbsentStudents:", error);
+      }
     },
 
-    }
-  };
-
+  }
+};
 </script>
+
 <style scoped>
-.table-bordered {
-    border-width: 2px;
-    border-style: solid;
-}
-
-.table-bordered td,
-.table-bordered th {
-    border-width: 2px;
-    border-style: solid;
-}
-
-td {
-    color: black;
+.table-responsive {
+  overflow-x: auto;
 }
 
 .absence-cell {
-    cursor: pointer;
-    max-height: 100px;
-    overflow-y: auto;
+  cursor: pointer;
+  max-height: 100px;
+  overflow-y: auto;
 }
 
 .absence-cell:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .absent-student-name {
-    margin-bottom: 2px;
-    font-size: 12px;
-    line-height: 1.2;
+  font-size: 12px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 
 .text-danger {
-    color: #dc3545;
+  color: #dc3545;
 }
-</style>
+
+/* Make all table text black */
+table td, 
+table th,
+table div,
+table p,
+table span {
+  color: black !important;
+}
+
+/* Make modal wider */
+:deep(.modal-xl) {
+  max-width: 95%;
+  width: 95%;
+}
+</style> 
