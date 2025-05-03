@@ -32,10 +32,10 @@
             <h4>Vui lòng chọn lớp để tiếp tục</h4>
           </div>
           
-          <div v-for="(room, index) in roomOption" :key="index" class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div v-for="(room, index) in divisionData" :key="index" class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="card class-card shadow h-100" @click="selectRoom(room)">
               <div class="card-body text-center">
-                <h4 class="card-title font-weight-bold text-dark">{{ room ? room.name : "" }}</h4>
+                <h4 class="card-title font-weight-bold text-dark">{{ room ? room.room_id : "" }}</h4>
                 <p class="text-muted">{{ subjectInfo }}</p>
               </div>
               <div class="card-footer bg-transparent">
@@ -54,7 +54,7 @@
       <div class="row mb-4">
         <div class="col-md-6">
           <h3 class="font-weight-bold section-name">
-            Lớp {{ selectedRoom.name }} - Học kỳ {{ currentSemester ? currentSemester.semester : "" }}
+            Lớp {{ selectedRoom.room_id }} - Học kỳ {{ currentSemester ? currentSemester.semester : "" }}
           </h3>
         </div>
         <div class="col-md-6">
@@ -83,10 +83,10 @@
       </div>
           
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 0">
-        <score-statistic :room-code="selectedRoom" :semester="currentSemester"></score-statistic>
+        <score-statistic :roomCode="selectedRoom" :semester="currentSemester"></score-statistic>
       </div>
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 1">
-        <score-detail :room-code="selectedRoom" :semester="currentSemester"></score-detail>
+        <score-detail :roomCode="selectedRoom" :semester="currentSemester"></score-detail>
       </div>
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 2">
         
@@ -156,6 +156,7 @@ export default {
     selectRoom(room) {
       this.selectedRoom = room;
       // Reset to first tab when changing rooms
+      this.getScoreData(room.room_id);
       this.bigLineChart.activeIndex = 0;
     },
     backToClassSelection() {

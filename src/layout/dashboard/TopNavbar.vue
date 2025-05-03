@@ -215,8 +215,8 @@ export default {
       return `${year}-${month}-${day}`;
     },
     async studyToggle(){
-      const user_role = localStorage.getItem(user_role)
-      if(!user_role == "teacher"){
+      const user_role = localStorage.getItem('user_role');
+      if (user_role !== 'teacher') {
         this.$notify({
           type: 'warning',
           icon: 'tim-icons icon-bell-55',
@@ -301,7 +301,7 @@ export default {
         this.$notify({
           type: 'danger',
           icon: 'tim-icons icon-bell-55',
-          message: "Lỗi khi kiểm tra tiết học: " + error.message,
+          message: "Lỗi khi kiểm tra tiết học: ",
           timeout: 1000,
           verticalAlign: 'top',
           horizontalAlign: 'center',

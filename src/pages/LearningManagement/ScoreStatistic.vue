@@ -8,17 +8,18 @@
               <h3>Thống kê điểm {{ roomSelected ? " Lớp "+ roomSelected : "" }} </h3>
             </div>
             <div class="col-md-7">
-              <!-- <div class="row">
-                
-                <div class="col-md-3 pl-md-1 text-center">
+              <div class="row">
+                <div class="col-md-12 text-right">
                   <base-button 
-                    class="btn btn-sm "
+                    class="btn btn-sm"
                     @click="getChartData"
                     fill
-                  >Lọc
+                  >
+                    <i class="tim-icons icon-refresh-01 mr-1"></i>
+                    Làm mới
                   </base-button>
                 </div>
-              </div> -->
+              </div>
             </div>
           </div>
         </template>
@@ -133,33 +134,47 @@ export default {
           },
         };
     },
+    props: {
+      roomCode: {
+        type: Object, 
+        required: true,
+        default: () => ({}),
+      },
+      semester: {
+        type: Object, 
+        required: true,
+        default: () => ({}),
+      }
+    },
     methods: {
       async initializeData() {
         try {
           await this.getApiUrl();
           await this.getUserData();
+          await this.getChartData();
         } catch (error) {
           console.error('Error initializing data:', error);
         }
       },
+      
       getChartData(){
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + `/adminpanel/grades/statistics/?semester_name=${this.semesterSelected.name}&room_name=${this.roomSelected}&subject=${this.subject}&score_type=${this.scoreTypeSelected}`, {
+          .get(API_URL + `/academic_results/grades_distribution/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           })
           .then((response) => {
-            let color = null;
-            if (this.semesterSelected.name == "20241") {
-              color = config.colors.primary
-            }
-            if (this.semesterSelected.name == "20242") {
-              color = config.colors.info
-            }
+            // let color = null;
+            // if (this.semesterSelected.name == "20241") {
+            //   color = config.colors.primary
+            // }
+            // if (this.semesterSelected.name == "20242") {
+            //   color = config.colors.info
+            // }
             let chartData = {
               datasets: [{
                 label: "Số lượng",
@@ -168,8 +183,8 @@ export default {
                 borderWidth: 2,
                 borderDash: [],
                 borderDashOffset: 0.0,
-                data: Object.values(response.data),      
-                borderColor: color,          
+                data: Object.values(response.data.map(item => item.count)),      
+                  
                 
               }],
               labels: ["0-0.5", "0.5-1", "1-1.5", "1.5-2", "2-2.5", "2.5-3", "3-3.5", "3.5-4", "4-4.5", "4.5-5", "5-5.5", "5.5-6", "6-6.5", "6.5-7", "7-7.5", "7.5-8", "8-8.5", "8.5-9", "9-9.5", "9.5-10"],

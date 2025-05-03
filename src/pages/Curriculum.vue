@@ -60,11 +60,11 @@
                   <h5 class="text-dark">Năm học: {{ semester.academic_year.year_name }}</h5>
                   <div class="d-flex align-items-center mb-2">
                     <i class="tim-icons icon-calendar-60 text-muted mr-2"></i>
-                    <span>Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
+                    <span class="text-dark">Ngày bắt đầu: <strong>{{ semester.start_date }}</strong></span>
                   </div>
                   <div class="d-flex align-items-center">
                     <i class="tim-icons icon-watch-time text-muted mr-2"></i>
-                    <span>Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
+                    <span class="text-dark">Số tuần: <strong>{{ semester.weeks_count }}</strong></span>
                   </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
@@ -122,10 +122,20 @@
                     <h5 class="card-title text-dark">Lớp: {{ room.name }}</h5>
                   </div>
                   <div class="card-footer d-flex justify-content-between">
-                    <base-button type="info" size="sm" icon @click="toggleRoomDetail(room)">
-                      <i class="tim-icons icon-single-02"></i>
+                    <base-button
+                      type="success"
+                      size="sm"
+                      icon
+                      @click.stop="toggleRoomDetail(room)"
+                    >
+                      <i class="tim-icons icon-settings"></i>
                     </base-button>
-                    <base-button type="danger" size="sm" icon @click="toggleRemoveRoom(room.code)">
+                    <base-button
+                      type="danger"
+                      size="sm"
+                      icon
+                      @click.stop="toggleRemoveRoom(room.code)"
+                    >
                       <i class="tim-icons icon-simple-remove"></i>
                     </base-button>
                   </div>
@@ -142,16 +152,9 @@
 
           <div v-if="selectedRoomOption" class="semester-detail">
             <!-- Nút quay lại -->
-            <!-- <button class="back-button" @click="closeSemesterDetail">
+            <button class="back-button" @click="closeSemesterDetail">
               Quay lại
-            </button> -->
-            <div class="col-12 mb-4">
-                <div class="d-flex align-items-center">
-                  <base-button type="info" size="sm" icon @click="closeSemesterDetail()" class="mr-2">
-                    <i class="tim-icons icon-minimal-left"></i>
-                  </base-button>
-                </div>
-              </div>
+            </button>
 
             <!-- Tiêu đề học kỳ -->
             <h1 class="semester-title">Học kỳ {{  selectedSemester  }} - {{ selectedRoomOption.name}}</h1>
@@ -337,7 +340,7 @@
                     </ul>
                     <div class="empty-state" v-if="(!selectedDayLessons.length) && selectedDay">
                       <i class="fas fa-calendar-times"></i>
-                      <p>Không có tiết học nào.</p>
+                      <p class="text-dark">Không có tiết học nào.</p>
                     </div>
                     <div class="empty-state" v-if="(!selectedDayLessons.length) && !selectedDay">
                       <i class="tim-icons icon-calendar-60"></i>
@@ -353,6 +356,44 @@
               </div>
             </div>
 
+
+
+            <!-- Phân công giáo viên section -->
+            <div v-if="optionSelected == 3" class="card-container teacher-assignment">
+              <div class="row">
+                <div class="col-12">
+                  <div class="teacher-assignment-header">
+                    <h3>Phân công giáo viên cho lớp {{ selectedRoomOption.name }}</h3>
+                    <p class="text-muted">Quản lý phân công giáo viên cho các môn học</p>
+                  </div>
+                  
+                  <div class="teacher-assignment-content">
+                    <base-table :data="subjectData" :columns="subject_columns">
+                      <template slot="columns">
+                        <th>ID</th>
+                        <th>Tên môn học</th>
+                        <th>Mô tả</th>
+                        <th>Giáo viên</th>
+                        <th class="text-right">Actions</th>
+                      </template>
+                      <template slot-scope="{ row }">
+                        <td>{{ row.code }}</td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.description }}</td>
+                        <td>{{ row.assigned_teacher ? row.assigned_teacher.full_name : 'Chưa phân công' }}</td>
+                        <td class="td-actions text-right">
+                          <base-button type="info" size="sm" icon @click="openAssignTeacherModal(row)">
+                            <i class="tim-icons icon-single-02"></i>
+                          </base-button>
+                        </td>
+                      </template>
+                    </base-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          
           </div>
         </div>
 
@@ -424,6 +465,8 @@
           </base-button>
         </div> -->
 
+        
+        
         <!-- Tiết học -->
         <div v-if="bigLineChart.activeIndex === 1">
           <base-table :data="timeslotData" :columns="timeslot_columns">
@@ -479,6 +522,8 @@
                   <i class="tim-icons icon-simple-add"></i>
           </base-button>
         </div>
+
+        
 
       </card>
 
@@ -860,7 +905,6 @@
                         </div>
                 </template>
             </card>
-
             
 
         </modal>
@@ -879,7 +923,93 @@
             </template>
         </modal>
 
-      
+        <!-- Teacher Assignment Modal -->
+        <modal :show.sync="modals.assignTeacherModal"
+               body-classes="p-0"
+               modal-classes="modal-dialog-centered modal-sm">
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-dark">Phân công giáo viên</h4>
+                        <p v-if="modals.selectedSubject">Môn: {{ modals.selectedSubject.name }}</p>
+                    </div>
+                </template>
+                <template>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Chọn giáo viên</label>
+                                <select v-model="modals.selectedTeacher" class="form-control">
+                                    <option v-for="teacher in teacherData" 
+                                            :key="teacher.account" 
+                                            :value="teacher.account">
+                                        {{ teacher.full_name }} - {{ teacher.account }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <base-button @click="assignTeacherToSubject" type="success" class="my-4">Xác nhận</base-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </card>
+        </modal>
+
+        <!-- Remove Room Modal -->
+        <modal :show.sync="modals.removeRoomModal">
+            <h4 slot="header" class="modal-title" id="modal-title-default">Xác nhận xóa lớp {{ modals.roomToDelete ? modals.roomToDelete.name : '' }}</h4>
+            <template slot="footer">
+                <base-button type="secondary" @click="deleteRoom">Xác nhận</base-button>
+                <base-button type="danger" class="ml-auto" @click="modals.removeRoomModal = false">Hủy
+                </base-button>
+            </template>
+        </modal>
+
+        <!-- Edit Room Modal -->
+        <modal :show.sync="modals.editRoomModal"
+               body-classes="p-0"
+               modal-classes="modal-dialog-centered modal-sm">
+            <card type="secondary"
+                  header-classes="bg-white pb-5"
+                  body-classes="px-lg-5 py-lg-5"
+                  class="border-0 mb-0">
+                <template>
+                    <div class="text-muted text-center mb-3">
+                        <h4 class="text-dark">Cập nhật thông tin lớp học</h4>
+                    </div>
+                </template>
+                <template>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label>Tên lớp</label>
+                                <input type="text" class="form-control" v-model="modals.roomEdit.name">
+                            </div>
+                            <div class="form-group">
+                                <label>Giáo viên chủ nhiệm</label>
+                                <select v-model="modals.roomEdit.manager" class="form-control">
+                                    <option value="">Không có</option>
+                                    <option v-for="teacher in teacherData" 
+                                            :key="teacher.account" 
+                                            :value="teacher.account"
+                                            :selected="modals.roomEdit.manager === teacher.account">
+                                        {{ teacher.full_name }} - {{ teacher.account }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <base-button @click="updateRoom" type="success" class="my-4">Cập nhật</base-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </card>
+        </modal>
+
       
 
     </div>
@@ -993,6 +1123,21 @@ export default {
         plannedLessonDetail: null,
         timeslotDetail: null,
         subjectDetail: null,
+        assignTeacher: false,
+        selectedSubject: {
+          name: ""
+        },
+        selectedTeacher: null,
+        availableTeachers: [],
+        assignTeacherModal: false,
+        removeRoomModal: false,
+        roomToDelete: null,
+        editRoomModal: false,
+        roomEdit: {
+          id: null,
+          name: '',
+          manager: null
+        },
     },
     successValue: 0,
     intervalId: null,
@@ -1080,7 +1225,7 @@ export default {
     room_columns: ["name", "students", "homeroom_teacher"],
     plannedlesson_columns: ["id", "subject", "lesson_number", "name_lesson", "semester", "room"],
     timeslot_columns: ["code", "start_time", "end_time"],
-    subject_columns: ["code", "name", "description"],
+    subject_columns: ["code", "name", "description", "assigned_teacher"],
     lesson_columns: ["user", "full_name", "sex", "day_of_birth", "description"],
       semesterData: null,
       roomData: null,
@@ -1188,28 +1333,26 @@ export default {
   methods: {
     createOneSession(){
       const token = localStorage.getItem("access_token");
-      let data = this.modals.sessionCreate
-      console.log(data)
       axios
-        .post(API_URL+"/managements/sessions/", data, {
+        .post(API_URL+`/managements/sessions/`, this.modals.sessionCreate, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-           this.$notify({
+          this.modals.updateModal = false
+          this.createSessionModal = false;
+          this.$notify({
                 type: "success",
                 icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thành công`,
+                message: "Thêm tiết học thành công",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
               });
-              this.createSessionModal = false;
-              this.modals.updateModal = false
-              this.getSession();
-
+          this.getSession();
+          this.selectDay(this.selectedDay)
         })
         .catch((error) => {
           console.error("Error create data :", error);
@@ -1217,7 +1360,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thất bại`,
+                message: "Lấy tiết học thất bại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1225,42 +1368,7 @@ export default {
         });
     },
     createFullSession(){
-      const token = localStorage.getItem("access_token");
-      let data = this.modals.sessionCreate
-      console.log(data)
-      axios
-        .post(API_URL+"/managements/generate-timetable/", data, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-           this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: response.data.message,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-              this.createSessionModal = false;
-              this.modals.updateModal = false
-              this.getSession();
 
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Thêm tiết học thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
     },
     selectDay(date) {
       console.log(date); // Kiểm tra giá trị của date
@@ -1382,7 +1490,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Lấy chi tiết tiết học thất bại`,
+                message: "Lấy chi tiết tiết học thất bại",
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1541,13 +1649,71 @@ export default {
     // selectAction(action) {
     //   this.selectedAction = action; // Cập nhật nút được chọn
     // },
+    async processAccount(account) {
+      try {
+        if (!this.selectedRoomOption || !this.selectedRoomOption.id) {
+          throw new Error('No room selected or invalid room ID');
+        }
+
+        let apiUrl = API_URL + `/users/students/${account[2]}/`;
+        let data = {
+          "rooms": [this.selectedRoomOption.id]
+        };
+        const token = localStorage.getItem("access_token");
+
+        // First, check if student is already in the class
+        try {
+          const checkResponse = await axios.get(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          // If student's current rooms include our target room, they're already in the class
+          if (checkResponse.data.rooms && checkResponse.data.rooms.includes(this.selectedRoomOption.id)) {
+            console.log("Student already in class:", account[2]);
+            return { status: 'existing' };
+          }
+        } catch (error) {
+          console.error("Error checking student status:", error);
+        }
+
+        // If we get here, attempt to add the student
+        const response = await axios.patch(apiUrl, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.data.detail?.toLowerCase().includes("already")) {
+          console.log("Student already in class (from PATCH response):", account[2]);
+          return { status: 'existing' };
+        } else {
+          console.log("New student added:", account[2]);
+          return { status: 'success' };
+        }
+      } catch (error) {
+        console.error("Error processing account:", error);
+        return { status: 'error', error };
+      }
+    },
+
     async registerAccountsTest() {
       this.tableSuccess = [];
       if (!this.tableData.length) {
-        alert("Không có account nào để xử lý.");
+        this.$notify({
+          type: "warning",
+          icon: "tim-icons icon-bell-55",
+          message: "Không có account nào để xử lý.",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
         return;
       }
-      console.log("sheetName"+this.sheetName)
+
       if(this.sheetName != "Cập nhật học sinh"){
         this.$notify({
           type: "danger",
@@ -1561,92 +1727,100 @@ export default {
       }
 
       this.inProgress = true;
-      this.successValue = 0;
       this.value = 0;
       this.max = this.tableData.length;
       this.processedCount = 0;
+      this.successValue = 0;
 
-      // Khởi chạy tiến trình cập nhật progress bar
-      this.startProgressUpdate();
-
-      // Xử lý từng account
-      for (const account of this.tableData) {
-        try {
-          await this.processAccount(account);
-          this.processedCount++; // Cập nhật số account đã xử lý
-        } catch (error) {
-          console.error("Lỗi khi xử lý account:", error);
-        }
-      }
-
-      // Dừng tiến trình khi hoàn thành
-      this.stopProgressUpdate();
-      this.$notify({
-            type: "success",
-            icon: 'tim-icons icon-check-2',
-            message: "Số học sinh mới được thêm vào lớp : "+this.successValue,
-            timeout: 3000,
-            verticalAlign: "top",
-            horizontalAlign: "right",
-          });
-    },
-    startProgressUpdate() {
-      // Khởi tạo setInterval để cập nhật progress bar mỗi 0,5 giây
-      this.intervalId = setInterval(() => {
-        this.value = this.processedCount; // Cập nhật giá trị dựa trên số account đã xử lý
-      }, 500);
-    },
-    stopProgressUpdate() {
-      // Dừng setInterval và đặt lại trạng thái
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      this.inProgress = false;
-    },
-    async processAccount(account) {
+      // Get initial student count
+      let initialStudentCount = 0;
       try {
-        let apiUrl = API_URL + `/users/students/${account[2]}/`;
-        let data = {
-          "room": this.selectedRoomOption.name
-          
-        };
-        console.log(apiUrl)
         const token = localStorage.getItem("access_token");
-
-        const response = await axios.put(apiUrl, data, {
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        this.successValue++;
-        this.tableSuccess.push(account);
+        initialStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting initial student count:", error);
+      }
+
+      // Start progress bar update
+      this.intervalId = setInterval(() => {
+        this.value = this.processedCount;
+      }, 500);
+
+      let hasError = false;
+
+      // Process each account
+      for (const account of this.tableData) {
+        try {
+          await this.processAccount(account);
+          this.processedCount++;
+        } catch (error) {
+          console.error("Lỗi khi xử lý account:", error);
+          hasError = true;
+        }
+      }
+
+      // Stop progress bar update
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.inProgress = false;
+
+      // Get final student count
+      let finalStudentCount = 0;
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(API_URL + `/users/students/?rooms=${this.selectedRoomOption.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        finalStudentCount = response.data.length;
+      } catch (error) {
+        console.error("Error getting final student count:", error);
+      }
+
+      // Calculate number of new students added
+      const newStudentsAdded = finalStudentCount - initialStudentCount;
+      this.successValue = newStudentsAdded;
+
+      // Show appropriate notification based on results
+      if (newStudentsAdded === 0) {
+        this.$notify({
+          type: "info",
+          icon: 'tim-icons icon-bell-55',
+          message: "Không có học sinh mới nào được thêm vào lớp",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else if (hasError) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp. Một số học sinh không thể thêm do lỗi.`,
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      } else {
         this.$notify({
           type: "success",
-          icon: "tim-icons icon-check-2",
-          message: response.data.detail,
+          icon: 'tim-icons icon-check-2',
+          message: `Đã thêm thành công ${newStudentsAdded} học sinh mới vào lớp`,
           timeout: 3000,
           verticalAlign: "top",
           horizontalAlign: "right",
         });
-
-        return true; // Xử lý thành công
-      } catch (error) {
-        console.error("Error registering accounts:", error);
-
-        const errorMessage =
-          error.response?.data ||
-          "Có lỗi xảy ra. Vui lòng thử lại sau";
-        this.$notify({
-          type: "danger",
-          icon: "tim-icons icon-bell-55",
-          message: errorMessage,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        return false; // Xử lý thất bại
       }
+
+      // Reset success value after showing notification
+      this.successValue = 0;
     },
     triggerFileUpload() {
       this.$refs.fileInput.click(); // Trigger file input click event
@@ -1683,35 +1857,13 @@ export default {
       }
     },
     toggleRoomDetail(room){
-      this.modals.roomDetailModal = true;
-      this.selectedFile = null;
-      this.modals.roomDetail = room
-      console.log(this.modals.roomDetail)
-
-      //get all student of room
-      const token = localStorage.getItem("access_token");
-      axios
-        .get(API_URL+`/managements/${this.modals.roomDetail.code}/students/`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          this.studentData = response.data
-        })
-        .catch((error) => {
-          console.error("Error get user data :", error);
-
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: `Lấy danh sách học sinh lớp ${this.modals.roomDetail.name} thất bại`,
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
+      this.modals.editRoomModal = true;
+      this.modals.roomEdit = {
+          id: room.id,
+          name: room.name,
+          manager: room.manager ? room.manager.account : null
+      };
+      this.getAllTeacher(); // Load teachers for the dropdown
     },
     toggleSemesterDetail(code){
       this.semesterDetailStatus = false;
@@ -1720,7 +1872,12 @@ export default {
     },
     toggleRoomOptionDetail(room){
       this.roomDetailStatus = false;
-      this.selectedRoomOption = room;
+      console.log("Selected room data:", room); // Add logging
+      this.selectedRoomOption = {
+        ...room,
+        id: room.id // Ensure we capture the room ID
+      };
+      console.log("Set selectedRoomOption:", this.selectedRoomOption); // Add logging
     },
     closeSemesterDetail() {
       this.selectedRoomOption = null;
@@ -1735,18 +1892,17 @@ export default {
       this.getStudentInRoom(this.selectedRoomOption.id)
       this.getRoomData();
     },
-    getStudentInRoom(roomName){
+    getStudentInRoom(roomId){
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/users/students/?room_id=${roomName}`, {
+        .get(API_URL+`/users/students/?rooms=${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
           },
         })
         .then((response) => {
-          console.log(API_URL+`/users/students/?room_id=${roomName}`)
           this.studentData = response.data
         })
         .catch((error) => {
@@ -1755,7 +1911,7 @@ export default {
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Lấy danh sách học sinh lớp ${roomName} thất bại`,
+                message: `Lấy danh sách học sinh lớp ${this.selectedRoomOption.name} thất bại`,
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1798,9 +1954,38 @@ export default {
         });
     },
     assignTeachers() {
-      // Handle assigning teachers logic
-      alert("Phân công giáo viên");
+      this.optionSelected = 3;
+      this.selectedAction = "assignTeachers";
+      this.loadSubjects(); // Add this line to load subjects when entering teacher assignment view
     },
+
+    loadSubjects() {
+      const token = localStorage.getItem("access_token");
+      axios
+        .get(API_URL + "/managements/subjects/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.subjectData = response.data;
+        })
+        .catch((error) => {
+          console.error("Error loading subjects:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Không thể tải danh sách môn học",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+
+
     async initializeData() {
         try {
           await this.getApiUrl();
@@ -2210,6 +2395,173 @@ export default {
                 horizontalAlign: "right",
               });
         });
+    },
+    openAssignTeacherModal(subject) {
+      this.modals.selectedSubject = subject;
+      this.modals.assignTeacherModal = true;
+      this.getAllTeacher(); // Make sure we have the latest teacher data
+    },
+
+    async assignTeacherToSubject() {
+      if (!this.modals.selectedTeacher || !this.modals.selectedSubject || !this.selectedRoomOption) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: "Vui lòng chọn giáo viên",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        return;
+      }
+
+      const assignmentData = {
+        semester_code: this.selectedSemester,
+        subject_code: this.modals.selectedSubject.code,
+        room_id: this.selectedRoomOption.id,
+        teacher: this.modals.selectedTeacher
+      };
+
+      try {
+        const token = localStorage.getItem("access_token");
+        await axios.post(API_URL + "/managements/teacher-assignments/", assignmentData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        this.$notify({
+          type: "success",
+          icon: 'tim-icons icon-check-2',
+          message: "Phân công giáo viên thành công",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        this.modals.assignTeacherModal = false;
+        this.loadSubjects(); // Reload the subjects to show the updated assignment
+      } catch (error) {
+        console.error("Error assigning teacher:", error);
+        this.$notify({
+          type: "danger",
+          icon: 'tim-icons icon-bell-55',
+          message: "Phân công giáo viên thất bại. Vui lòng thử lại",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      }
+    },
+    toggleRemoveRoom(roomCode) {
+        this.modals.removeRoomModal = true;
+        // Find the room object that matches the code
+        this.modals.roomToDelete = this.roomData.find(room => room.code === roomCode);
+        console.log("Room to delete:", this.modals.roomToDelete); // Add logging
+    },
+    async deleteRoom() {
+        if (!this.modals.roomToDelete || !this.modals.roomToDelete.id) {
+            this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Không thể xác định lớp cần xóa",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("access_token");
+            await axios.delete(`${API_URL}/managements/rooms/${this.modals.roomToDelete.id}/`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            this.$notify({
+                type: "success",
+                icon: 'tim-icons icon-check-2',
+                message: `Xóa lớp ${this.modals.roomToDelete.name} thành công`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+
+            // Close modal and refresh room data
+            this.modals.removeRoomModal = false;
+            this.getRoomData();
+            
+            // If we're viewing the deleted room's details, go back to the room list
+            if (this.selectedRoomOption && this.selectedRoomOption.id === this.modals.roomToDelete.id) {
+                this.toggleSwitchSemester();
+            }
+
+        } catch (error) {
+            console.error("Error deleting room:", error);
+            this.$notify({
+                type: "danger",
+                icon: 'tim-icons icon-bell-55',
+                message: `Xóa lớp thất bại. Vui lòng thử lại`,
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+        }
+    },
+    async updateRoom() {
+        if (!this.modals.roomEdit.id) {
+            this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Không thể xác định lớp cần cập nhật",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("access_token");
+            await axios.patch(
+                `${API_URL}/managements/rooms/${this.modals.roomEdit.id}/`,
+                this.modals.roomEdit,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            this.$notify({
+                type: "success",
+                icon: 'tim-icons icon-check-2',
+                message: "Cập nhật thông tin lớp thành công",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+
+            // Close modal and refresh room data
+            this.modals.editRoomModal = false;
+            this.getRoomData();
+
+        } catch (error) {
+            console.error("Error updating room:", error);
+            this.$notify({
+                type: "danger",
+                icon: 'tim-icons icon-bell-55',
+                message: "Cập nhật thông tin lớp thất bại. Vui lòng thử lại",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+            });
+        }
     },
   },
 };
@@ -2652,6 +3004,25 @@ export default {
   font-size: 14px;
 }
 
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #9e9e9e;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  font-size: 16px;
+}
+
 .btn-add-session {
   background-color: #007bff;
   color: #fff;
@@ -2686,23 +3057,49 @@ export default {
   }
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #9e9e9e;
+
+/* Teacher Assignment Section Styles */
+.teacher-assignment {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-assignment-header {
+  margin-bottom: 30px;
   text-align: center;
 }
 
-.empty-state i {
-  font-size: 48px;
-  margin-bottom: 15px;
+.teacher-assignment-header h3 {
+  color: #1e88e5;
+  margin-bottom: 10px;
 }
 
-.empty-state p {
-  font-size: 16px;
+.teacher-assignment-content {
+  display: flex;
+  gap: 20px;
+}
+
+.subject-list, .teacher-list {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .teacher-assignment-content {
+    flex-direction: column;
+  }
+  
+  .subject-list, .teacher-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 

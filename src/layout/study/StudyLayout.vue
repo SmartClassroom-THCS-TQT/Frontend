@@ -95,20 +95,12 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
-                                <base-input disabled label="Môn" v-model="studentDetail.subject"></base-input>
-                            </div>
-                            <div class="col-md-6">
-                                <base-input disabled label="Học kỳ" v-model="studentDetail.semester"></base-input>
-                            </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-12">
                                 <base-input label="Điểm" v-model="studentDetail.grade"></base-input>
                             </div>
                         </div>
                         <div class="d-flex mt-4">
-                            <base-button @click="givenScore" type="secondary" fill>Xác nhận</base-button>
+                            <base-button @click="givenScore" type="secondary" fill>Chấm điểm</base-button>
                         </div>
                     </card>
                 </div>
@@ -419,8 +411,8 @@ export default {
     scoringAndEnroll(index){
       this.studentDetail.id = index.seating.student
       this.studentDetail.full_name = index.full_name
-      this.studentDetail.subject = this.lessonData.subject
-      this.studentDetail.semester = this.lessonData.semester
+      this.studentDetail.subject = this.lessonData.subject_code.code
+      this.studentDetail.semester = this.lessonData.semester_code.code
 
       this.currentStatus = this.getAttendanceStatus(index.account);
       this.newStatus = this.currentStatus;
@@ -549,19 +541,27 @@ export default {
         return
       }
 
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0, nên cần +1
+      const day = String(currentDate.getDate()).padStart(2, '0');        // Đảm bảo luôn có 2 chữ số
+
+      const date_assigned =  `${year}-${month}-${day}`;
+
       const data = {
         "student": this.studentDetail.id,
         "subject": this.studentDetail.subject,
         "semester": this.studentDetail.semester,
-        "score_type": "TX",
-        "grade": this.studentDetail.grade
+        "grade_type": 1,
+        "score": this.studentDetail.grade,
+        "date_assigned": date_assigned
       }
 
       console.log(data)
       const token = localStorage.getItem("access_token");
 
         axios
-        .post(API_URL+"/adminpanel/grades/", data,  {
+        .post(API_URL+"/academic_results/grades/", data,  {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",

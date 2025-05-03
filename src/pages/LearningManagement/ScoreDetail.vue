@@ -9,13 +9,14 @@
             </div>
             <div class="col-md-7">
               <div class="row">
-                
-                <div class="col-md-3 pl-md-1 text-center">
+                <div class="col-md-12 text-right">
                   <base-button 
-                    class="btn btn-sm "
-                    @click="getScoreData"
+                    class="btn btn-sm"
+                    @click="refreshScores"
                     fill
-                  >Lọc
+                  >
+                    <i class="tim-icons icon-refresh-01 mr-1"></i>
+                    Làm mới
                   </base-button>
                 </div>
               </div>
@@ -25,59 +26,206 @@
 
         <!-- Bảng điểm -->
         <div>
-          <base-table :data="scoreData" :columns="score_columns">
+          <base-table 
+            :data="students" 
+            :columns="score_columns"
+            :per-page="10"
+            :pagination-active="true"
+          >
             <template slot="columns">
-              <th>Học sinh</th>
+              <th>ID</th>
+              <th>Họ và tên</th>
               <th>Điểm</th>
               <th class="text-right">Actions</th>
             </template>
             <template slot-scope="{ row }">
-              <td>{{ row.student.full_name }}</td>
-              <td>{{ row.grade.join( ", ") }}</td>
+              <td>{{ row.account }}</td>
+              <td>{{ row.full_name }}</td>
+              <td>{{ formatScores(row.scores) }}</td>
               <td class="td-actions text-right">
-                <base-button v-if="(currentScoreType !== 'TX') && row.grade.length === 0" type="info" class="btn-simple" size="md" icon @click="toggleDetailScore(row)">
+                <base-button type="info" class="btn-simple" size="md" icon @click="toggleDetailScore(row)">
                   <i class="tim-icons icon-pencil"></i>
                 </base-button>
-                <!-- <base-button v-if="(scoreTypeSelected !== 'TX') && row.grade.length !== 0" type="info" class="btn-simple" size="md" icon @click="toggleUpdateScore(row)">
-                  <i class="tim-icons icon-refresh-02"></i>
-                </base-button> -->
               </td>
             </template>
           </base-table>
         </div>
-        
       </card>
-      <!-- score detail Modal -->
-        <modal :show.sync="scoreDetailModal"
-               body-classes="p-0"
-               modal-classes="modal-dialog-centered modal-sm">
-            <card type="secondary"
-                  header-classes="bg-white pb-5"
-                  body-classes="px-lg-5 py-lg-5"
-                  class="border-0 mb-0"
-                  v-if="scoreDetail">
-                  
-                <template>
-                    <div class="text-muted text-center mb-3">
-                        <h4 class="text-dark">Nhập điểm {{this.scoreTypeSelected}} học sinh {{ scoreDetail.student.full_name }}</h4>
-                    </div>
-                </template>
-                <template>
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="row">
-                                  <div class="col-md-12 pr-md-1 text-center">          
-                                        <base-input type="number" label="Điểm" v-model="createScore"></base-input>
-                                  </div>
-                                </div>
-
-                                <base-button @click="createGrade" type="secondary" fill>Luu</base-button>
-                            </div>
-                        </div>
-                </template>
-            </card>
-        </modal>
-
+      
+      <!-- Score Detail Modal -->
+      <modal 
+        :show.sync="scoreDetailModal"
+        body-classes="p-0"
+        modal-classes="modal-dialog-centered modal-lg"
+      >
+        <card 
+          type="secondary"
+          header-classes="bg-white pb-3"
+          body-classes="px-lg-5 py-lg-3"
+          class="border-0 mb-0"
+          v-if="scoreDetail"
+        >
+          <template slot="header">
+            <div class="text-center mb-2">
+              <h4 class="text-dark">Thông tin điểm học sinh: {{ scoreDetail.full_name }}</h4>
+              <p class="text-muted">ID: {{ scoreDetail.student_id }}</p>
+            </div>
+          </template>
+          
+          <div>
+            <div class="table-responsive">
+              <table class="table align-items-center">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Ngày</th>
+                    <th scope="col">Loại điểm</th>
+                    <th scope="col">Điểm</th>
+                    <th scope="col" class="text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="scoreDetail.grades && scoreDetail.grades.length === 0">
+                    <td colspan="4" class="text-center">Không có dữ liệu điểm</td>
+                  </tr>
+                  <tr v-for="(grade, index) in scoreDetail.grades" :key="index">
+                    <td>
+                      <div v-if="editingGrade && editingGrade.id === grade.id">
+                        <input 
+                          type="date" 
+                          class="form-control"
+                          v-model="editingGrade.date_assigned"
+                        />
+                      </div>
+                      <span v-else>{{ formatDate(grade.date_assigned) }}</span>
+                    </td>
+                    <td>
+                      <div v-if="editingGrade && editingGrade.id === grade.id">
+                        <select class="form-control" v-model="editingGrade.grade_type">
+                          <option :value="1">Kiểm tra thường xuyên</option>
+                          <option :value="2">Kiểm tra thường xuyên</option>
+                          <option :value="3">Kiểm tra thường xuyên</option>
+                        </select>
+                      </div>
+                      <span v-else>{{ getGradeTypeName(grade.grade_type) }}</span>
+                    </td>
+                    <td>
+                      <div v-if="editingGrade && editingGrade.id === grade.id">
+                        <input 
+                          type="number" 
+                          class="form-control" 
+                          v-model="editingGrade.score"
+                          min="0"
+                          max="10"
+                          step="0.5"
+                        />
+                      </div>
+                      <span v-else>{{ grade.score }}</span>
+                    </td>
+                    <td class="td-actions text-right">
+                      <div v-if="editingGrade && editingGrade.id === grade.id">
+                        <base-button type="success" size="sm" class="btn-simple mr-1" @click="saveEditGrade()">
+                          <i class="tim-icons icon-check-2"></i>
+                        </base-button>
+                        <base-button type="default" size="sm" class="btn-simple" @click="cancelEdit()">
+                          <i class="tim-icons icon-simple-remove"></i>
+                        </base-button>
+                      </div>
+                      <div v-else>
+                        <base-button type="info" size="sm" class="btn-simple mr-1" @click="startEditGrade(grade)">
+                          <i class="tim-icons icon-pencil"></i>
+                        </base-button>
+                        <base-button type="danger" size="sm" class="btn-simple" @click="confirmDeleteGrade(grade)">
+                          <i class="tim-icons icon-simple-remove"></i>
+                        </base-button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Add new grade section -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <h5 class="mb-3">Thêm điểm mới</h5>
+                <div class="row">
+                  <div class="col-md-3">
+                    <base-input
+                      label="Ngày"
+                      type="date"
+                      v-model="newGrade.date_assigned"
+                    ></base-input>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Loại điểm</label>
+                    <select class="form-control" v-model="newGrade.grade_type">
+                      <option :value="1">Kiểm tra thường xuyên</option>
+                      <!-- <option :value="2">Kiểm tra giữa kỳ</option>
+                      <option :value="3">Kiểm tra cuối kỳ</option> -->
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <base-input
+                      label="Điểm"
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.5"
+                      v-model="newGrade.score"
+                    ></base-input>
+                  </div>
+                  <div class="col-md-3 d-flex align-items-end">
+                    <base-button 
+                      type="" 
+                      class="mb-3"
+                      @click="addNewGrade"
+                      :disabled="!isNewGradeValid"
+                    >
+                      Thêm điểm
+                    </base-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <template slot="footer">
+            <base-button type="default" @click="scoreDetailModal = false">
+              Đóng
+            </base-button>
+          </template>
+        </card>
+      </modal>
+      
+      <!-- Delete Confirmation Modal -->
+      <modal 
+        :show.sync="deleteConfirmModal"
+        body-classes="p-0"
+        modal-classes="modal-dialog-centered modal-sm"
+      >
+        <card 
+          type="secondary"
+          header-classes="bg-white pb-3"
+          body-classes="px-lg-5 py-lg-3"
+          class="border-0"
+        >
+          <template slot="header">
+            <div class="text-center">
+              <h5 class="text-dark">Xác nhận xóa điểm</h5>
+            </div>
+          </template>
+          
+          <p class="text-center">Bạn có chắc chắn muốn xóa điểm này không?</p>
+          <div class="text-center">
+              <base-button type="danger" @click="deleteGrade" class="mr-2">
+                Xóa
+              </base-button>
+              <base-button type="default" @click="deleteConfirmModal = false">
+                Hủy
+              </base-button>
+            </div>
+        </card>
+      </modal>
     </div>
   </div>
 </template>
@@ -87,316 +235,409 @@ import Card from "../../components/Cards/Card.vue";
 import BaseTable from '../../components/BaseTable.vue';
 import axios from "../../services/axios";
 import Modal from '../../components/Modal.vue';
-import BarChart from "@/components/Charts/BarChart";
+
 let API_URL = "";
 
 export default {
-    components: { Card, BaseTable, Modal, BarChart },
-    mounted() {
-      this.initializeData();
+  components: { Card, BaseTable, Modal },
+  mounted() {
+    this.initializeData();
+  },
+  props: {
+    roomCode: {
+      type: Object, 
+      required: true,
+      default: () => ({}),
     },
-    computed: {
-      formattedGrade: {
-        get() {
-          return this.scoreDetail.grade.join(", "); // Chuyển mảng thành chuỗi khi hiển thị
-        },
-        set(value) {
-          // Chuyển chuỗi thành mảng và lọc ra các phần tử hợp lệ là số
-          this.scoreDetail.grade = value
-            .split(",")
-            .map(item => item.trim()) // Loại bỏ khoảng trắng thừa
-            .map(item => Number(item)) // Chuyển sang số
-            .filter(item => !isNaN(item)); // Chỉ giữ lại số hợp lệ
-        },
-      }
-    },
-    data() {
-        return {
-          currentScoreType: null,
-
-          createScore: null,
-          scoreDetailModal: false,
-          scoreDetail: null,
-          score_columns: ["student", "grade"],
-          roomSelected: null,
-          semesterSelected: null,
-          scoreTypeSelected: null,
-
-          students: null,
-
-          scoreData: null,
-          userData: null,
-          roomOption: null,
-          semesters: null,
-          scoreTypes: ["TX", "GK", "CK"],
-          subject: null,
-          
-        };
-    },
-    methods: {
-      async initializeData() {
-        try {
-          await this.getApiUrl();
-          await this.getUserData();
-        } catch (error) {
-          console.error('Error initializing data:', error);
-        }
-      },
-      getStudents(roomName){
-        const token = localStorage.getItem("access_token");
-        
-          axios
-          .get(API_URL+`/rooms/roomset/${roomName}/students/`, {
-            headers: {
-              Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-              this.students = response.data
-          })
-          .catch((error) => {
-            console.error("Error get lesson data :", error);
-
-            this.$notify({
-                  type: "warning",
-                  icon: 'tim-icons icon-bell-55',
-                  message: "Lấy chi tiết danh sách học sinh thất bại",
-                  timeout: 3000,
-                  verticalAlign: "top",
-                  horizontalAlign: "right",
-                });
-          });
-      },
-      getUserData(){
-        this.userData = JSON.parse(localStorage.getItem('user_data'));
-        this.subject = this.userData.subject
-      },
-      getApiUrl() {
-        return new Promise((resolve) => {
-          API_URL = this.$t("dashboard.apiURL");
-          resolve();
-        });
-      },
-      getRoomOption(){
-        const token = localStorage.getItem("access_token");
-
-        axios
-          // .get(API_URL + "/adminpanel/assignments/"+this.userData.user_id+"/", { //lấy lớp của giáo viên đang dạy
-          // .get(API_URL + "/rooms/roomset/", {  //lấy tất cả các lớp
-          .get(API_URL + `/adminpanel/assignments/?user_id=${this.userData.user_id}`, {
-          
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            
-            this.roomOption = response.data;
-            console.log(this.roomOption)
-          })
-          .catch((error) => {
-            console.error("Error getting room data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy danh sách lớp học thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-          });
+    semester: {
+      type: Object, 
+      required: true,
+      default: () => ({}),
+    }
+  },
+  computed: {
+    isNewGradeValid() {
+      return this.newGrade.date_assigned && 
+             this.newGrade.grade_type && 
+             this.newGrade.score !== null && 
+             this.newGrade.score !== "";
+    }
+  },
+  data() {
+    return {
+      score_columns: ["id", "name", "scores", "action"],
+      
+      students: [],
+      scoreDetail: null,
+      scoreDetailModal: false,
+      
+      editingGrade: null,
+      deleteConfirmModal: false,
+      gradeToDelete: null,
+      
+      newGrade: {
+        score: "",
+        grade_type: 1,
+        date_assigned: new Date().toISOString().substr(0, 10)
       },
       
-      getSemesterData() {
-        if (this.semesters) return;
-        const token = localStorage.getItem("access_token");
-
-        axios
-          .get(API_URL + "/adminpanel/semesters/", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            this.semesters = response.data;
-          })
-          .catch((error) => {
-            console.error("Error getting semester data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy dữ liệu học kỳ thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-          });
-      },
-      initializeScoreData() {
-        return Array.from({ length: this.students.length }, (_, index) => ({
-          student: this.students[index],
-          grade: [],
-        }));
-      },
-      formatScoreData(data) {
-          const groupedScores = {};
-
-          // Khởi tạo với tất cả các môn để đảm bảo mỗi môn đều có một dòng trong bảng
-          this.initializeScoreData().forEach(item => {
-            groupedScores[item.student.user] = {
-              student: item.student,
-              grade: [],
-            };
-          });
-
-          // Cập nhật dữ liệu điểm thực tế từ API
-          data.forEach(item => {
-            if (groupedScores[item.student]) {      
-                groupedScores[item.student].grade = item.grade;
-            }
-          });
-          console.log(groupedScores)
-
-          // Chuyển đổi đối tượng groupedScores thành mảng để dễ hiển thị trong bảng
-          return Object.values(groupedScores);
-      },
-//       getScoreData(){
-//         const data = [
-//     {
-//         "subject": "TOAN",
-//         "score_type": "TX",
-//         "grade": [
-//             8.0
-//         ],
-//         "student": "3581635860",
-//         "semester": 20241
-//     },
-//     {
-//         "subject": "TOAN",
-//         "score_type": "TX",
-//         "grade": [
-//             7.0
-//         ],
-//         "student": "3581635904",
-//         "semester": 20241
-//     }
-// ]
-//           this.scoreData = this.formatScoreData(data);
-//       },
-      getSubject(subjectName){
-        switch(subjectName){
-          case "Toán": return "TOAN";
-          case "Ngữ Văn": return "VAN"
-          case "Tiếng Anh": return "ANH"
-          case "Hoá": return "KHTN_HOA"
-          case "Vật lý": return "KHTN_LY"
-          case "Sinh học": return "KHTN_SINH"
-          case "Địa lý": return "KHXH_DIA"
-          case "Lịch sử": return "KHXH_SU"
-          case "GDCD": return "KHXH_GDCD"
-          case "Thể dục": return "TD"
-          case "Mỹ thuật": return "MT"
-          case "Âm nhạc": return "AN"
-          case "Tin học": return "TH"
-          case "Công nghệ": return "CN"
-          case "Hoạt động trại nghiệm, hướng nghiệp": return "HDTN-HN"
-        }
-      },
-      getScoreData(){
-        const subject = this.getSubject(this.userData.subjects)
-        this.currentScoreType = this.scoreTypeSelected;
-        
-        const token = localStorage.getItem("access_token");
-        this.scoreData = this.initializeScoreData()
-
-        axios
-          .get(API_URL + `/adminpanel/grades?semester_name=${this.semesterSelected.name}&score_type=${this.scoreTypeSelected}&subject=${subject}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            // Xử lý dữ liệu để sắp xếp theo từng môn
-            this.$notify({
-              type: "success",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy bảng điểm thành công",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-            this.scoreData = this.formatScoreData(response.data);
-          })
-          .catch((error) => {
-            console.error("Error getting score data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Lấy danh sách điểm thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-          });
-      },
-      createGrade() {
-        //update diem
-        const token = localStorage.getItem("access_token");
-        const data = {
-        "student": this.scoreDetail.student.user,
-        "subject": this.getSubject(this.userData.subjects),
-        "semester": this.semesterSelected.name,
-        // "semester":20241,
-        "score_type": this.scoreTypeSelected,
-        "grade": parseFloat(this.createScore)
-    }
-
-      console.log(data)
-        axios
-          .post(API_URL + `/adminpanel/grades/`,data, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            // Xử lý dữ liệu để sắp xếp theo từng môn
-            this.$notify({
-              type: "success",
-              icon: 'tim-icons icon-bell-55',
-              message: "Nhập điểm thành công",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-            this.scoreDetailModal = false
-            this.getScoreData()
-          })
-          .catch((error) => {
-            console.error("Error getting score data:", error);
-            this.$notify({
-              type: "warning",
-              icon: 'tim-icons icon-bell-55',
-              message: "Nhập điểm thất bại",
-              timeout: 3000,
-              verticalAlign: "top",
-              horizontalAlign: "right",
-            });
-          });
-      },
-      toggleDetailScore(index){
-        this.scoreDetail = index
-        this.scoreDetailModal = true;
+      userData: null
+    };
+  },
+  methods: {
+    async initializeData() {
+      try {
+        await this.getApiUrl();
+        await this.getUserData();
+        await this.getStudents();
+      } catch (error) {
+        console.error('Error initializing data:', error);
       }
     },
     
+    getUserData() {
+      this.userData = JSON.parse(localStorage.getItem('user_data'));
+    },
+    
+    getApiUrl() {
+      return new Promise((resolve) => {
+        API_URL = this.$t("dashboard.apiURL");
+        resolve();
+      });
+    },
+    
+    getStudents() {
+      const token = localStorage.getItem("access_token");
+      
+      axios
+        .get(API_URL + `/users/students/?rooms=${this.roomCode.room_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.students = response.data;
+          // After getting students, get their scores
+          this.getAllStudentsScores();
+        })
+        .catch((error) => {
+          console.error("Error get student data:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy danh sách học sinh thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+    getAllStudentsScores() {
+      const token = localStorage.getItem("access_token");
+      
+      axios
+        .get(API_URL + `/academic_results/grades/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          const scores = response.data;
+          
+          // Group scores by student
+          const studentScores = {};
+          scores.forEach(score => {
+            if (!studentScores[score.student]) {
+              studentScores[score.student] = [];
+            }
+            studentScores[score.student].push(score);
+          });
+          
+          // Add scores to students
+          this.students = this.students.map(student => {
+            return {
+              ...student,
+              scores: studentScores[student.account] || []
+            };
+          });
+        })
+        .catch((error) => {
+          console.error("Error getting all scores:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy điểm học sinh thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+    formatScores(scores) {
+      if (!scores || scores.length === 0) return "Chưa có điểm";
+      
+      // Group by grade type
+      const scoresByType = {
+        1: [], // Kiểm tra thường xuyên
+        2: [], // Kiểm tra giữa kỳ
+        3: []  // Kiểm tra cuối kỳ
+      };
+      
+      scores.forEach(score => {
+        if (scoresByType[score.grade_type]) {
+          scoresByType[score.grade_type].push(score.score);
+        }
+      });
+      
+      const result = [];
+      
+      if (scoresByType[1].length > 0) {
+        result.push(`TX: ${scoresByType[1].join(', ')}`);
+      }
+      
+      if (scoresByType[2].length > 0) {
+        result.push(`GK: ${scoresByType[2].join(', ')}`);
+      }
+      
+      if (scoresByType[3].length > 0) {
+        result.push(`CK: ${scoresByType[3].join(', ')}`);
+      }
+      
+      return result.join(' | ');
+    },
+    
+    toggleDetailScore(student) {
+      this.getScoreByStudent(student.account, student);
+    },
+    
+    getScoreByStudent(studentId, student) {
+      const token = localStorage.getItem("access_token");
+      
+      axios
+        .get(API_URL + `/academic_results/grades/?student_id=${studentId}&semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.scoreDetail = {
+            student_id: studentId,
+            full_name: student.full_name,
+            grades: response.data
+          };
+          this.scoreDetailModal = true;
+        })
+        .catch((error) => {
+          console.error("Error getting student score data:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy chi tiết điểm học sinh thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('vi-VN');
+    },
+    
+    getGradeTypeName(type) {
+      const types = {
+        1: 'Kiểm tra thường xuyên',
+        2: 'Kiểm tra thường xuyên',
+        3: 'Kiểm tra thường xuyên'
+      };
+      return types[type] || 'Không xác định';
+    },
+    
+    startEditGrade(grade) {
+      // Clone to avoid direct modification
+      this.editingGrade = { ...grade };
+    },
+    
+    cancelEdit() {
+      this.editingGrade = null;
+    },
+    
+    saveEditGrade() {
+      const token = localStorage.getItem("access_token");
+      
+      axios
+        .put(API_URL + `/academic_results/grades/${this.editingGrade.id}/`, this.editingGrade, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-bell-55',
+            message: "Cập nhật điểm thành công",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          
+          // Update local data
+          const index = this.scoreDetail.grades.findIndex(g => g.id === this.editingGrade.id);
+          if (index !== -1) {
+            this.scoreDetail.grades[index] = { ...this.editingGrade };
+          }
+          
+          this.editingGrade = null;
+          this.refreshScores();
+        })
+        .catch((error) => {
+          console.error("Error updating grade:", error);
+          this.$notify({
+            type: "danger",
+            icon: 'tim-icons icon-bell-55',
+            message: "Cập nhật điểm thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+    confirmDeleteGrade(grade) {
+      this.gradeToDelete = grade;
+      this.deleteConfirmModal = true;
+    },
+    
+    deleteGrade() {
+      const token = localStorage.getItem("access_token");
+      
+      axios
+        .delete(API_URL + `/academic_results/grades/${this.gradeToDelete.id}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-bell-55',
+            message: "Xóa điểm thành công",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          
+          // Remove from local data
+          this.scoreDetail.grades = this.scoreDetail.grades.filter(g => g.id !== this.gradeToDelete.id);
+          this.deleteConfirmModal = false;
+          this.refreshScores();
+        })
+        .catch((error) => {
+          console.error("Error deleting grade:", error);
+          this.$notify({
+            type: "danger",
+            icon: 'tim-icons icon-bell-55',
+            message: "Xóa điểm thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          this.deleteConfirmModal = false;
+        });
+    },
+    
+    addNewGrade() {
+      const token = localStorage.getItem("access_token");
+      
+      const gradeData = {
+        student: this.scoreDetail.student_id,
+        subject: this.roomCode.subject_code,
+        semester: this.semester.semester,
+        score: parseFloat(this.newGrade.score),
+        grade_type: parseInt(this.newGrade.grade_type),
+        date_assigned: this.newGrade.date_assigned
+      };
+      
+      axios
+        .post(API_URL + `/academic_results/grades/`, gradeData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-bell-55',
+            message: "Thêm điểm thành công",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          
+          // Add to local data
+          this.scoreDetail.grades.push(response.data);
+          
+          // Reset new grade form
+          this.newGrade = {
+            score: "",
+            grade_type: 1,
+            date_assigned: new Date().toISOString().substr(0, 10)
+          };
+          
+          this.refreshScores();
+        })
+        .catch((error) => {
+          console.error("Error adding new grade:", error);
+          this.$notify({
+            type: "danger",
+            icon: 'tim-icons icon-bell-55',
+            message: "Thêm điểm thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    
+    refreshScores() {
+      // If we're viewing a student's details, refresh that student's data
+      // if (this.scoreDetail) {
+      //   this.getScoreByStudent(this.scoreDetail.student_id, {
+      //     account: this.scoreDetail.student_id,
+      //     full_name: this.scoreDetail.full_name
+      //   });
+      // }
+      
+      // Refresh all students' scores
+      this.getAllStudentsScores();
+    }
+  }
 };
 </script>
 
 <style>
+.form-control {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
 
+.table th {
+  font-weight: 600;
+}
+
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
 </style>

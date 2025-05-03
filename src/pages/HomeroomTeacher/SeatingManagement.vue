@@ -11,31 +11,7 @@
               <i class="tim-icons icon-components"></i> Xếp chỗ
             </base-button>
         </div>
-        <!-- Seating Modal -->
-            <modal :show.sync="seatingModal"
-                    body-classes="p-0"
-                  modal-classes="modal-dialog-centered modal-md">
-                <card type="secondary"
-                      header-classes="bg-white pb-5"
-                      body-classes="px-lg-5 py-lg-5"
-                      class="border-0 mb-0">
-                    <template>
-                        <div class="text-muted mb-3">
-                            <h4 class="text-dark">Danh sách học sinh chưa có chỗ ngồi</h4>
-                        </div>
-                    </template>
-                    <template>
-                            <ul>
-                                <li v-for="student in unassignedStudents" :key="student">
-                                    <base-button v-if="student" @click="assignStudent(student)" class="dashboard-button btn-info" simple>
-                                        <!-- {{ student? shortenName( student.full_name) : "" }} -->
-                                        {{shortenName(student.full_name)}}
-                                    </base-button>
-                                </li>
-                            </ul>
-                    </template>
-                </card>
-            </modal>
+        
         
         <div class="classroom-layout mt-3">
           <div v-for="(row, rowIndex) in desks" :key="rowIndex" class="classroom-row">
@@ -68,7 +44,35 @@
       </card>
       <!-- </div> -->
     </div>
+
+    <!-- Seating Modal -->
+    <modal :show.sync="seatingModal"
+                    body-classes="p-0"
+                  modal-classes="modal-dialog-centered modal-md">
+                <card type="secondary"
+                      header-classes="bg-white pb-5"
+                      body-classes="px-lg-5 py-lg-5"
+                      class="border-0 mb-0">
+                    <template>
+                        <div class="text-muted mb-3">
+                            <h4 class="text-dark">Danh sách học sinh chưa có chỗ ngồi</h4>
+                        </div>
+                    </template>
+                    <template>
+                            <ul>
+                                <li v-for="student in unassignedStudents" :key="student">
+                                    <base-button v-if="student" @click="assignStudent(student)" class="dashboard-button btn-info" simple>
+                                        <!-- {{ student? shortenName( student.full_name) : "" }} -->
+                                        {{shortenName(student.full_name)}}
+                                    </base-button>
+                                </li>
+                            </ul>
+                    </template>
+                </card>
+            </modal>
   </div>
+
+  
   
 </template>
 

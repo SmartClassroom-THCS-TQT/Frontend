@@ -1,6 +1,6 @@
 {
   "dashboard": {
-    "apiURL" : "https://www.smartclassroom.click/api", 
+    "apiURL" : "http://127.0.0.1:8000/api", 
     "completedTasks": "Quản lý đào tạo",
     "dailySales": "Thống kê giáo viên",
     "performance": "Performance",

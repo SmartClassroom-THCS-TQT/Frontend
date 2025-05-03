@@ -58,7 +58,7 @@
             </ul>
             <div class="empty-state" v-if="(!selectedDayLessons.length) && selectedDay">
               <i class="fas fa-calendar-times"></i>
-              <p>Không có tiết học nào.</p>
+              <p class="text-dark">Không có tiết học nào.</p>
             </div>
             <div class="empty-state" v-if="(!selectedDayLessons.length) && !selectedDay">
               <i class="tim-icons icon-calendar-60"></i>
