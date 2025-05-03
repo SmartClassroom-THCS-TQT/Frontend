@@ -1138,6 +1138,10 @@ export default {
           name: '',
           manager: null
         },
+        allTeacherAssignments: [], // Store all teacher assignments
+        allTeachers: [], // Store all teachers
+        // Add new property for assignment ID
+        currentAssignmentId: null,
     },
     successValue: 0,
     intervalId: null,
@@ -1234,7 +1238,6 @@ export default {
       subjectData: null,
       lessonData: null,
       deviceData: null,
-      gradeData: null,
       bigLineChart: {
         allData: [
           [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
@@ -1929,7 +1932,7 @@ export default {
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}&room_id=${this.selectedRoomOption.id}`, {
+        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -1970,6 +1973,8 @@ export default {
         })
         .then((response) => {
           this.subjectData = response.data;
+          // After loading subjects, fetch teacher assignments for each subject
+          this.loadTeacherAssignments();
         })
         .catch((error) => {
           console.error("Error loading subjects:", error);
@@ -1983,8 +1988,183 @@ export default {
           });
         });
     },
-    
 
+    loadTeacherAssignments() {
+      const token = localStorage.getItem("access_token");
+      
+      // Fetch all teacher assignments for the current semester
+      axios
+        .get(API_URL + `/managements/teacher-assignments/?semester_code=${this.selectedSemester}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.allTeacherAssignments = response.data;
+          console.log("All teacher assignments:", this.allTeacherAssignments);
+          
+          // Fetch all teachers
+          return axios.get(API_URL + "/users/teachers/", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+        })
+        .then((response) => {
+          this.allTeachers = response.data;
+          console.log("All teachers:", this.allTeachers);
+          
+          // Process the data
+          this.processTeacherAssignments();
+        })
+        .catch((error) => {
+          console.error("Error loading data:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Không thể tải thông tin phân công giáo viên",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+
+    processTeacherAssignments() {
+      // Filter assignments for current room
+      const roomAssignments = this.allTeacherAssignments.filter(
+        assignment => assignment.room_id === this.selectedRoomOption.id
+      );
+
+      // Create a map of subject_code to teacher assignment
+      const teacherAssignments = {};
+      roomAssignments.forEach(assignment => {
+        teacherAssignments[assignment.subject_code] = {
+          teacher: assignment.teacher,
+          id: assignment.id // Store the assignment ID
+        };
+      });
+
+      // Update each subject with its assigned teacher
+      this.subjectData = this.subjectData.map(subject => {
+        const assignment = teacherAssignments[subject.code];
+        
+        if (assignment) {
+          // Find teacher details from allTeachers array
+          const teacher = this.allTeachers.find(t => t.account === assignment.teacher);
+          return {
+            ...subject,
+            assigned_teacher: teacher || { full_name: 'Đang cập nhật' },
+            assignment_id: assignment.id // Store the assignment ID with the subject
+          };
+        }
+        return {
+          ...subject,
+          assigned_teacher: null,
+          assignment_id: null
+        };
+      });
+
+      console.log("Updated subjectData:", this.subjectData);
+    },
+
+    openAssignTeacherModal(subject) {
+      this.modals.selectedSubject = subject;
+      this.modals.assignTeacherModal = true;
+      this.getAllTeacher();
+
+      // If subject already has a teacher assigned, set the current assignment ID
+      if (subject.assignment_id) {
+        this.currentAssignmentId = subject.assignment_id;
+        // Find the current teacher in the teacherData array
+        const currentTeacher = this.teacherData.find(t => t.account === subject.assigned_teacher.account);
+        if (currentTeacher) {
+          this.modals.selectedTeacher = currentTeacher.account;
+        }
+      } else {
+        this.currentAssignmentId = null;
+        this.modals.selectedTeacher = null;
+      }
+    },
+
+    async assignTeacherToSubject() {
+      if (!this.modals.selectedTeacher || !this.modals.selectedSubject || !this.selectedRoomOption) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: "Vui lòng chọn giáo viên",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        return;
+      }
+
+      const assignmentData = {
+        semester_code: this.selectedSemester,
+        subject_code: this.modals.selectedSubject.code,
+        room_id: this.selectedRoomOption.id,
+        teacher: this.modals.selectedTeacher
+      };
+
+      try {
+        const token = localStorage.getItem("access_token");
+        let response;
+
+        if (this.currentAssignmentId) {
+          // Update existing assignment
+          response = await axios.patch(
+            API_URL + `/managements/teacher-assignments/${this.currentAssignmentId}/`,
+            assignmentData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+        } else {
+          // Create new assignment
+          response = await axios.post(
+            API_URL + "/managements/teacher-assignments/",
+            assignmentData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+        }
+
+        // After successful assignment, reload all data
+        this.loadTeacherAssignments();
+
+        this.$notify({
+          type: "success",
+          icon: 'tim-icons icon-check-2',
+          message: this.currentAssignmentId ? "Cập nhật phân công giáo viên thành công" : "Phân công giáo viên thành công",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        this.modals.assignTeacherModal = false;
+        this.currentAssignmentId = null;
+      } catch (error) {
+        console.error("Error assigning teacher:", error);
+        this.$notify({
+          type: "danger",
+          icon: 'tim-icons icon-bell-55',
+          message: this.currentAssignmentId ? "Cập nhật phân công giáo viên thất bại" : "Phân công giáo viên thất bại",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      }
+    },
 
     async initializeData() {
         try {
@@ -2365,8 +2545,6 @@ export default {
         apiUrl = API_URL + "/managements/time-slots/";
       } else if (this.bigLineChart.activeIndex === 2) {
         apiUrl = API_URL + "/managements/subjects/";
-      } else if (this.bigLineChart.activeIndex === 4) {
-        apiUrl = API_URL + "/adminpanel/grades/";
       }
 
       //Get data

@@ -22,6 +22,11 @@
           :name="$t('sidebar.userSetting')"
           icon="tim-icons icon-bank"
         />
+        <sidebar-link v-if="userData && this.userRole == 'admin' " 
+          to="/weekly_report"
+          :name="$t('sidebar.weeklyReport')"
+          icon="tim-icons icon-paper"
+        />
         <!-- <sidebar-link  v-if="userData && this.userRole == 'admin'"
           to="/education_program"
           :name="$t('sidebar.educationProgram')"

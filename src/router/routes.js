@@ -29,6 +29,8 @@ const CompetitionResult = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/CompetitionResult.vue");
 const Dashboard = () =>
   import(/* webpackChunkName: "dashboard" */ "@/pages/Dashboard.vue");
+const AdminWeeklyReport = () =>
+  import(/* webpackChunkName: "dashboard" */ "@/pages/Admin/AdminWeeklyReport.vue");
 const Profile = () =>
   import(/* webpackChunkName: "common" */ "@/pages/profile.vue");
 const Notifications = () =>
@@ -107,6 +109,11 @@ const routes = [
         path: "competition_result",
         name: "Xếp hạng thi đua",
         component: CompetitionResult,
+      },
+      {
+        path: "weekly_report",
+        name: "Tổng kết tuần",
+        component: AdminWeeklyReport,
       },
       {
         path: "dashboard",
