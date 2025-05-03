@@ -523,8 +523,6 @@
           </base-button>
         </div>
 
-        
-
       </card>
 
 
@@ -1335,40 +1333,7 @@ export default {
   },
   methods: {
     createOneSession(){
-      const token = localStorage.getItem("access_token");
-      axios
-        .post(API_URL+`/managements/sessions/`, this.modals.sessionCreate, {
-          headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          this.modals.updateModal = false
-          this.createSessionModal = false;
-          this.$notify({
-                type: "success",
-                icon: 'tim-icons icon-bell-55',
-                message: "Thêm tiết học thành công",
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-          this.getSession();
-          this.selectDay(this.selectedDay)
-        })
-        .catch((error) => {
-          console.error("Error create data :", error);
 
-          this.$notify({
-                type: "warning",
-                icon: 'tim-icons icon-bell-55',
-                message: "Lấy tiết học thất bại",
-                timeout: 3000,
-                verticalAlign: "top",
-                horizontalAlign: "right",
-              });
-        });
     },
     createFullSession(){
 
@@ -2573,64 +2538,6 @@ export default {
                 horizontalAlign: "right",
               });
         });
-    },
-    openAssignTeacherModal(subject) {
-      this.modals.selectedSubject = subject;
-      this.modals.assignTeacherModal = true;
-      this.getAllTeacher(); // Make sure we have the latest teacher data
-    },
-
-    async assignTeacherToSubject() {
-      if (!this.modals.selectedTeacher || !this.modals.selectedSubject || !this.selectedRoomOption) {
-        this.$notify({
-          type: "warning",
-          icon: 'tim-icons icon-bell-55',
-          message: "Vui lòng chọn giáo viên",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-        return;
-      }
-
-      const assignmentData = {
-        semester_code: this.selectedSemester,
-        subject_code: this.modals.selectedSubject.code,
-        room_id: this.selectedRoomOption.id,
-        teacher: this.modals.selectedTeacher
-      };
-
-      try {
-        const token = localStorage.getItem("access_token");
-        await axios.post(API_URL + "/managements/teacher-assignments/", assignmentData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        this.$notify({
-          type: "success",
-          icon: 'tim-icons icon-check-2',
-          message: "Phân công giáo viên thành công",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        this.modals.assignTeacherModal = false;
-        this.loadSubjects(); // Reload the subjects to show the updated assignment
-      } catch (error) {
-        console.error("Error assigning teacher:", error);
-        this.$notify({
-          type: "danger",
-          icon: 'tim-icons icon-bell-55',
-          message: "Phân công giáo viên thất bại. Vui lòng thử lại",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-      }
     },
     toggleRemoveRoom(roomCode) {
         this.modals.removeRoomModal = true;
