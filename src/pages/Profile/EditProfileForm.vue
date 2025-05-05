@@ -353,7 +353,7 @@ export default {
       };
 
       axios
-        .post(API_URL + "/users/change-password/", changePasswordData, {
+        .post(API_URL + "/accounts/change-password/", changePasswordData, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -363,7 +363,7 @@ export default {
           this.$notify({
             type: "success",
             icon: 'tim-icons icon-check-2',
-            message: "Đổi mật khẩu thành công",
+            message: response.data.detail,
             timeout: 3000,
             verticalAlign: "top",
             horizontalAlign: "right",

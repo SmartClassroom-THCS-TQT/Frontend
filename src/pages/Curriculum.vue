@@ -358,8 +358,8 @@
 
 
 
-            <!-- Phân công giáo viên section -->
-            <div v-if="optionSelected == 3" class="card-container teacher-assignment">
+             <!-- Phân công giáo viên section -->
+             <div v-if="optionSelected == 3" class="card-container teacher-assignment">
               <div class="row">
                 <div class="col-12">
                   <div class="teacher-assignment-header">
@@ -522,6 +522,8 @@
                   <i class="tim-icons icon-simple-add"></i>
           </base-button>
         </div>
+
+        
 
       </card>
 
@@ -810,7 +812,7 @@
                                     <div class="col-md-6 pl-md-1">
                                         <base-input type="" label="Môn" >
                                           <select v-model="sessionData.subject_code.code" class="form-control">
-                                              <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.name}}</option>
+                                              <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.description }}</option>
                                           </select>
                                         </base-input>
                                     </div>
@@ -846,7 +848,9 @@
                                     </div>
                                 </div>
                                 <base-button @click="updateSession" type="secondary" fill>Cập nhật</base-button>
+                                <base-button @click="updateFullSession" type="secondary" fill>Cập nhật phiên học cả kỳ</base-button>
                                 <base-button @click="deleteSession" type="danger" fill>Xóa tiết học</base-button>
+                                <base-button @click="deleteFullSession" type="danger" fill>Xóa phiên học cả kỳ</base-button>
                             </div>
                         </div>
                 </template>
@@ -871,7 +875,7 @@
                                     <div class="col-md-6 pl-md-1">
                                         <base-input type="" label="Môn" >
                                           <select v-model="modals.sessionCreate.subject_code" class="form-control">
-                                              <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.name}}</option>
+                                              <option class="text-info" v-for="(subject, index) in subjectData" :key="index" :value="subject.code">{{ subject.description}}</option>
                                           </select>
                                         </base-input>
                                     </div>
@@ -921,7 +925,7 @@
             </template>
         </modal>
 
-        <!-- Teacher Assignment Modal -->
+         <!-- Teacher Assignment Modal -->
         <modal :show.sync="modals.assignTeacherModal"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
@@ -956,6 +960,7 @@
                 </template>
             </card>
         </modal>
+
 
         <!-- Remove Room Modal -->
         <modal :show.sync="modals.removeRoomModal">
@@ -1333,11 +1338,173 @@ export default {
   },
   methods: {
     createOneSession(){
+      const token = localStorage.getItem("access_token");
+      axios
+        .post(API_URL+`/managements/sessions/`, this.modals.sessionCreate, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          this.modals.updateModal = false
+          this.createSessionModal = false;
+          this.$notify({
+                type: "success",
+                icon: 'tim-icons icon-bell-55',
+                message: "Thêm tiết học thành công",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+          this.getSession();
+          this.selectDay(this.selectedDay)
+        })
+        .catch((error) => {
+          console.error("Error create data :", error);
 
+          this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Lấy tiết học thất bại",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+        });
     },
     createFullSession(){
-
+      // Get token for authentication
+      const token = localStorage.getItem("access_token");
+      
+      // First, get semester details to determine the date range
+      axios
+        .get(API_URL + `/managements/semesters/?code=${this.modals.sessionCreate.semester_code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          // Check if semester exists
+          if (!response.data || response.data.length === 0) {
+            this.$notify({
+              type: "warning",
+              icon: 'tim-icons icon-bell-55',
+              message: "Không tìm thấy thông tin học kỳ",
+              timeout: 3000,
+              verticalAlign: "top",
+              horizontalAlign: "right",
+            });
+            return;
+          }
+          
+          const semester = response.data[0];
+          const startDate = new Date(semester.start_date);
+          
+          // Calculate end date based on semester weeks
+          const endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + semester.weeks_count * 7);
+          
+          // Get the selected day and determine its day of week (0-6, where 0 is Sunday)
+          const selectedDay = new Date(this.modals.sessionCreate.day);
+          const dayOfWeek = selectedDay.getDay();
+          
+          // Generate all dates that match the same day of week within the semester duration
+          const allDates = this.getAllDatesOfDayInRange(startDate, endDate, dayOfWeek);
+          
+          // Create a counter for successful/failed creations
+          let successCount = 0;
+          let failCount = 0;
+          let totalToCreate = allDates.length;
+          
+          // Create a session for each date
+          allDates.forEach(date => {
+            // Clone the sessionCreate object and update the date
+            const sessionData = { ...this.modals.sessionCreate };
+            sessionData.day = this.formatDate(date);
+            
+            // Create the session
+            axios
+              .post(API_URL + `/managements/sessions/`, sessionData, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              })
+              .then(() => {
+                successCount++;
+                if (successCount + failCount === totalToCreate) {
+                  // All sessions have been processed
+                  this.createSessionModal = false;
+                  this.modals.updateModal = false;
+                  this.$notify({
+                    type: "success",
+                    icon: 'tim-icons icon-bell-55',
+                    message: `Đã tạo ${successCount}/${totalToCreate} phiên học thành công`,
+                    timeout: 3000,
+                    verticalAlign: "top",
+                    horizontalAlign: "right",
+                  });
+                  this.getSession();
+                  this.selectDay(this.selectedDay);
+                }
+              })
+              .catch((error) => {
+                console.error("Error creating session for date " + this.formatDate(date), error);
+                failCount++;
+                if (successCount + failCount === totalToCreate) {
+                  // All sessions have been processed
+                  this.createSessionModal = false;
+                  this.modals.updateModal = false;
+                  this.$notify({
+                    type: "warning",
+                    icon: 'tim-icons icon-bell-55',
+                    message: `Tạo phiên học cả kỳ hoàn tất với ${successCount}/${totalToCreate} thành công`,
+                    timeout: 3000,
+                    verticalAlign: "top",
+                    horizontalAlign: "right",
+                  });
+                  this.getSession();
+                  this.selectDay(this.selectedDay);
+                }
+              });
+          });
+        })
+        .catch((error) => {
+          console.error("Error getting semester details:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy thông tin học kỳ thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
     },
+    
+    // Helper function to get all dates of a specific day of week within a date range
+    getAllDatesOfDayInRange(startDate, endDate, dayOfWeek) {
+      const result = [];
+      const currentDate = new Date(startDate);
+      
+      // If start date is after the target day in the first week,
+      // move to the first occurrence of the target day
+      if (currentDate.getDay() !== dayOfWeek) {
+        const daysUntilTargetDay = (dayOfWeek + 7 - currentDate.getDay()) % 7;
+        currentDate.setDate(currentDate.getDate() + daysUntilTargetDay);
+      }
+      
+      // Add all occurrences of the target day within the range
+      while (currentDate <= endDate) {
+        result.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 7); // Move to next week
+      }
+      
+      return result;
+    },
+    
     selectDay(date) {
       console.log(date); // Kiểm tra giá trị của date
       this.selectedDay = date;
@@ -1469,10 +1636,24 @@ export default {
     updateSession(){
       const token = localStorage.getItem("access_token");
       
+      // Create a properly structured update payload
+      const updateData = {
+        semester_code: this.sessionData.semester_code.code,
+        subject_code: this.sessionData.subject_code.code,
+        room_id: this.sessionData.room_id.id,
+        time_slot: this.sessionData.time_slot.code,
+        teacher: this.sessionData.teacher.account,
+        day: this.sessionData.day,
+        lesson_number: this.sessionData.lesson_number,
+        lesson_name: this.sessionData.lesson_name,
+        absences: this.sessionData.absences,
+        comment: this.sessionData.comment
+      };
+      
       axios
-        .put(API_URL+`/managements/sessions/${this.sessionData.id}/`,this.sessionData, {
+        .put(API_URL+`/managements/sessions/${this.sessionData.id}/`, updateData, {
           headers: {
-            Authorization: `Bearer ${token}`, // Đính kèm token vào headers
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         })
@@ -1485,16 +1666,34 @@ export default {
                 verticalAlign: "top",
                 horizontalAlign: "right",
               });
-              this.sessionModal = false;
-              this.modals.updateModal = false
+              // Refresh the session data after successful update
+              axios
+                .get(API_URL+`/managements/sessions/${this.sessionData.id}/`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                })
+                .then((response) => {
+                  this.sessionData = response.data;
+                  this.sessionModal = false;
+                  this.modals.updateModal = false;
+                  this.getSession(); // Refresh the session list
+                  this.selectDay(this.selectedDay); // Refresh the selected day's lessons
+                })
+                .catch((error) => {
+                  console.error("Error refreshing session data:", error);
+                  this.sessionModal = false;
+                  this.modals.updateModal = false;
+                });
         })
         .catch((error) => {
-          console.error("Error create data :", error);
+          console.error("Error updating session:", error);
 
           this.$notify({
                 type: "warning",
                 icon: 'tim-icons icon-bell-55',
-                message: `Cập nhật tiết học thành công thất bại`,
+                message: `Cập nhật tiết học thất bại`,
                 timeout: 3000,
                 verticalAlign: "top",
                 horizontalAlign: "right",
@@ -1535,6 +1734,305 @@ export default {
                 verticalAlign: "top",
                 horizontalAlign: "right",
               });
+        });
+    },
+    updateFullSession(){
+      // Get token for authentication
+      const token = localStorage.getItem("access_token");
+      
+      // First, get semester details to determine the date range
+      axios
+        .get(API_URL + `/managements/semesters/?code=${this.sessionData.semester_code.code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          // Check if semester exists
+          if (!response.data || response.data.length === 0) {
+            this.$notify({
+              type: "warning",
+              icon: 'tim-icons icon-bell-55',
+              message: "Không tìm thấy thông tin học kỳ",
+              timeout: 3000,
+              verticalAlign: "top",
+              horizontalAlign: "right",
+            });
+            return;
+          }
+          
+          const semester = response.data[0];
+          
+          // Get the current session's day of week (0-6, where 0 is Sunday)
+          const currentSessionDay = new Date(this.sessionData.day);
+          const dayOfWeek = currentSessionDay.getDay();
+          
+          // Find all sessions in the same semester with the same room and time slot code
+          axios
+            .get(API_URL + `/managements/sessions/?semester_code=${this.sessionData.semester_code.code}&room_id=${this.sessionData.room_id.id}&time_slot=${this.sessionData.time_slot.code}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            })
+            .then((sessionsResponse) => {
+              // Filter sessions to match both day of week AND time slot
+              const matchingSessions = sessionsResponse.data.filter(session => {
+                const sessionDate = new Date(session.day);
+                return sessionDate.getDay() === dayOfWeek && 
+                       session.time_slot.code === this.sessionData.time_slot.code;
+              });
+              
+              // Create a counter for successful/failed updates
+              let successCount = 0;
+              let failCount = 0;
+              let totalToUpdate = matchingSessions.length;
+              
+              if (totalToUpdate === 0) {
+                this.$notify({
+                  type: "warning",
+                  icon: 'tim-icons icon-bell-55',
+                  message: "Không tìm thấy phiên học nào để cập nhật",
+                  timeout: 3000,
+                  verticalAlign: "top",
+                  horizontalAlign: "right",
+                });
+                return;
+              }
+              
+              // Confirm update with a message showing how many sessions will be updated
+              if (!confirm(`Bạn có chắc chắn muốn cập nhật ${totalToUpdate} phiên học không?`)) {
+                return;
+              }
+              
+              // Prepare the update data from the current session
+              const updateTemplate = {
+                semester_code: this.sessionData.semester_code.code,
+                subject_code: this.sessionData.subject_code.code,
+                room_id: this.sessionData.room_id.id,
+                time_slot: this.sessionData.time_slot.code,
+                teacher: this.sessionData.teacher.account,
+                lesson_number: this.sessionData.lesson_number,
+                lesson_name: this.sessionData.lesson_name,
+                absences: this.sessionData.absences,
+                comment: this.sessionData.comment
+              };
+              
+              // Update each session
+              matchingSessions.forEach(session => {
+                // Create a session-specific update payload
+                const updateData = { ...updateTemplate };
+                updateData.day = session.day; // Keep the original day
+                
+                // Update the session
+                axios
+                  .put(API_URL + `/managements/sessions/${session.id}/`, updateData, {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  })
+                  .then(() => {
+                    successCount++;
+                    if (successCount + failCount === totalToUpdate) {
+                      // All sessions have been processed
+                      this.sessionModal = false;
+                      this.modals.updateModal = false;
+                      this.$notify({
+                        type: "success",
+                        icon: 'tim-icons icon-bell-55',
+                        message: `Đã cập nhật ${successCount}/${totalToUpdate} phiên học thành công`,
+                        timeout: 3000,
+                        verticalAlign: "top",
+                        horizontalAlign: "right",
+                      });
+                      this.getSession();
+                      this.selectDay(this.selectedDay);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error updating session with ID " + session.id, error);
+                    failCount++;
+                    if (successCount + failCount === totalToUpdate) {
+                      // All sessions have been processed
+                      this.sessionModal = false;
+                      this.modals.updateModal = false;
+                      this.$notify({
+                        type: "warning",
+                        icon: 'tim-icons icon-bell-55',
+                        message: `Cập nhật phiên học cả kỳ hoàn tất với ${successCount}/${totalToUpdate} thành công`,
+                        timeout: 3000,
+                        verticalAlign: "top",
+                        horizontalAlign: "right",
+                      });
+                      this.getSession();
+                      this.selectDay(this.selectedDay);
+                    }
+                  });
+              });
+            })
+            .catch((error) => {
+              console.error("Error finding matching sessions:", error);
+              this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Lỗi khi tìm kiếm các phiên học để cập nhật",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+            });
+        })
+        .catch((error) => {
+          console.error("Error getting semester details:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy thông tin học kỳ thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    deleteFullSession(){
+      // Get token for authentication
+      const token = localStorage.getItem("access_token");
+      
+      // First, get semester details to determine the date range
+      axios
+        .get(API_URL + `/managements/semesters/?code=${this.sessionData.semester_code.code}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          // Check if semester exists
+          if (!response.data || response.data.length === 0) {
+            this.$notify({
+              type: "warning",
+              icon: 'tim-icons icon-bell-55',
+              message: "Không tìm thấy thông tin học kỳ",
+              timeout: 3000,
+              verticalAlign: "top",
+              horizontalAlign: "right",
+            });
+            return;
+          }
+          
+          // Get the current session's day of week (0-6, where 0 is Sunday)
+          const currentSessionDay = new Date(this.sessionData.day);
+          const dayOfWeek = currentSessionDay.getDay();
+          
+          // Find all sessions in the same semester with the same subject, room, and time slot code
+          axios
+            .get(API_URL + `/managements/sessions/?semester_code=${this.sessionData.semester_code.code}&subject_code=${this.sessionData.subject_code.code}&room_id=${this.sessionData.room_id.id}&time_slot=${this.sessionData.time_slot.code}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            })
+            .then((sessionsResponse) => {
+              const matchingSessions = sessionsResponse.data.filter(session => {
+                const sessionDate = new Date(session.day);
+                return sessionDate.getDay() === dayOfWeek; // Only sessions on the same day of week
+              });
+              
+              // Create a counter for successful/failed deletions
+              let successCount = 0;
+              let failCount = 0;
+              let totalToDelete = matchingSessions.length;
+              
+              if (totalToDelete === 0) {
+                this.$notify({
+                  type: "warning",
+                  icon: 'tim-icons icon-bell-55',
+                  message: "Không tìm thấy phiên học nào để xóa",
+                  timeout: 3000,
+                  verticalAlign: "top",
+                  horizontalAlign: "right",
+                });
+                return;
+              }
+              
+              // Confirm deletion with a message showing how many sessions will be deleted
+              if (!confirm(`Bạn có chắc chắn muốn xóa ${totalToDelete} phiên học không?`)) {
+                return;
+              }
+              
+              // Delete each session
+              matchingSessions.forEach(session => {
+                // Delete the session
+                axios
+                  .delete(API_URL + `/managements/sessions/${session.id}/`, {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  })
+                  .then(() => {
+                    successCount++;
+                    if (successCount + failCount === totalToDelete) {
+                      // All sessions have been processed
+                      this.sessionModal = false;
+                      this.modals.updateModal = false;
+                      this.$notify({
+                        type: "success",
+                        icon: 'tim-icons icon-bell-55',
+                        message: `Đã xóa ${successCount}/${totalToDelete} phiên học thành công`,
+                        timeout: 3000,
+                        verticalAlign: "top",
+                        horizontalAlign: "right",
+                      });
+                      this.getSession();
+                      this.selectDay(this.selectedDay);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error deleting session with ID " + session.id, error);
+                    failCount++;
+                    if (successCount + failCount === totalToDelete) {
+                      // All sessions have been processed
+                      this.sessionModal = false;
+                      this.modals.updateModal = false;
+                      this.$notify({
+                        type: "warning",
+                        icon: 'tim-icons icon-bell-55',
+                        message: `Xóa phiên học cả kỳ hoàn tất với ${successCount}/${totalToDelete} thành công`,
+                        timeout: 3000,
+                        verticalAlign: "top",
+                        horizontalAlign: "right",
+                      });
+                      this.getSession();
+                      this.selectDay(this.selectedDay);
+                    }
+                  });
+              });
+            })
+            .catch((error) => {
+              console.error("Error finding matching sessions:", error);
+              this.$notify({
+                type: "warning",
+                icon: 'tim-icons icon-bell-55',
+                message: "Lỗi khi tìm kiếm các phiên học để xóa",
+                timeout: 3000,
+                verticalAlign: "top",
+                horizontalAlign: "right",
+              });
+            });
+        })
+        .catch((error) => {
+          console.error("Error getting semester details:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Lấy thông tin học kỳ thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
         });
     },
     toggleSwitchSemester(){
@@ -1897,7 +2395,7 @@ export default {
       //get all student of room
       const token = localStorage.getItem("access_token");
       axios
-        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}`, {
+        .get(API_URL+`/managements/sessions/?semester_code=${this.selectedSemester}&room_id=${this.selectedRoomOption.id}`, {
           headers: {
             Authorization: `Bearer ${token}`, // Đính kèm token vào headers
             "Content-Type": "application/json",
@@ -2538,6 +3036,64 @@ export default {
                 horizontalAlign: "right",
               });
         });
+    },
+    openAssignTeacherModal(subject) {
+      this.modals.selectedSubject = subject;
+      this.modals.assignTeacherModal = true;
+      this.getAllTeacher(); // Make sure we have the latest teacher data
+    },
+
+    async assignTeacherToSubject() {
+      if (!this.modals.selectedTeacher || !this.modals.selectedSubject || !this.selectedRoomOption) {
+        this.$notify({
+          type: "warning",
+          icon: 'tim-icons icon-bell-55',
+          message: "Vui lòng chọn giáo viên",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+        return;
+      }
+
+      const assignmentData = {
+        semester_code: this.selectedSemester,
+        subject_code: this.modals.selectedSubject.code,
+        room_id: this.selectedRoomOption.id,
+        teacher: this.modals.selectedTeacher
+      };
+
+      try {
+        const token = localStorage.getItem("access_token");
+        await axios.post(API_URL + "/managements/teacher-assignments/", assignmentData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        this.$notify({
+          type: "success",
+          icon: 'tim-icons icon-check-2',
+          message: "Phân công giáo viên thành công",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+
+        this.modals.assignTeacherModal = false;
+        this.loadSubjects(); // Reload the subjects to show the updated assignment
+      } catch (error) {
+        console.error("Error assigning teacher:", error);
+        this.$notify({
+          type: "danger",
+          icon: 'tim-icons icon-bell-55',
+          message: "Phân công giáo viên thất bại. Vui lòng thử lại",
+          timeout: 3000,
+          verticalAlign: "top",
+          horizontalAlign: "right",
+        });
+      }
     },
     toggleRemoveRoom(roomCode) {
         this.modals.removeRoomModal = true;

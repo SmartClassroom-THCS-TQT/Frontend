@@ -35,7 +35,7 @@
           <div v-for="(room, index) in divisionData" :key="index" class="col-lg-3 col-md-4 col-sm-6 mb-4">
             <div class="card class-card shadow h-100" @click="selectRoom(room)">
               <div class="card-body text-center">
-                <h4 class="card-title font-weight-bold text-dark">{{ room ? room.room_id : "" }}</h4>
+                <h4 class="card-title font-weight-bold text-dark">{{ room ? room.room_id.name : "" }}</h4>
                 <p class="text-muted">{{ subjectInfo }}</p>
               </div>
               <div class="card-footer bg-transparent">
