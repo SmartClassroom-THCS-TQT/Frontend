@@ -15,12 +15,12 @@
         <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/account_setting"
           :name="$t('sidebar.accountSetting')"
-          icon="tim-icons icon-bank"
+          icon="tim-icons icon-single-02"
         />
         <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/user_setting"
           :name="$t('sidebar.userSetting')"
-          icon="tim-icons icon-bank"
+          icon="tim-icons icon-satisfied"
         />
         <sidebar-link v-if="userData && this.userRole == 'admin' " 
           to="/weekly_report"
@@ -40,7 +40,7 @@
         <sidebar-link v-if="userData && (this.userRole == 'teacher' || this.userRole == 'student')"
           to="/time_table"
           :name="$t('sidebar.timeTable')"
-          icon="tim-icons icon-pencil"
+          icon="tim-icons icon-bullet-list-67"
         />
         <sidebar-link v-if="userData && this.userRole == 'teacher'"
           to="/homeroom_teacher"

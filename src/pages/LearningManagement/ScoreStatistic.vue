@@ -161,7 +161,7 @@ export default {
         const token = localStorage.getItem("access_token");
 
         axios
-          .get(API_URL + `/academic_results/grades_distribution/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
+          .get(API_URL + `/academic_results/grades_distribution/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code.code}`, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",

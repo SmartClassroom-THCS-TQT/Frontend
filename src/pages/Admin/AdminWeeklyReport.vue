@@ -66,25 +66,26 @@
       </card>
 
       <!-- Modal for showing room report -->
-      <modal :show.sync="showReportModal" :show-close="true" modal-classes="modal-dialog-centered modal-xl">
+      <modal :show.sync="showReportModal" :show-close="true" modal-classes="modal-xl">
         <template slot="header">
-          <h5 class="modal-title font-weight-bold">Báo cáo tuần học - Lớp {{ selectedRoom?.name }}</h5>
+          <h3 class="modal-title font-weight-bold">Báo cáo tuần học - lớp {{ selectedRoom?.name }}</h3>
+          <br></br>
         </template>
         <div style="display: flex; justify-content: center; align-items: center;">
                 <div v-if="timetableData">
-                    <div  id="tableDiv">
-                        <table class="table-bordered" style="width: 863px">
+                    <div id="tableDiv">
+                        <table class="table-bordered" style="width: 1200px">
                             <tbody>
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 62px;">Thứ</td>
                                     <td style="width: 29px; height: 62px;">Tiết</td>
-                                    <td style="width: 81px; height: 62px;">Môn học</td>
-                                    <td style="width: 10px; height: 62px;">Tiết theo PPCT</td>
-                                    <td style="width: 125px; height: 62px;">Số học sinh nghỉ</td>
-                                    <td style="width: 173px; height: 62px;">Tên bài, nội dung công việc</td>
-                                    <td style="width: 226px; height: 62px;">Nhận xét của giáo viên</td>
-                                    <td style="width: 53px; height: 62px;">Xếp loại tiết học</td>
-                                    <td style="width: 58px; height: 62px;">Ký tên</td>
+                                    <td style="width: 120px; height: 62px;">Môn học</td>
+                                    <td style="width: 50px; height: 62px;">Tiết theo PPCT</td>
+                                    <td style="width: 160px; height: 62px;">Số học sinh nghỉ</td>
+                                    <td style="width: 230px; height: 62px;">Tên bài, nội dung công việc</td>
+                                    <td style="width: 280px; height: 62px;">Nhận xét của giáo viên</td>
+                                    <td style="width: 100px; height: 62px;">Xếp loại tiết học</td>
+                                    <td style="width: 100px; height: 62px;">Ký tên</td>
                                 </tr>
                                 
                                 
@@ -1223,14 +1224,15 @@ export default {
         this.rooms = response.data;
       } catch (error) {
         console.error("Error fetching rooms:", error);
-        this.$notify({
-          type: 'danger',
-          icon: 'tim-icons icon-alert-circle-exc',
-          message: "Lấy danh sách lớp học thất bại",
-          timeout: 3000,
-          verticalAlign: 'top',
-          horizontalAlign: 'center',
-        });
+        // Remove this notification to reduce the number of notifications
+        // this.$notify({
+        //   type: 'danger',
+        //   icon: 'tim-icons icon-alert-circle-exc',
+        //   message: "Lấy danh sách lớp học thất bại",
+        //   timeout: 3000,
+        //   verticalAlign: 'top',
+        //   horizontalAlign: 'center',
+        // });
       }
     },
     async getAllSessions() {
@@ -1300,14 +1302,15 @@ export default {
         
         console.log(`Retrieved ${this.allSessions.length} sessions for week ${this.weekSelected}`);
         
-        this.$notify({
-          type: "success",
-          icon: 'tim-icons icon-bell-55',
-          message: `Đã tải ${this.allSessions.length} tiết học của tuần ${this.weekSelected}`,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
+        // Removing notification to reduce the number of notifications
+        // this.$notify({
+        //   type: "success",
+        //   icon: 'tim-icons icon-bell-55',
+        //   message: `Đã tải ${this.allSessions.length} tiết học của tuần ${this.weekSelected}`,
+        //   timeout: 3000,
+        //   verticalAlign: "top",
+        //   horizontalAlign: "right",
+        // });
         
         this.loading = false;
         
@@ -1338,9 +1341,10 @@ export default {
       await this.getAllSessions();
       
       // If a room is already selected, refresh the report
-      if (this.selectedRoom) {
-        this.showRoomReport(this.selectedRoom);
-      }
+      // Commenting out the line below to prevent auto-opening the report
+      // if (this.selectedRoom) {
+      //   this.showRoomReport(this.selectedRoom);
+      // }
       
       this.$notify({
         type: "success",
@@ -1367,18 +1371,23 @@ export default {
       console.log(`Filtering sessions for room ${room.id} (${room.name}) in week ${this.weekSelected}: found ${roomSessions.length} sessions`);
       
       if (roomSessions.length === 0) {
-        this.$notify({
-          type: "warning",
-          icon: 'tim-icons icon-alert-circle-exc',
-          message: "Không tìm thấy dữ liệu tiết học của lớp " + room.name + " trong tuần " + this.weekSelected,
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
+        // Remove notification for no data to reduce notifications
+        // this.$notify({
+        //   type: "warning",
+        //   icon: 'tim-icons icon-alert-circle-exc',
+        //   message: "Không tìm thấy dữ liệu tiết học của lớp " + room.name + " trong tuần " + this.weekSelected,
+        //   timeout: 3000,
+        //   verticalAlign: "top",
+        //   horizontalAlign: "right",
+        // });
+        
+        // Just process empty data
+        this.formatTimetableData([]);
       } else {
         // Process and display the sessions
         this.formatTimetableData(roomSessions);
         
+        // Keep this notification as it's important to inform the user when a report is successfully loaded
         this.$notify({
           type: "success",
           icon: 'tim-icons icon-bell-55',
@@ -1506,7 +1515,6 @@ export default {
         console.error("Error in fetchAbsentStudents:", error);
       }
     },
-
   }
 };
 </script>
@@ -1547,7 +1555,33 @@ table span {
 
 /* Make modal wider */
 :deep(.modal-xl) {
-  max-width: 95%;
-  width: 95%;
+  max-width: 98%;
+  width: 98%;
+  margin: 10px auto;
+}
+
+/* Fix modal positioning */
+:deep(.modal-dialog) {
+  margin-top: 20px;
+}
+
+:deep(.modal-body) {
+  padding-top: 0;
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+:deep(.modal-content) {
+  overflow: visible !important;
+}
+
+:deep(.modal-header) {
+  padding-bottom: 0;
+}
+
+/* Remove modal scrollbar */
+#tableDiv {
+  overflow: visible !important;
 }
 </style> 
