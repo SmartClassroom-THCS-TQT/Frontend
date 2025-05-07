@@ -310,7 +310,7 @@ export default {
       const token = localStorage.getItem("access_token");
       
       axios
-        .get(API_URL + `/users/students/?rooms=${this.roomCode.room_id}`, {
+        .get(API_URL + `/users/students/?rooms=${this.roomCode.room_id.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -338,7 +338,7 @@ export default {
       const token = localStorage.getItem("access_token");
       
       axios
-        .get(API_URL + `/academic_results/grades/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
+        .get(API_URL + `/academic_results/grades/?semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code.code}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -418,7 +418,7 @@ export default {
       const token = localStorage.getItem("access_token");
       
       axios
-        .get(API_URL + `/academic_results/grades/?student_id=${studentId}&semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code}`, {
+        .get(API_URL + `/academic_results/grades/?student_id=${studentId}&semester=${this.semester.semester}&subject_code=${this.roomCode.subject_code.code}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -560,7 +560,7 @@ export default {
       
       const gradeData = {
         student: this.scoreDetail.student_id,
-        subject: this.roomCode.subject_code,
+        subject: this.roomCode.subject_code.code,
         semester: this.semester.semester,
         score: parseFloat(this.newGrade.score),
         grade_type: parseInt(this.newGrade.grade_type),

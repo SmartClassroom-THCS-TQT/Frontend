@@ -36,7 +36,7 @@
             <div class="card class-card shadow h-100" @click="selectRoom(room)">
               <div class="card-body text-center">
                 <h4 class="card-title font-weight-bold text-dark">{{ room ? room.room_id.name : "" }}</h4>
-                <p class="text-muted">{{ subjectInfo }}</p>
+                <p class="text-muted">Môn: {{ room ? room.subject_code.description : "" }}</p>
               </div>
               <div class="card-footer bg-transparent">
                 <base-button class="btn-block" type="success" @click.stop="selectRoom(room)">
@@ -54,7 +54,7 @@
       <div class="row mb-4">
         <div class="col-md-6">
           <h3 class="font-weight-bold section-name">
-            Lớp {{ selectedRoom.room_id }} - Học kỳ {{ currentSemester ? currentSemester.semester : "" }}
+            Lớp {{ selectedRoom.room_id.name }} - Môn {{ selectedRoom.subject_code.description }} - Học kỳ {{ currentSemester ? currentSemester.semester : "" }}
           </h3>
         </div>
         <div class="col-md-6">
