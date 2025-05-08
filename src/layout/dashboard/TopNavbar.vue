@@ -110,15 +110,6 @@ import BaseButton from '../../components/BaseButton.vue';
  
 let API_URL = ""
 
-const classPeriods = [
-  { period: 1, start: { hour: 7, minute: 0 }, end: { hour: 7, minute: 59 } },   // Tiết 1
-  { period: 2, start: { hour: 8, minute: 0 }, end: { hour: 8, minute: 59 } },   // Tiết 2
-  { period: 3, start: { hour: 9, minute: 0 }, end: { hour: 9, minute: 59 } },  // Tiết 3
-  { period: 4, start: { hour: 10, minute: 0 }, end: { hour: 10, minute: 59 } },  // Tiết 4
-  { period: 5, start: { hour: 11, minute: 0 }, end: { hour: 11, minute: 59 } },  // Tiết 5
-  { period: 6, start: { hour: 12, minute: 0 }, end: { hour: 23, minute: 59 } },  // Tiết 6
-];
-
 export default {
   props: {
     userData: {
@@ -135,6 +126,7 @@ export default {
   },
   mounted(){
     this.userRole = localStorage.getItem('user_role');
+    this.fetchPeriods(); // Fetch periods when component is mounted
   },
   computed: {
     getApiUrl() {
@@ -156,23 +148,38 @@ export default {
       searchModalVisible: false,
       searchQuery: "",
       isLoading: false,
-      userRole:null,
+      userRole: null,
+      periods: [], // Add periods array to store fetched periods
     };
   },
   methods: {
+    async fetchPeriods() {
+      try {
+        const response = await axios.get(API_URL + '/managements/time-slots/');
+        this.periods = response.data;
+      } catch (error) {
+        console.error('Error fetching periods:', error);
+        this.$notify({
+          type: 'danger',
+          icon: 'tim-icons icon-bell-55',
+          message: "Lỗi khi lấy thông tin tiết học",
+          timeout: 3000,
+          verticalAlign: 'top',
+          horizontalAlign: 'center',
+        });
+      }
+    },
     getCurrentPeriod() {
-      const currentTimeInMinutes = currentHour * 60 + currentMinutes;
+      const currentDate = new Date();
+      const currentTime = currentDate.toTimeString().slice(0, 8); // Get current time in HH:MM:SS format
       
-      for (const period of classPeriods) {
-        const startTimeInMinutes = period.start.hour * 60 + period.start.minute;
-        const endTimeInMinutes = period.end.hour * 60 + period.end.minute;
-
-        if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
-          return period.period; // Trả về số tiết hiện tại
+      for (const period of this.periods) {
+        if (currentTime >= period.start_time && currentTime <= period.end_time) {
+          return period.code;
         }
       }
-
-      return null; // Không có tiết học nào hiện tại
+      
+      return null; // No current period
     },
     capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
@@ -227,23 +234,10 @@ export default {
         });
         return
       }
-      //Kiểm tra giáo viên có tiết học nào hiện tại không
+
       const currentDate = new Date();
-      const currentHour = currentDate.getHours();
-      const currentMinutes = currentDate.getMinutes();
+      const currentPeriod = this.getCurrentPeriod();
 
-      let currentPeriod = null
-      const currentTimeInMinutes = currentHour * 60 + currentMinutes;
-      
-      for (const period of classPeriods) {
-        const startTimeInMinutes = period.start.hour * 60 + period.start.minute;
-        const endTimeInMinutes = period.end.hour * 60 + period.end.minute;
-
-        if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
-          currentPeriod = period.period; // Trả về số tiết hiện tại
-        }
-      }
-      // nếu ko thì currentPeriod = null, tức là ko có tiết học nào hiện tại
       if (currentPeriod === null) {
         this.$notify({
           type: 'warning',
@@ -256,21 +250,9 @@ export default {
         return;
       }
 
-      // this.$notify({
-      //     type: 'success',
-      //     icon: 'tim-icons icon-bell-55',
-      //     message: "Bắt đầu dạy học",
-      //     timeout: 1000,
-      //     verticalAlign: 'top',
-      //     horizontalAlign: 'center',
-      //   });
-      // this.$router.push('/study');  // Điều hướng về trang dạy học
-
-      // Call API để kiểm tra giáo viên có tiết học không
       this.isLoading = true;
       try {
-        // const response = await axios.get(API_URL + `/managements/sessions/?semester_code=20241&teacher=${this.userData.user_id}&day=${this.getCurrentFormattedDate(currentDate)}&period=${currentPeriod}`, {
-        const response = await axios.get(API_URL + `/managements/sessions/?semester_code_code=20241&teacher=${this.userData.account}&day=${this.getCurrentFormattedDate(currentDate)}&time_slot_code=${currentPeriod}/`, {
+        const response = await axios.get(API_URL + `/managements/sessions/?teacher=${this.userData.account}&day=${this.getCurrentFormattedDate(currentDate)}&time_slot_code=${currentPeriod}`, {
           
         })
         console.log(response.data[0])

@@ -134,7 +134,7 @@
                       type="danger"
                       size="sm"
                       icon
-                      @click.stop="toggleRemoveRoom(room.code)"
+                      @click.stop="toggleRemoveRoom(room.id)"
                     >
                       <i class="tim-icons icon-simple-remove"></i>
                     </base-button>
@@ -829,7 +829,7 @@
                                         <base-input type="date" label="Ngày" v-model="sessionData.day"></base-input>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-md-6 pr-md-1">
                                         <base-input type="number" label="Bài số" v-model="sessionData.lesson_number"></base-input>
                                     </div>
@@ -846,7 +846,7 @@
                                           <textarea class="form-control" rows="3" v-model="sessionData.comment"></textarea>
                                         </base-input>
                                     </div>
-                                </div>
+                                </div> -->
                                 <base-button @click="updateSession" type="secondary" fill>Cập nhật</base-button>
                                 <base-button @click="updateFullSession" type="secondary" fill>Cập nhật phiên học cả kỳ</base-button>
                                 <base-button @click="deleteSession" type="danger" fill>Xóa tiết học</base-button>
@@ -892,7 +892,7 @@
                                         <base-input type="date" label="Ngày" v-model="modals.sessionCreate.day"></base-input>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-md-6 pr-md-1">
                                         <base-input type="number" label="Bài số" v-model="modals.sessionCreate.lesson_number"></base-input>
                                     </div>
@@ -900,7 +900,7 @@
                                         <base-input type="text" label="Tên bài học" v-model="modals.sessionCreate.lesson_name"></base-input>
                                     </div>
                                 </div>
-                                
+                                 -->
                                 <base-button @click="createOneSession" type="secondary" fill>Thêm 1 phiên học</base-button>
                                 <base-button @click="createFullSession" type="secondary" fill>Thêm phiên học cả kỳ</base-button>
                             </div>
@@ -1762,26 +1762,27 @@ export default {
             return;
           }
           
-          const semester = response.data[0];
-          
           // Get the current session's day of week (0-6, where 0 is Sunday)
           const currentSessionDay = new Date(this.sessionData.day);
           const dayOfWeek = currentSessionDay.getDay();
           
-          // Find all sessions in the same semester with the same room and time slot code
+          // Find all sessions in the same semester with the same subject, room, and time slot code
           axios
-            .get(API_URL + `/managements/sessions/?semester_code=${this.sessionData.semester_code.code}&room_id=${this.sessionData.room_id.id}&time_slot=${this.sessionData.time_slot.code}`, {
+            .get(API_URL + `/managements/sessions/?semester_code=${this.sessionData.semester_code.code}&subject_code=${this.sessionData.subject_code.code}&room_id=${this.sessionData.room_id.id}&time_slot=${this.sessionData.time_slot.code}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
             })
             .then((sessionsResponse) => {
-              // Filter sessions to match both day of week AND time slot
+              // Filter sessions to match day of week, time slot, subject, room, and semester
               const matchingSessions = sessionsResponse.data.filter(session => {
                 const sessionDate = new Date(session.day);
                 return sessionDate.getDay() === dayOfWeek && 
-                       session.time_slot.code === this.sessionData.time_slot.code;
+                       session.time_slot.code === this.sessionData.time_slot.code &&
+                       session.subject_code.code === this.sessionData.subject_code.code &&
+                       session.room_id.id === this.sessionData.room_id.id &&
+                       session.semester_code.code === this.sessionData.semester_code.code;
               });
               
               // Create a counter for successful/failed updates
@@ -1935,9 +1936,14 @@ export default {
               },
             })
             .then((sessionsResponse) => {
+              // Filter sessions to match day of week, time slot, subject, room, and semester
               const matchingSessions = sessionsResponse.data.filter(session => {
                 const sessionDate = new Date(session.day);
-                return sessionDate.getDay() === dayOfWeek; // Only sessions on the same day of week
+                return sessionDate.getDay() === dayOfWeek && 
+                       session.time_slot.code === this.sessionData.time_slot.code &&
+                       session.subject_code.code === this.sessionData.subject_code.code &&
+                       session.room_id.id === this.sessionData.room_id.id &&
+                       session.semester_code.code === this.sessionData.semester_code.code;
               });
               
               // Create a counter for successful/failed deletions
@@ -2505,7 +2511,7 @@ export default {
       const teacherAssignments = {};
       roomAssignments.forEach(assignment => {
         teacherAssignments[assignment.subject_code.code] = {
-          teacher: assignment.teacher.account,
+          teacher: assignment.teacher,
           id: assignment.id // Store the assignment ID
         };
       });
@@ -2515,11 +2521,9 @@ export default {
         const assignment = teacherAssignments[subject.code];
         
         if (assignment) {
-          // Find teacher details from allTeachers array
-          const teacher = this.allTeachers.find(t => t.account === assignment.teacher);
           return {
             ...subject,
-            assigned_teacher: teacher || { full_name: 'Đang cập nhật' },
+            assigned_teacher: assignment.teacher,
             assignment_id: assignment.id // Store the assignment ID with the subject
           };
         }
@@ -2542,9 +2546,8 @@ export default {
       if (subject.assignment_id) {
         this.currentAssignmentId = subject.assignment_id;
         // Find the current teacher in the teacherData array
-        const currentTeacher = this.teacherData.find(t => t.account === subject.assigned_teacher.account);
-        if (currentTeacher) {
-          this.modals.selectedTeacher = currentTeacher.account;
+        if (subject.assigned_teacher) {
+          this.modals.selectedTeacher = subject.assigned_teacher.account;
         }
       } else {
         this.currentAssignmentId = null;
@@ -3037,68 +3040,10 @@ export default {
               });
         });
     },
-    openAssignTeacherModal(subject) {
-      this.modals.selectedSubject = subject;
-      this.modals.assignTeacherModal = true;
-      this.getAllTeacher(); // Make sure we have the latest teacher data
-    },
-
-    async assignTeacherToSubject() {
-      if (!this.modals.selectedTeacher || !this.modals.selectedSubject || !this.selectedRoomOption) {
-        this.$notify({
-          type: "warning",
-          icon: 'tim-icons icon-bell-55',
-          message: "Vui lòng chọn giáo viên",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-        return;
-      }
-
-      const assignmentData = {
-        semester_code: this.selectedSemester,
-        subject_code: this.modals.selectedSubject.code,
-        room_id: this.selectedRoomOption.id,
-        teacher: this.modals.selectedTeacher
-      };
-
-      try {
-        const token = localStorage.getItem("access_token");
-        await axios.post(API_URL + "/managements/teacher-assignments/", assignmentData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        this.$notify({
-          type: "success",
-          icon: 'tim-icons icon-check-2',
-          message: "Phân công giáo viên thành công",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-
-        this.modals.assignTeacherModal = false;
-        this.loadSubjects(); // Reload the subjects to show the updated assignment
-      } catch (error) {
-        console.error("Error assigning teacher:", error);
-        this.$notify({
-          type: "danger",
-          icon: 'tim-icons icon-bell-55',
-          message: "Phân công giáo viên thất bại. Vui lòng thử lại",
-          timeout: 3000,
-          verticalAlign: "top",
-          horizontalAlign: "right",
-        });
-      }
-    },
     toggleRemoveRoom(roomCode) {
         this.modals.removeRoomModal = true;
-        // Find the room object that matches the code
-        this.modals.roomToDelete = this.roomData.find(room => room.code === roomCode);
+        // Find the room object that matches the id
+        this.modals.roomToDelete = this.roomData.find(room => room.id === roomCode);
         console.log("Room to delete:", this.modals.roomToDelete); // Add logging
     },
     async deleteRoom() {

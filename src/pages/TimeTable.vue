@@ -68,15 +68,108 @@
         </div>
       </div>
     </div>
+    
+    <!-- Session Report Modal -->
+    <modal :show.sync="sessionModal"
+           body-classes="p-0"
+           modal-classes="modal-dialog-centered modal-lg">
+      <card type="secondary"
+            header-classes="bg-white pb-5"
+            body-classes="px-lg-5 py-lg-5"
+            class="border-0 mb-0">
+        <template>
+          <div class="text-muted text-center mb-3">
+            <h4 class="text-dark">Báo cáo tiết học</h4>
+          </div>
+        </template>
+        <template v-if="sessionData">
+          <div class="row no-scroll">
+            <div class="col-12">
+              <div class="row">
+                <div class="col-md-6 pr-md-1">
+                  <base-input disabled label="Tiết" v-model="sessionData.time_slot.code"></base-input>
+                </div>
+                <div class="col-md-6 pl-md-1">
+                  <base-input disabled label="Môn học" v-model="sessionData.subject_code.name"></base-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 pr-md-1">
+                  <base-input disabled label="Lớp" v-model="sessionData.room_id.name"></base-input>
+                </div>
+                <div class="col-md-6 pl-md-1">
+                  <base-input disabled label="Ngày" v-model="sessionData.day"></base-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 pr-md-1">
+                  <base-input type="number" label="Bài số" v-model="sessionData.lessonNumber"></base-input>
+                </div>
+                <div class="col-md-6 pl-md-1">
+                  <base-input type="text" label="Tên bài học" v-model="sessionData.nameLesson"></base-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 pr-md-1">
+                  <base-input type="number" label="Số học sinh vắng" v-model="sessionData.absences"></base-input>
+                </div>
+                <div class="col-md-6 pl-md-1">
+                  <div class="form-group">
+                    <label>Điểm đánh giá</label>
+                    <div class="d-flex justify-content-around mt-2">
+                      <div class="grade-option">
+                        <input type="radio" id="evaluateA" name="evaluate" class="grade-input" value="A" v-model="sessionData.grade">
+                        <label for="evaluateA" class="grade-label grade-a">A</label>
+                      </div>
+                      <div class="grade-option">
+                        <input type="radio" id="evaluateB" name="evaluate" class="grade-input" value="B" v-model="sessionData.grade">
+                        <label for="evaluateB" class="grade-label grade-b">B</label>
+                      </div>
+                      <div class="grade-option">
+                        <input type="radio" id="evaluateC" name="evaluate" class="grade-input" value="C" v-model="sessionData.grade">
+                        <label for="evaluateC" class="grade-label grade-c">C</label>
+                      </div>
+                      <div class="grade-option">
+                        <input type="radio" id="evaluateD" name="evaluate" class="grade-input" value="D" v-model="sessionData.grade">
+                        <label for="evaluateD" class="grade-label grade-d">D</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <base-input label="Nhận xét">
+                    <textarea class="form-control" rows="3" v-model="sessionData.comment"></textarea>
+                  </base-input>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <base-button @click="updateSession" type="success" fill>Lưu báo cáo</base-button>
+                <base-button @click="closeSessionModal" type="secondary">Đóng</base-button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </card>
+    </modal>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import Modal from '../components/Modal.vue';
+import Card from "../components/Cards/Card.vue";
+import BaseInput from '../components/Inputs/BaseInput.vue';
 
 let API_URL;
 
 export default {
+  components: {
+    Modal,
+    Card,
+    BaseInput
+  },
   data() {
     return {
       currentMonth: new Date().getMonth(),
@@ -85,7 +178,9 @@ export default {
       selectedDay: null,
       selectedDayLessons: [],
       userData: null,
-      userRole: localStorage.getItem('user_role') || 'student' // Mặc định là student nếu không có
+      userRole: localStorage.getItem('user_role') || 'student', // Mặc định là student nếu không có
+      sessionModal: false,
+      sessionData: null
     };
   },
   computed: {
@@ -268,26 +363,112 @@ export default {
         });
     },
     toggleSessionDetail(sessionId) {
-      // Show session details if needed
-      console.log("Session details:", sessionId);
-      const session = this.selectedDayLessons.find(lesson => lesson.id === sessionId);
-      if (session) {
-        let messageContent = `Tiết ${session.time_slot.code}: ${session.subject_code.name} - Phòng ${session.room_id.name}`;
-        
-        // Add teacher name for students
-        if (this.userRole === 'student' && session.teacher) {
-          messageContent += ` - Giáo viên: ${session.teacher.full_name}`;
+      if (this.userRole === 'teacher') {
+        // For teachers, open the session report modal
+        this.openSessionReportModal(sessionId);
+      } else {
+        // For students, just show a notification with session info
+        const session = this.selectedDayLessons.find(lesson => lesson.id === sessionId);
+        if (session) {
+          let messageContent = `Tiết ${session.time_slot.code}: ${session.subject_code.name} - Phòng ${session.room_id.name}`;
+          
+          // Add teacher name for students
+          if (this.userRole === 'student' && session.teacher) {
+            messageContent += ` - Giáo viên: ${session.teacher.full_name}`;
+          }
+          
+          this.$notify({
+            type: "info",
+            icon: 'tim-icons icon-bell-55',
+            message: messageContent,
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
         }
-        
+      }
+    },
+    openSessionReportModal(sessionId) {
+      // Find the session in our existing data instead of making another API call
+      const session = this.selectedDayLessons.find(lesson => lesson.id === sessionId);
+      
+      if (session) {
+        this.sessionData = session;
+        // Initialize grade field if it doesn't exist
+        if (!this.sessionData.grade) {
+          this.sessionData.grade = 'A';
+        }
+        // Initialize lessonNumber and nameLesson fields if they don't exist
+        if (!this.sessionData.lessonNumber) {
+          this.sessionData.lessonNumber = this.sessionData.lesson_number || '';
+        }
+        if (!this.sessionData.nameLesson) {
+          this.sessionData.nameLesson = this.sessionData.lesson_name || '';
+        }
+        this.sessionModal = true;
+      } else {
         this.$notify({
-          type: "info",
+          type: "warning",
           icon: 'tim-icons icon-bell-55',
-          message: messageContent,
+          message: "Không tìm thấy thông tin tiết học",
           timeout: 3000,
           verticalAlign: "top",
           horizontalAlign: "right",
         });
       }
+    },
+    updateSession() {
+      const token = localStorage.getItem("access_token");
+      
+      // Create a properly structured update payload
+      const updateData = {
+        semester_code: this.sessionData.semester_code.code,
+        subject_code: this.sessionData.subject_code.code,
+        room_id: this.sessionData.room_id.id,
+        time_slot: this.sessionData.time_slot.code,
+        teacher: this.sessionData.teacher.account,
+        day: this.sessionData.day,
+        lesson_number: this.sessionData.lessonNumber,
+        lesson_name: this.sessionData.nameLesson,
+        absences: this.sessionData.absences,
+        comment: this.sessionData.comment,
+        grade: this.sessionData.grade
+      };
+      
+      axios
+        .put(API_URL + `/managements/sessions/${this.sessionData.id}/`, updateData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          this.$notify({
+            type: "success",
+            icon: 'tim-icons icon-check-2',
+            message: "Cập nhật báo cáo tiết học thành công",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+          this.closeSessionModal();
+          this.getSessions(); // Refresh session data
+        })
+        .catch((error) => {
+          console.error("Error updating session:", error);
+          this.$notify({
+            type: "warning",
+            icon: 'tim-icons icon-bell-55',
+            message: "Cập nhật báo cáo tiết học thất bại",
+            timeout: 3000,
+            verticalAlign: "top",
+            horizontalAlign: "right",
+          });
+        });
+    },
+    closeSessionModal() {
+      this.sessionModal = false;
+      this.sessionData = null;
     }
   }
 };
@@ -585,5 +766,79 @@ export default {
   .lesson-list {
     margin-top: 20px;
   }
+}
+
+/* Styling for grade options */
+.grade-option {
+  position: relative;
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.grade-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.grade-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 3px solid transparent;
+}
+
+.grade-a {
+  background-color: #1ab394;
+}
+
+.grade-b {
+  background-color: #1c84c6;
+}
+
+.grade-c {
+  background-color: #f8ac59;
+}
+
+.grade-d {
+  background-color: #ed5565;
+}
+
+.grade-input:checked + .grade-label {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-color: #ffffff;
+}
+
+.grade-input:hover + .grade-label {
+  transform: scale(1.1);
+}
+
+/* Modal styles */
+.no-scroll {
+  overflow: visible !important;
+}
+
+.modal-dialog-centered .card {
+  margin-bottom: 0 !important;
+  max-height: none !important;
+}
+
+.modal-dialog-centered .card-body {
+  overflow: visible !important;
+}
+
+/* Make textarea fit without scrolling */
+textarea.form-control {
+  min-height: 80px;
+  resize: none;
 }
 </style>

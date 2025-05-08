@@ -228,7 +228,7 @@ export default {
           lessonCreate: {
             "subject": null,
             "lesson_number": null,
-            "name_lesson": null,
+            "lesson_name": null,
             "day": null,
             "semester": null,
             "room": null,
@@ -448,7 +448,7 @@ export default {
         const data = {
           "subject": this.lessonDetail.subject,
           "lesson_number": this.lessonDetail.lesson_number,
-          "name_lesson": this.lessonDetail.name_lesson,
+          "lesson_name": this.lessonDetail.lesson_name,
           "comment": this.lessonDetail.comment,
           "evaluate": this.lessonDetail.evaluate,
           "teacher": this.lessonDetail.teacher

@@ -242,9 +242,9 @@
                                             {{this.timetableData[1].tuesday? this.timetableData[1].tuesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].tuesday? this.timetableData[1].tuesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -264,9 +264,9 @@
                                             {{this.timetableData[2].tuesday? this.timetableData[2].tuesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].tuesday? this.timetableData[2].tuesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -286,9 +286,9 @@
                                             {{this.timetableData[3].tuesday? this.timetableData[3].tuesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].tuesday? this.timetableData[3].tuesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -308,9 +308,9 @@
                                             {{this.timetableData[4].tuesday? this.timetableData[4].tuesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.name_lesson: "" }}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].tuesday? this.timetableData[4].tuesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -330,9 +330,9 @@
                                             {{this.timetableData[5].tuesday? this.timetableData[5].tuesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].tuesday? this.timetableData[5].tuesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 
@@ -364,9 +364,9 @@
                                             {{this.timetableData[0].wednesday? this.timetableData[0].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].wednesday? this.timetableData[0].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -386,9 +386,9 @@
                                             {{this.timetableData[1].wednesday? this.timetableData[1].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].wednesday? this.timetableData[1].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -408,9 +408,9 @@
                                             {{this.timetableData[2].wednesday? this.timetableData[2].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].wednesday? this.timetableData[2].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -430,9 +430,9 @@
                                             {{this.timetableData[3].wednesday? this.timetableData[3].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].wednesday? this.timetableData[3].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -452,9 +452,9 @@
                                             {{this.timetableData[4].wednesday? this.timetableData[4].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].wednesday? this.timetableData[4].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -474,9 +474,9 @@
                                             {{this.timetableData[5].wednesday? this.timetableData[5].wednesday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].wednesday? this.timetableData[5].wednesday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 
@@ -508,9 +508,9 @@
                                             {{this.timetableData[0].thursday? this.timetableData[0].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[0].thursday? this.timetableData[0].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -530,9 +530,9 @@
                                             {{this.timetableData[1].thursday? this.timetableData[1].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[1].thursday? this.timetableData[1].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -552,9 +552,9 @@
                                             {{this.timetableData[2].thursday? this.timetableData[2].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[2].thursday? this.timetableData[2].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -574,9 +574,9 @@
                                             {{this.timetableData[3].thursday? this.timetableData[3].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[3].thursday? this.timetableData[3].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -596,9 +596,9 @@
                                             {{this.timetableData[4].thursday? this.timetableData[4].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[4].thursday? this.timetableData[4].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 <tr style="height: 62px;">
@@ -618,9 +618,9 @@
                                             {{this.timetableData[5].thursday? this.timetableData[5].thursday.absences : ""}}
                                         </div>
                                     </td>
-                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.name_lesson : ""}}</td>
+                                    <td style="width: 173px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.lesson_name : ""}}</td>
                                     <td style="width: 226px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.comment : ""}}</td>
-                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.evaluate : ""}}</td>
+                                    <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].thursday? this.timetableData[5].thursday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
                                 
@@ -898,8 +898,8 @@
                                     <td style="width: 53px; height: 62.3333px;">{{this.timetableData[5].saturday? this.timetableData[5].saturday.grade : ""}}</td>
                                     <td style="width: 58px; height: 62.3333px;"></td>
                                 </tr>
-
-
+                                
+                                
                                 <tr style="height: 62px;">
                                     <td style="width: 82px; height: 310.333px;" rowspan="6">
                                         <p class="font-weight-bold">Chủ Nhật</p>

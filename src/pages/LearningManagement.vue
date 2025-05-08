@@ -83,10 +83,11 @@
       </div>
           
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 0">
-        <score-statistic :roomCode="selectedRoom" :semester="currentSemester"></score-statistic>
+        <!-- <score-statistic :roomCode="selectedRoom" :semester="currentSemester"></score-statistic> -->
+         <score-detail :roomCode="selectedRoom" :semester="currentSemester"></score-detail>
       </div>
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 1">
-        <score-detail :roomCode="selectedRoom" :semester="currentSemester"></score-detail>
+       
       </div>
       <div class="col-md-12" v-if="bigLineChart.activeIndex === 2">
         
